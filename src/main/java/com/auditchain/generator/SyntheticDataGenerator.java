@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Generates a realistic simulated results flow: multiple PUs → LGA → State.
+ * Generates a realistic simulated results flow: multiple PUs -> LGA -> State.
  * Fully synthetic. No real electoral data.
  */
 public class SyntheticDataGenerator {
