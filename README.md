@@ -2,63 +2,71 @@
 
 **Tamper-evident, offline-tolerant audit trail for simulated electoral results transmission**
 
-#AI4Elections Hackathon 2026 – Track 4: Electoral Cybersecurity and Resilience  
-Optional cross-cutting: Climate Resilience (offline operation under connectivity/power disruption)
+**Live demo:** https://auditchain.onrender.com  
+
+#AI4Elections Hackathon 2026 – **Track 4: Electoral Cybersecurity and Resilience**  
+Optional cross-cutting: **Climate Resilience** (offline operation under connectivity / power disruption)
+
+---
 
 ## What it does
 
-Simulates the flow of results from Polling Unit → LGA → State.  
-Every entry is cryptographically linked (SHA-256 hash chain).  
-Any modification of a past entry breaks the chain and is immediately detectable.  
-Works offline: entries are queued locally (SQLite) and can be synchronised later.
+Simulates results flow **Polling Unit → LGA → State**.  
+Every entry is linked with **SHA-256** to the previous entry.  
+Any modification of a past entry **breaks the chain** and is reported at the exact sequence number.  
+Entries can be recorded with status `PENDING_SYNC` (offline queue) and marked synced later.
 
-This is a **simulation only**. It does not connect to, probe, or depend on any live electoral system.
+**Simulation only.** No live electoral systems, no real voter data.
 
-## Tech stack (locked)
-
-- Java 17+
-- SHA-256 via JCA
-- SQLite (offline) + PostgreSQL (online, later)
-- Maven
-- Minimal verification UI (later)
-- Docker (later)
-
-## Current status (Phase 0 → Phase 1)
-
-- [x] Core `HashChainEngine` + `AuditEntry` model
-- [x] In-memory chain create / verify / tamper detection demo
-- [x] SQLite persistence layer
-- [x] Offline queue (PENDING_SYNC status)
-- [ ] Synthetic data generator
-- [ ] STRIDE threat model document
-- [ ] Verification UI
-- [ ] Spring Boot packaging + Docker
+---
 
 ## Quick start
 
+### Live
+
+1. Open https://auditchain.onrender.com  
+2. Wait if the free tier is cold-starting (up to ~60 seconds).  
+3. **Generate 5 PUs** → green **Chain VALID**.  
+4. **Tamper entry 2** → red **Chain BROKEN at sequence 2**.
+
+### Local
+
 ```bash
-# Build
-mvn clean package
-
-# Run the demo (in-memory + persistence demo)
-mvn exec:java -Dexec.mainClass="com.auditchain.core.HashChainDemo"
+mvn -DskipTests package
+PORT=8080 java -jar target/auditchain-0.1.0-SNAPSHOT.jar
 ```
 
-## Project layout
+Open http://localhost:8080
 
-```
-src/main/java/com/auditchain/
-  core/          HashChainEngine, demo
-  model/         AuditEntry
-  persistence/   SQLite store + offline queue
-  service/       (future)
-  web/           (future verification UI)
-```
+---
 
-## Team
+## API
 
-Two-person team. Core strength: Distributed Voting System experience on Hedera + backend/security.
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/health` | Liveness |
+| GET | `/api/chain` | Full chain + validity |
+| POST | `/api/generate?puCount=5` | Synthetic flow |
+| POST | `/api/tamper?sequence=2` | Simulate attack |
+| POST | `/api/reset` | Reseed clean chain |
+
+---
+
+## Docs
+
+- [Architecture](./AuditChain_Problem_Statement_and_Architecture.md)
+- [STRIDE threat model](./docs/STRIDE_Threat_Model.md)
+- [Demo script (ElevenLabs + clicks)](./docs/DEMO_SCRIPT.md)
+- [Submission checklist](./docs/SUBMISSION_CHECKLIST.md)
+
+## Residual risks (honest)
+
+1. Full rewrite of the only offline copy needs an external tip-hash checkpoint.  
+2. Actor identity is synthetic — no signatures yet.  
+3. Compromise at creation time can inject false but valid-looking entries.  
+4. Demo host in-memory storage resets on restart/sleep.  
+5. Does not protect live elections — defensive simulation only.
 
 ## Licence
 
-Hackathon prototype – not for production use.
+Hackathon prototype — not for production use.
