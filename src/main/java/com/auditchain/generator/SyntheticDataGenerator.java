@@ -61,18 +61,18 @@ public class SyntheticDataGenerator {
         System.out.println("\n=== Generator complete ===");
     }
 
-    List<String> generatePuCodes(int n) {
+    public List<String> generatePuCodes(int n) {
         List<String> codes = new ArrayList<>();
         for (int i = 1; i <= n; i++) codes.add(String.format("PU-%03d", i));
         return codes;
     }
 
-    PuResult randomPuResult(String puCode) {
+    public PuResult randomPuResult(String puCode) {
         int total = 80 + random.nextInt(250);
         return new PuResult(puCode, total, parties, randomShares(total, parties.length));
     }
 
-    LgaResult aggregateLga(String lgaCode, List<PuResult> pus) {
+    public LgaResult aggregateLga(String lgaCode, List<PuResult> pus) {
         int total = 0;
         int[] shares = new int[parties.length];
         for (PuResult p : pus) {
@@ -82,7 +82,7 @@ public class SyntheticDataGenerator {
         return new LgaResult(lgaCode, total, parties, shares, pus.size());
     }
 
-    StateResult aggregateState(String stateCode, List<LgaResult> lgas) {
+    public StateResult aggregateState(String stateCode, List<LgaResult> lgas) {
         int total = 0;
         int[] shares = new int[parties.length];
         for (LgaResult l : lgas) {
@@ -110,7 +110,7 @@ public class SyntheticDataGenerator {
         return s;
     }
 
-    static class PuResult {
+    public static class PuResult {
         final String puCode; final int votesCast; final String[] parties; final int[] shares;
         PuResult(String puCode, int votesCast, String[] parties, int[] shares) {
             this.puCode = puCode; this.votesCast = votesCast; this.parties = parties; this.shares = shares;
@@ -123,18 +123,18 @@ public class SyntheticDataGenerator {
             }
             return sb.append('}').toString();
         }
-        String toJson(String level) {
+        public String toJson(String level) {
             return "{\"polling_unit_code\":\"" + puCode + "\",\"votes_cast\":" + votesCast
                 + ",\"party_results\":" + partyBreakdown() + ",\"level\":\"" + level + "\"}";
         }
     }
 
-    static class LgaResult {
+    public static class LgaResult {
         final String lgaCode; final int totalVotes; final String[] parties; final int[] shares; final int puCount;
         LgaResult(String lgaCode, int totalVotes, String[] parties, int[] shares, int puCount) {
             this.lgaCode = lgaCode; this.totalVotes = totalVotes; this.parties = parties; this.shares = shares; this.puCount = puCount;
         }
-        String toJson() {
+        public String toJson() {
             StringBuilder pj = new StringBuilder("{");
             for (int i = 0; i < parties.length; i++) {
                 if (i > 0) pj.append(',');
@@ -146,12 +146,12 @@ public class SyntheticDataGenerator {
         }
     }
 
-    static class StateResult {
+    public static class StateResult {
         final String stateCode; final int totalVotes; final String[] parties; final int[] shares; final int lgaCount;
         StateResult(String stateCode, int totalVotes, String[] parties, int[] shares, int lgaCount) {
             this.stateCode = stateCode; this.totalVotes = totalVotes; this.parties = parties; this.shares = shares; this.lgaCount = lgaCount;
         }
-        String toJson() {
+        public String toJson() {
             StringBuilder pj = new StringBuilder("{");
             for (int i = 0; i < parties.length; i++) {
                 if (i > 0) pj.append(',');

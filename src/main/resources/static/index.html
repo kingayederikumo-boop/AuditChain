@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuditChain Verifier</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #0f1218; color: #e6e9ef; }
+  h1 { font-size: 1.3rem; margin: 0 0 12px; }
+  .status { padding: 12px; border-radius: 8px; font-weight: 600; margin-bottom: 12px; }
+  .ok { background: #14532d; }
+  .bad { background: #7f1d1d; }
+  .meta { font-size: .85rem; opacity: .85; margin-bottom: 12px; word-break: break-all; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  button { padding: 10px 14px; border: 0; border-radius: 6px; background: #2563eb; color: #fff; font-size: .9rem; }
+  button.warn { background: #b45309; }
+  button.gray { background: #475569; }
+  .entry { border: 1px solid #263041; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: .8rem; word-break: break-all; }
+  .entry.broken { border-color: #ef4444; }
+  .entry b { color: #93c5fd; }
+  code { color: #fcd34d; }
+</style>
+</head>
+<body>
+<h1>AuditChain Verifier</h1>
+<div id="status" class="status">Loading...</div>
+<div id="meta" class="meta"></div>
+<div class="bar">
+  <button id="gen">Generate 5 PUs</button>
+  <button id="tamper" class="warn">Tamper entry 2</button>
+  <button id="reset" class="gray">Reset</button>
+  <button id="refresh" class="gray">Refresh</button>
+</div>
+<div id="entries"></div>
+<script>
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function render(d) {
+    var s = document.getElementById('status');
+    s.className = 'status ' + (d.valid ? 'ok' : 'bad');
+    s.textContent = d.valid ? 'Chain VALID' : 'Chain BROKEN at sequence ' + d.breakSequence;
+    document.getElementById('meta').textContent =
+      'Entries: ' + d.size + ' | Pending sync: ' + d.pendingSync + ' | Latest hash: ' + d.latestHash;
+    var box = document.getElementById('entries');
+    box.textContent = '';
+    (d.entries || []).forEach(function (e) {
+      var div = el('div', 'entry' + (d.breakSequence === e.sequence ? ' broken' : ''));
+      div.appendChild(el('b', null, '#' + e.sequence + ' ' + e.role + ' '));
+      div.appendChild(document.createTextNode(e.actorId + ' @ ' + e.location + ' [' + e.status + ']'));
+      div.appendChild(el('div', null, 'prev: ' + e.previousHash));
+      div.appendChild(el('div', null, 'hash: ' + e.currentHash));
+      div.appendChild(el('div', null, 'payload: ' + e.payload));
+      box.appendChild(div);
+    });
+  }
+  function call(method, url) {
+    return fetch(url, { method: method })
+      .then(function (r) { return r.json(); })
+      .then(render)
+      .catch(function (err) {
+        var s = document.getElementById('status');
+        s.className = 'status bad';
+        s.textContent = 'Request failed: ' + err;
+      });
+  }
+  document.getElementById('gen').onclick = function () { call('POST', '/api/generate?puCount=5'); };
+  document.getElementById('tamper').onclick = function () { call('POST', '/api/tamper?sequence=2'); };
+  document.getElementById('reset').onclick = function () { call('POST', '/api/reset'); };
+  document.getElementById('refresh').onclick = function () { call('GET', '/api/chain'); };
+  call('GET', '/api/chain');
+</script>
+</body>
+</html>
