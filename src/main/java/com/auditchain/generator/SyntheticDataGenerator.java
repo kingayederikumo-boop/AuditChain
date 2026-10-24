@@ -119,7 +119,7 @@ public class SyntheticDataGenerator {
             StringBuilder sb = new StringBuilder("{");
             for (int i = 0; i < parties.length; i++) {
                 if (i > 0) sb.append(',');
-                sb.append('"').append(parties[i]).append("":").append(shares[i]);
+                sb.append('"').append(parties[i]).append("\":").append(shares[i]);
             }
             return sb.append('}').toString();
         }
@@ -138,7 +138,7 @@ public class SyntheticDataGenerator {
             StringBuilder pj = new StringBuilder("{");
             for (int i = 0; i < parties.length; i++) {
                 if (i > 0) pj.append(',');
-                pj.append('"').append(parties[i]).append("":").append(shares[i]);
+                pj.append('"').append(parties[i]).append("\":").append(shares[i]);
             }
             pj.append('}');
             return "{\"lga_code\":\"" + lgaCode + "\",\"total_votes\":" + totalVotes
@@ -155,7 +155,7 @@ public class SyntheticDataGenerator {
             StringBuilder pj = new StringBuilder("{");
             for (int i = 0; i < parties.length; i++) {
                 if (i > 0) pj.append(',');
-                pj.append('"').append(parties[i]).append("":").append(shares[i]);
+                pj.append('"').append(parties[i]).append("\":").append(shares[i]);
             }
             pj.append('}');
             return "{\"state_code\":\"" + stateCode + "\",\"total_votes\":" + totalVotes
