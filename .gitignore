@@ -1,28 +1,11 @@
-# Compiled
 target/
-*.class
-*.jar
-*.war
-
-# IDE
 .idea/
 *.iml
-.vscode/
-*.swp
+.classpath
+.project
+.settings/
 .DS_Store
-
-# Runtime / local data
+*.class
+.env
 data/
 *.db
-*.db-journal
-*.log
-
-# Maven
-.mvn/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-
-# Env
-.env
-*.local

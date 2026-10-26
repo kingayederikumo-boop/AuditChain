@@ -18,7 +18,7 @@ java -jar target/auditchain-0.1.0-SNAPSHOT.jar
 | Hash chain | SHA-256 linked entries, verify on load, reject append to broken chain |
 | Storage | SQLite file-backed (default) or PostgreSQL + Flyway |
 | Evidence | `POST /api/evidence` — SHA-256 fingerprint, durable idempotency, receipt |
-| AI | Mock vision + arithmetic check; human review queue (AI never declares fraud) |
+| AI | Mock vision + optional HTTP provider; human review queue (AI never declares fraud) |
 | Crypto | Ed25519 checkpoints of chain tip |
 | Security | Role API keys (OFFICER / REVIEWER / AUDITOR / ADMIN), rate limit |
 
@@ -30,6 +30,17 @@ export AUDITCHAIN_API_KEY_REVIEWER=rev-secret
 export AUDITCHAIN_API_KEY_AUDITOR=aud-secret
 # or single admin key:
 export AUDITCHAIN_API_KEY=admin-secret
+```
+
+## Local Postgres (Docker)
+
+```bash
+docker compose up -d
+export AUDITCHAIN_STORE_TYPE=postgres
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/auditchain
+export SPRING_DATASOURCE_USERNAME=auditchain
+export SPRING_DATASOURCE_PASSWORD=auditchain
+java -jar target/auditchain-*.jar --spring.profiles.active=postgres
 ```
 
 ## Postgres
@@ -45,7 +56,7 @@ java -jar target/auditchain-*.jar --spring.profiles.active=postgres
 ## Important limits
 
 - SQLite on ephemeral host disks is **not** production persistence.
-- Vision is a **mock**; plug a real provider behind `VisionProvider` when you have keys.
+- Vision defaults to **mock**; set `AUDITCHAIN_VISION_URL` for an HTTP provider.
 - Rate limiter is process-local.
 - Synthetic data only — no real election systems.
 

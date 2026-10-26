@@ -1,7 +1,7 @@
 package com.auditchain.web;
 
-import com.auditchain.ai.MockVisionProvider;
 import com.auditchain.ai.ReviewQueueService;
+import com.auditchain.ai.VisionProvider;
 import com.auditchain.ai.VisionResult;
 import com.auditchain.evidence.EvidenceService;
 import com.auditchain.evidence.EvidenceSubmission;
@@ -19,12 +19,12 @@ import java.util.Map;
 public class EvidenceController {
 
     private final EvidenceService evidenceService;
-    private final MockVisionProvider visionProvider;
+    private final VisionProvider visionProvider;
     private final ReviewQueueService reviewQueue;
     private final SimpleRateLimiter rateLimiter;
 
     public EvidenceController(EvidenceService evidenceService,
-                              MockVisionProvider visionProvider,
+                              VisionProvider visionProvider,
                               ReviewQueueService reviewQueue,
                               SimpleRateLimiter rateLimiter) {
         this.evidenceService = evidenceService;
