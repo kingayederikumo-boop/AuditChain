@@ -1,13 +1,12 @@
-# Storage and deployment status
+# Storage status
 
-The application currently uses SQLite at AUDITCHAIN_SQLITE_PATH (default data/auditchain.db).
-It retains entries across application restarts only when that path is on a persistent filesystem.
-Render free service filesystems are ephemeral; this SQLite setup must NOT be described as durable on Render free.
-Production requires PostgreSQL or another managed durable database before accepting submissions.
+| Path | Backend | Survives restart | Notes |
+|------|---------|------------------|-------|
+| Audit chain | SQLite `data/auditchain.db` (default) | Yes (on persistent disk) | Ephemeral hosts lose data |
+| Audit chain | PostgreSQL + Flyway | Yes | `AUDITCHAIN_STORE_TYPE=postgres` + compose or cloud URL |
+| Evidence + idempotency | SQLite `data/evidence.db` | Yes | Separate file; same caveats as above |
+| Review decisions | Same evidence DB | Yes | Pending queue also kept in-memory for live list |
+| Rate limiter | In-process map | No | Prototype only |
+| Checkpoints | In-process list + Ed25519 | No across restarts | Publish externally if needed |
 
-Demo mutation endpoints are disabled unless AUDITCHAIN_DEMO_ENABLED=true.
-The /api/tamper demo mutates an in-memory entry only and is not a persisted attack.
-Do not expose demo mode on a publicly accessible deployment.
-
-GitHub Actions is configured to run Maven verify. A committed test is not evidence that CI passed.
-Do not claim multi-instance append safety, independent anchoring, or production readiness from this stage.
+Local Postgres: `docker compose up -d` then profile `postgres`.

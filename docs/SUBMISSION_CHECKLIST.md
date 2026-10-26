@@ -1,40 +1,15 @@
-# AuditChain – Submission checklist
+# Submission checklist (prototype)
 
-## Product
-
-- [x] Working hash chain + verify
-- [x] Offline queue statuses (PENDING_SYNC / SYNCED)
-- [x] Synthetic generator PU → LGA → State
-- [x] Live demo URL
-- [x] Tamper detection visible in UI
-- [x] STRIDE + residual risks written
-
-## Docs
-
-- [x] README with live URL and residual risks
-- [x] Problem / architecture note
-- [x] Application short version
-- [x] Demo script (voice + clicks)
-- [ ] Demo **video** recorded and uploaded
-- [ ] Application form submitted (confirm official deadline)
-
-## Ops
-
-- [ ] UptimeRobot (or similar) ping on `https://auditchain.onrender.com/health` every 10 minutes
-- [ ] Cold-start tested once before recording video
-- [ ] GitHub `main` builds (CI)
-
-## Video acceptance criteria
-
-- [ ] Under 5 minutes
-- [ ] Shows VALID → Tamper → BROKEN at sequence 2
-- [ ] States "simulation only"
-- [ ] States at least two residual risks out loud
-- [ ] Shows live URL on screen
-
-## Do not do before submit
-
-- Add blockchain "for show"
-- Claim production readiness
-- Touch any live electoral system
-- Hide residual risks
+- [x] Hash-chained audit trail with verification
+- [x] SQLite offline-first persistence + Postgres option
+- [x] Evidence submission with SHA-256 fingerprint + durable idempotency
+- [x] AI path: mock + optional HTTP provider; human review queue; no autonomous fraud claim
+- [x] Ed25519 checkpoints of chain tip
+- [x] Role API keys (OFFICER / REVIEWER / AUDITOR / ADMIN)
+- [x] Rate limiting (process-local)
+- [x] CI on every push (`mvn verify`)
+- [x] docker-compose for local Postgres
+- [x] `.env.example` — no secrets in git
+- [ ] Real vision model API key (user-supplied)
+- [ ] Production Postgres URL / managed disk (user-supplied)
+- [ ] Public demo host with persistent volume (user deploy)

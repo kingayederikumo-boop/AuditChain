@@ -1,0 +1,29 @@
+# Local production-like stack (no cloud credentials required)
+# Usage:
+#   docker compose up -d
+#   export AUDITCHAIN_STORE_TYPE=postgres
+#   export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/auditchain
+#   export SPRING_DATASOURCE_USERNAME=auditchain
+#   export SPRING_DATASOURCE_PASSWORD=auditchain
+#   java -jar target/auditchain-*.jar --spring.profiles.active=postgres
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: auditchain-pg
+    environment:
+      POSTGRES_DB: auditchain
+      POSTGRES_USER: auditchain
+      POSTGRES_PASSWORD: auditchain
+    ports:
+      - "5432:5432"
+    volumes:
+      - auditchain_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auditchain -d auditchain"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  auditchain_pgdata:
