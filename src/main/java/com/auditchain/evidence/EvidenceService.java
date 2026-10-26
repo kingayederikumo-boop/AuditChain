@@ -2,28 +2,27 @@ package com.auditchain.evidence;
 
 import com.auditchain.model.AuditEntry;
 import com.auditchain.service.ChainService;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Accepts synthetic evidence (image bytes or structured payload), fingerprints it,
- * enforces idempotency, appends to the hash chain, and returns a verifiable receipt.
- */
 @Service
 public class EvidenceService {
 
     private static final long MAX_BYTES = 2 * 1024 * 1024;
 
     private final ChainService chainService;
-    private final Map<String, EvidenceSubmission> byIdempotency = new ConcurrentHashMap<>();
+    private final DurableEvidenceStore store;
 
-    public EvidenceService(ChainService chainService) {
+    public EvidenceService(ChainService chainService,
+                           @Value("${auditchain.evidence.db-path:data/evidence.db}") String evidenceDbPath) {
         this.chainService = chainService;
+        this.store = new DurableEvidenceStore(Path.of(evidenceDbPath));
     }
 
     public EvidenceSubmission submit(String idempotencyKey,
@@ -42,9 +41,9 @@ public class EvidenceService {
             throw new IllegalArgumentException("evidence exceeds " + MAX_BYTES + " bytes");
         }
 
-        EvidenceSubmission existing = byIdempotency.get(idempotencyKey);
-        if (existing != null) {
-            return existing;
+        Optional<EvidenceSubmission> existing = store.findByIdempotency(idempotencyKey);
+        if (existing.isPresent()) {
+            return existing.get();
         }
 
         String fingerprint = sha256Hex(evidenceBytes != null ? evidenceBytes
@@ -72,12 +71,16 @@ public class EvidenceService {
         sub.setChainEntryId(entry.getId());
         sub.setReceiptHash(entry.getCurrentHash());
 
-        byIdempotency.put(idempotencyKey, sub);
+        store.save(sub);
         return sub;
     }
 
     public Optional<EvidenceSubmission> findByIdempotency(String key) {
-        return Optional.ofNullable(byIdempotency.get(key));
+        return store.findByIdempotency(key);
+    }
+
+    public DurableEvidenceStore store() {
+        return store;
     }
 
     public static String sha256Hex(byte[] data) {
@@ -90,5 +93,10 @@ public class EvidenceService {
         } catch (Exception e) {
             throw new IllegalStateException("SHA-256 unavailable", e);
         }
+    }
+
+    @PreDestroy
+    public void close() {
+        store.close();
     }
 }

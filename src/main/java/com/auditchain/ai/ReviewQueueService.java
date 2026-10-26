@@ -1,5 +1,7 @@
 package com.auditchain.ai;
 
+import com.auditchain.evidence.DurableEvidenceStore;
+import com.auditchain.evidence.EvidenceService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -7,11 +9,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/**
- * Human-review queue. AI only flags inconsistencies; humans decide.
- * Decisions are auditable (reviewer id + timestamp + notes).
- * AI must never independently declare electoral fraud.
- */
 @Service
 public class ReviewQueueService {
 
@@ -35,11 +32,25 @@ public class ReviewQueueService {
 
     private final Queue<ReviewItem> pending = new ConcurrentLinkedQueue<>();
     private final Map<UUID, ReviewItem> byId = new ConcurrentHashMap<>();
+    private final DurableEvidenceStore store;
+
+    public ReviewQueueService(EvidenceService evidenceService) {
+        this.store = evidenceService.store();
+    }
 
     public ReviewItem enqueue(String evidenceId, VisionResult result) {
         ReviewItem item = new ReviewItem(evidenceId, result);
         pending.add(item);
         byId.put(item.id, item);
+        store.saveReview(
+                item.id.toString(),
+                evidenceId,
+                result.getNotes(),
+                result.isArithmeticConsistent(),
+                result.isRequiresHumanReview(),
+                Decision.PENDING.name(),
+                item.enqueuedAt.toString()
+        );
         return item;
     }
 
@@ -58,6 +69,13 @@ public class ReviewQueueService {
         item.decidedAt = Instant.now();
         item.reviewerNotes = notes;
         pending.remove(item);
+        store.updateReviewDecision(
+                item.id.toString(),
+                decision.name(),
+                reviewerId,
+                notes,
+                item.decidedAt.toString()
+        );
         return Optional.of(item);
     }
 }
