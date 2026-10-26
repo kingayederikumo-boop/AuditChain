@@ -6,6 +6,8 @@ import com.auditchain.persistence.PersistentHashChainEngine;
 import com.auditchain.persistence.SqliteAuditStore;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import java.nio.file.Path;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +16,15 @@ import java.util.Optional;
 public class ChainService {
 
     private PersistentHashChainEngine engine;
+    private final String databasePath;
+    private final boolean demoMode;
 
-    public ChainService() {
-        this.engine = new PersistentHashChainEngine(SqliteAuditStore.inMemory());
-        generateSynthetic(3);
+    public ChainService(@Value("${auditchain.sqlite.path:data/auditchain.db}") String databasePath,
+                        @Value("${auditchain.demo.enabled:false}") boolean demoMode) {
+        this.databasePath = databasePath;
+        this.demoMode = demoMode;
+        this.engine = new PersistentHashChainEngine(new SqliteAuditStore(Path.of(databasePath)));
+        if (engine.size() == 0 && demoMode) runGeneratorInto(engine, 3);
     }
 
     public synchronized List<AuditEntry> getChain() {
@@ -41,12 +48,12 @@ public class ChainService {
     }
 
     public synchronized void generateSynthetic(int puCount) {
-        engine.close();
-        this.engine = new PersistentHashChainEngine(SqliteAuditStore.inMemory());
+        requireDemoMode();
         runGeneratorInto(engine, Math.max(1, Math.min(puCount, 20)));
     }
 
     public synchronized boolean tamper(int sequence) {
+        requireDemoMode();
         List<AuditEntry> chain = engine.getChain();
         if (sequence < 1 || sequence > chain.size()) return false;
         chain.get(sequence - 1).setPayload("{\"tampered\":true,\"votes_cast\":99999,\"note\":\"simulated attack\"}");
@@ -54,7 +61,14 @@ public class ChainService {
     }
 
     public synchronized void reset() {
+        requireDemoMode();
+        // Preserve history: a demo reset appends another synthetic batch rather than deleting records.
         generateSynthetic(3);
+    }
+
+    private void requireDemoMode() {
+        if (!demoMode) throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.FORBIDDEN, "Demo-only operation disabled");
     }
 
     @PreDestroy
