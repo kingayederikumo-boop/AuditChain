@@ -61,8 +61,12 @@ public class ChainService {
 
     public synchronized void reset() {
         requireDemoMode();
-        // Preserve history: a demo reset appends another synthetic batch rather than deleting records.
         generateSynthetic(3);
+    }
+
+    /** Append an evidence-linked entry. Used by EvidenceService. Synchronized. */
+    public synchronized AuditEntry appendEvidence(String payloadJson, String actorId, String locationCode) {
+        return engine.append(payloadJson, AuditEntry.ActorRole.PU_OFFICER, actorId, locationCode);
     }
 
     private void requireDemoMode() {
