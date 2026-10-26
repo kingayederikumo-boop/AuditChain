@@ -25,7 +25,8 @@ public class SqliteAuditStore implements AuditStore {
             if (dbPath == null) {
                 url = "jdbc:sqlite::memory:";
             } else {
-                Files.createDirectories(dbPath.getParent());
+                Path parent = dbPath.toAbsolutePath().getParent();
+                if (parent != null) Files.createDirectories(parent);
                 url = "jdbc:sqlite:" + dbPath.toAbsolutePath();
             }
             this.connection = DriverManager.getConnection(url);
@@ -65,7 +66,9 @@ public class SqliteAuditStore implements AuditStore {
             CREATE INDEX IF NOT EXISTS idx_seq    ON audit_entry(sequence_number);
             """;
         try (Statement st = connection.createStatement()) {
-            st.executeUpdate(sql);
+            for (String statement : sql.split(";")) {
+                if (!statement.isBlank()) st.executeUpdate(statement);
+            }
         }
     }
 
