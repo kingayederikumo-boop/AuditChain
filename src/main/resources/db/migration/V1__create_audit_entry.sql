@@ -1,4 +1,4 @@
--- AuditChain core table. Compatible with both SQLite (manual) and PostgreSQL (Flyway).
+-- AuditChain core table (PostgreSQL). Timestamp stored as text for exact Instant round-trip.
 CREATE TABLE IF NOT EXISTS audit_entry (
     id              UUID PRIMARY KEY,
     sequence_number BIGINT NOT NULL UNIQUE,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS audit_entry (
     payload         TEXT NOT NULL,
     actor_role      TEXT NOT NULL,
     actor_id        TEXT NOT NULL,
-    timestamp       TIMESTAMPTZ NOT NULL,
+    timestamp       TEXT NOT NULL,
     current_hash    TEXT NOT NULL,
     signature       TEXT,
     location_code   TEXT,

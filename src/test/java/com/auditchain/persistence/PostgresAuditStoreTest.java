@@ -11,6 +11,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +32,7 @@ class PostgresAuditStoreTest {
             .withUsername("auditchain")
             .withPassword("auditchain");
 
+    private DataSource dataSource;
     private PostgresAuditStore store;
     private PersistentHashChainEngine engine;
 
@@ -42,8 +45,8 @@ class PostgresAuditStoreTest {
     }
 
     @BeforeEach
-    void setUp() {
-        DataSource ds = org.springframework.boot.jdbc.DataSourceBuilder.create()
+    void setUp() throws Exception {
+        dataSource = org.springframework.boot.jdbc.DataSourceBuilder.create()
                 .url(postgres.getJdbcUrl())
                 .username(postgres.getUsername())
                 .password(postgres.getPassword())
@@ -51,13 +54,18 @@ class PostgresAuditStoreTest {
                 .build();
 
         Flyway.configure()
-                .dataSource(ds)
+                .dataSource(dataSource)
                 .locations("classpath:db/migration")
                 .baselineOnMigrate(true)
                 .load()
                 .migrate();
 
-        store = new PostgresAuditStore(ds);
+        // Isolate tests: clear table so previous test data cannot break the chain
+        try (Connection c = dataSource.getConnection(); Statement st = c.createStatement()) {
+            st.execute("TRUNCATE TABLE audit_entry");
+        }
+
+        store = new PostgresAuditStore(dataSource);
         engine = new PersistentHashChainEngine(store);
     }
 

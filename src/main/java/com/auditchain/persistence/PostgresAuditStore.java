@@ -14,6 +14,7 @@ import java.util.UUID;
  * PostgreSQL-backed AuditStore for production / multi-instance use.
  * Relies on Flyway-managed schema. Uses transactions for append safety.
  * Sequence uniqueness is enforced by UNIQUE constraint on sequence_number.
+ * Timestamp is stored as ISO-8601 text so hash canonical form is stable across round-trips.
  */
 public class PostgresAuditStore implements AuditStore {
 
@@ -40,7 +41,8 @@ public class PostgresAuditStore implements AuditStore {
                 ps.setString(4, entry.getPayload());
                 ps.setString(5, entry.getActorRole().name());
                 ps.setString(6, entry.getActorId());
-                ps.setTimestamp(7, Timestamp.from(entry.getTimestamp()));
+                // Store as ISO string so Instant.parse round-trip is exact and hashes stay valid
+                ps.setString(7, entry.getTimestamp().toString());
                 ps.setString(8, entry.getCurrentHash());
                 ps.setString(9, entry.getSignature());
                 ps.setString(10, entry.getLocationCode());
@@ -147,8 +149,8 @@ public class PostgresAuditStore implements AuditStore {
         e.setPayload(rs.getString("payload"));
         e.setActorRole(AuditEntry.ActorRole.valueOf(rs.getString("actor_role")));
         e.setActorId(rs.getString("actor_id"));
-        Timestamp ts = rs.getTimestamp("timestamp");
-        e.setTimestamp(ts != null ? ts.toInstant() : Instant.now());
+        String ts = rs.getString("timestamp");
+        e.setTimestamp(ts != null ? Instant.parse(ts) : Instant.now());
         e.setCurrentHash(rs.getString("current_hash"));
         e.setSignature(rs.getString("signature"));
         e.setLocationCode(rs.getString("location_code"));
