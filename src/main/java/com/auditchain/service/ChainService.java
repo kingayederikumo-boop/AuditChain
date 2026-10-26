@@ -2,12 +2,11 @@ package com.auditchain.service;
 
 import com.auditchain.generator.SyntheticDataGenerator;
 import com.auditchain.model.AuditEntry;
+import com.auditchain.persistence.AuditStore;
 import com.auditchain.persistence.PersistentHashChainEngine;
-import com.auditchain.persistence.SqliteAuditStore;
 import jakarta.annotation.PreDestroy;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
-import java.nio.file.Path;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,16 +14,16 @@ import java.util.Optional;
 @Service
 public class ChainService {
 
-    private PersistentHashChainEngine engine;
-    private final String databasePath;
+    private final PersistentHashChainEngine engine;
     private final boolean demoMode;
 
-    public ChainService(@Value("${auditchain.sqlite.path:data/auditchain.db}") String databasePath,
+    public ChainService(AuditStore auditStore,
                         @Value("${auditchain.demo.enabled:false}") boolean demoMode) {
-        this.databasePath = databasePath;
         this.demoMode = demoMode;
-        this.engine = new PersistentHashChainEngine(new SqliteAuditStore(Path.of(databasePath)));
-        if (engine.size() == 0 && demoMode) runGeneratorInto(engine, 3);
+        this.engine = new PersistentHashChainEngine(auditStore);
+        if (engine.size() == 0 && demoMode) {
+            runGeneratorInto(engine, 3);
+        }
     }
 
     public synchronized List<AuditEntry> getChain() {
