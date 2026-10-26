@@ -28,6 +28,7 @@ public class HashChainEngine {
                              String actorId,
                              String locationCode) {
 
+        if (verifyChain().isPresent()) throw new IllegalStateException("Cannot append to a broken audit chain");
         AuditEntry entry = new AuditEntry();
         entry.setSequenceNumber(chain.size() + 1);
         entry.setPreviousHash(getLatestHash());
@@ -60,7 +61,11 @@ public class HashChainEngine {
     public Optional<Long> verifyChain() {
         String expectedPrevious = GENESIS_HASH;
 
+        long expectedSequence = 1;
         for (AuditEntry entry : chain) {
+            if (entry.getSequenceNumber() != expectedSequence++) {
+                return Optional.of(expectedSequence - 1);
+            }
             if (!expectedPrevious.equals(entry.getPreviousHash())) {
                 return Optional.of(entry.getSequenceNumber());
             }
@@ -88,6 +93,9 @@ public class HashChainEngine {
      * Used on startup. Does not recompute the hash — trusts the stored values.
      */
     public void restoreEntry(AuditEntry entry) {
+        if (entry.getSequenceNumber() != chain.size() + 1) {
+            throw new IllegalArgumentException("Restored chain sequence is not contiguous");
+        }
         chain.add(entry);
     }
 
