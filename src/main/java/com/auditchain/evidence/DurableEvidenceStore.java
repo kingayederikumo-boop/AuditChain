@@ -48,7 +48,8 @@ public class DurableEvidenceStore implements AutoCloseable {
                 payload_json         TEXT,
                 submitted_at         TEXT NOT NULL,
                 chain_entry_id       TEXT,
-                receipt_hash         TEXT NOT NULL
+                receipt_hash         TEXT NOT NULL,
+                evidence_bytes       BLOB
             );
             CREATE INDEX IF NOT EXISTS idx_evidence_idempotency ON evidence_submission(idempotency_key);
             CREATE TABLE IF NOT EXISTS review_item (
@@ -70,6 +71,13 @@ public class DurableEvidenceStore implements AutoCloseable {
                 if (!s.isBlank()) st.executeUpdate(s);
             }
         }
+        boolean hasBytes = false;
+        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery("PRAGMA table_info(evidence_submission)")) {
+            while (rs.next()) if ("evidence_bytes".equalsIgnoreCase(rs.getString("name"))) hasBytes = true;
+        }
+        if (!hasBytes) try (Statement st = connection.createStatement()) {
+            st.executeUpdate("ALTER TABLE evidence_submission ADD COLUMN evidence_bytes BLOB");
+        }
     }
 
     public Optional<EvidenceSubmission> findByIdempotency(String key) {
@@ -89,8 +97,8 @@ public class DurableEvidenceStore implements AutoCloseable {
         String sql = """
             INSERT OR REPLACE INTO evidence_submission
             (id, idempotency_key, actor_id, location_code, evidence_fingerprint, content_type,
-             size_bytes, payload_json, submitted_at, chain_entry_id, receipt_hash)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             size_bytes, payload_json, submitted_at, chain_entry_id, receipt_hash, evidence_bytes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, sub.getId().toString());
@@ -104,6 +112,7 @@ public class DurableEvidenceStore implements AutoCloseable {
             ps.setString(9, sub.getSubmittedAt().toString());
             ps.setString(10, sub.getChainEntryId() != null ? sub.getChainEntryId().toString() : null);
             ps.setString(11, sub.getReceiptHash());
+            ps.setBytes(12, sub.getEvidenceBytes());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to save evidence", e);
@@ -177,6 +186,7 @@ public class DurableEvidenceStore implements AutoCloseable {
         String cid = rs.getString("chain_entry_id");
         if (cid != null) e.setChainEntryId(UUID.fromString(cid));
         e.setReceiptHash(rs.getString("receipt_hash"));
+        e.setEvidenceBytes(rs.getBytes("evidence_bytes"));
         return e;
     }
 
