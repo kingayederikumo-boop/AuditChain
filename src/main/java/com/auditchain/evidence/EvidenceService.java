@@ -97,6 +97,7 @@ public class EvidenceService {
         sub.setPayloadJson(structuredPayloadJson);
         sub.setChainEntryId(entry.getId());
         sub.setReceiptHash(entry.getCurrentHash());
+        sub.setEvidenceBytes(evidenceBytes);
 
         store.save(sub);
         return sub;
