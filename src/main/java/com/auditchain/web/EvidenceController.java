@@ -49,6 +49,8 @@ public class EvidenceController {
                     .body(Map.of("error", "rate limit exceeded"));
         }
 
+        if (file != null && file.getSize() > 2L * 1024 * 1024)
+            return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(Map.of("error", "Image exceeds 2 MB"));
         byte[] bytes = file != null && !file.isEmpty() ? file.getBytes() : null;
         String contentType = file != null ? file.getContentType() : "application/json";
 
