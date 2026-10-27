@@ -54,6 +54,7 @@ public class EvidenceController {
         byte[] bytes = file != null && !file.isEmpty() ? file.getBytes() : null;
         String contentType = file != null ? file.getContentType() : "application/json";
 
+        boolean previouslySubmitted = evidenceService.findByIdempotency(key).isPresent();
         EvidenceSubmission sub;
         try {
             sub = evidenceService.submit(key, actorId, locationCode, contentType, bytes, payloadJson);
@@ -64,7 +65,7 @@ public class EvidenceController {
         }
 
         VisionResult vision = visionProvider.analyse(bytes, payloadJson);
-        if (vision.isRequiresHumanReview()) {
+        if (!previouslySubmitted && vision.isRequiresHumanReview()) {
             reviewQueue.enqueue(sub.getId().toString(), vision);
         }
 
@@ -80,6 +81,6 @@ public class EvidenceController {
                 "notes", vision.getNotes() == null ? "" : vision.getNotes(),
                 "partyVotes", vision.getPartyVotes()
         ));
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        return ResponseEntity.status(previouslySubmitted ? HttpStatus.OK : HttpStatus.CREATED).body(body);
     }
 }
