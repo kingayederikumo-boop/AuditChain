@@ -33,13 +33,14 @@ public class PostgresEvidenceStore extends DurableEvidenceStore {
                 e.setSubmittedAt(Instant.parse(rs.getString("submitted_at")));
                 e.setChainEntryId((UUID) rs.getObject("chain_entry_id"));
                 e.setReceiptHash(rs.getString("receipt_hash"));
+                e.setEvidenceBytes(rs.getBytes("evidence_bytes"));
                 return Optional.of(e);
             }
         } catch (SQLException ex) { throw new IllegalStateException("Failed to read evidence", ex); }
     }
 
     @Override public void save(EvidenceSubmission sub) {
-        String sql = "INSERT INTO evidence_submission (id,idempotency_key,actor_id,location_code,evidence_fingerprint,content_type,size_bytes,payload_json,submitted_at,chain_entry_id,receipt_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO evidence_submission (id,idempotency_key,actor_id,location_code,evidence_fingerprint,content_type,size_bytes,payload_json,submitted_at,chain_entry_id,receipt_hash,evidence_bytes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setObject(1, sub.getId());
             ps.setString(2, sub.getIdempotencyKey());
@@ -52,6 +53,7 @@ public class PostgresEvidenceStore extends DurableEvidenceStore {
             ps.setString(9, sub.getSubmittedAt().toString());
             ps.setObject(10, sub.getChainEntryId());
             ps.setString(11, sub.getReceiptHash());
+            ps.setBytes(12, sub.getEvidenceBytes());
             ps.executeUpdate();
         } catch (SQLException ex) { throw new IllegalStateException("Failed to save evidence", ex); }
     }
