@@ -5,6 +5,8 @@ import com.auditchain.service.ChainService;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.ObjectProvider;
+import javax.sql.DataSource;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -21,9 +23,13 @@ public class EvidenceService {
     private final DurableEvidenceStore store;
 
     public EvidenceService(ChainService chainService,
-                           @Value("${auditchain.evidence.db-path:data/evidence.db}") String evidenceDbPath) {
+                           @Value("${auditchain.evidence.db-path:data/evidence.db}") String evidenceDbPath,
+                           @Value("${auditchain.store.type:sqlite}") String storeType,
+                           ObjectProvider<DataSource> dataSource) {
         this.chainService = chainService;
-        this.store = new DurableEvidenceStore(Path.of(evidenceDbPath));
+        this.store = "postgres".equalsIgnoreCase(storeType)
+                ? new PostgresEvidenceStore(dataSource.getObject())
+                : new DurableEvidenceStore(Path.of(evidenceDbPath));
     }
 
     public synchronized EvidenceSubmission submit(String idempotencyKey,
