@@ -53,6 +53,11 @@ public class EvidenceService {
             throw new IllegalArgumentException("Only valid PNG or JPEG image bytes are accepted");
         if (structuredPayloadJson == null || structuredPayloadJson.isBlank())
             throw new IllegalArgumentException("Structured JSON required");
+        try {
+            new com.fasterxml.jackson.databind.ObjectMapper().readTree(structuredPayloadJson);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+            throw new IllegalArgumentException("Invalid structured JSON", ex);
+        }
         String fingerprint = sha256Hex(evidenceBytes);
         Optional<EvidenceSubmission> existing = store.findByIdempotency(idempotencyKey);
         if (existing.isPresent()) {
