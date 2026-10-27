@@ -37,7 +37,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         if (officerKey != null && !officerKey.isBlank()) keyToRole.put(officerKey.trim(), Role.OFFICER);
         if (reviewerKey != null && !reviewerKey.isBlank()) keyToRole.put(reviewerKey.trim(), Role.REVIEWER);
         if (auditorKey != null && !auditorKey.isBlank()) keyToRole.put(auditorKey.trim(), Role.AUDITOR);
-        this.enforce = enforceFlag && !keyToRole.isEmpty();
+        this.enforce = enforceFlag;
     }
 
     @Override
