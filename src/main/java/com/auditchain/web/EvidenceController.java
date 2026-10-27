@@ -4,6 +4,7 @@ import com.auditchain.ai.ReviewQueueService;
 import com.auditchain.ai.VisionProvider;
 import com.auditchain.ai.VisionResult;
 import com.auditchain.evidence.EvidenceService;
+import com.auditchain.evidence.EvidenceConflictException;
 import com.auditchain.evidence.EvidenceSubmission;
 import com.auditchain.security.SimpleRateLimiter;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,8 @@ public class EvidenceController {
             @RequestParam(required = false) String payloadJson,
             @RequestParam(required = false) MultipartFile file) throws Exception {
 
-        String key = idempotencyKey != null ? idempotencyKey : "auto-" + actorId + "-" + System.currentTimeMillis();
+        if (idempotencyKey == null || idempotencyKey.isBlank()) return ResponseEntity.badRequest().body(Map.of("error", "Idempotency-Key required"));
+        String key = idempotencyKey;
         if (!rateLimiter.tryAcquire(actorId)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(Map.of("error", "rate limit exceeded"));
@@ -50,7 +52,14 @@ public class EvidenceController {
         byte[] bytes = file != null && !file.isEmpty() ? file.getBytes() : null;
         String contentType = file != null ? file.getContentType() : "application/json";
 
-        EvidenceSubmission sub = evidenceService.submit(key, actorId, locationCode, contentType, bytes, payloadJson);
+        EvidenceSubmission sub;
+        try {
+            sub = evidenceService.submit(key, actorId, locationCode, contentType, bytes, payloadJson);
+        } catch (EvidenceConflictException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        }
 
         VisionResult vision = visionProvider.analyse(bytes, payloadJson);
         if (vision.isRequiresHumanReview()) {
