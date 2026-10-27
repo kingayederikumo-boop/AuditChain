@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class EvidenceService {
         this.store = new DurableEvidenceStore(Path.of(evidenceDbPath));
     }
 
-    public EvidenceSubmission submit(String idempotencyKey,
+    public synchronized EvidenceSubmission submit(String idempotencyKey,
                                      String actorId,
                                      String locationCode,
                                      String contentType,
@@ -41,13 +42,22 @@ public class EvidenceService {
             throw new IllegalArgumentException("evidence exceeds " + MAX_BYTES + " bytes");
         }
 
+        if (evidenceBytes == null || evidenceBytes.length == 0) throw new IllegalArgumentException("Image required");
+        if (!java.util.Objects.equals(contentType, detectImageType(evidenceBytes)))
+            throw new IllegalArgumentException("Only valid PNG or JPEG image bytes are accepted");
+        if (structuredPayloadJson == null || structuredPayloadJson.isBlank())
+            throw new IllegalArgumentException("Structured JSON required");
+        String fingerprint = sha256Hex(evidenceBytes);
         Optional<EvidenceSubmission> existing = store.findByIdempotency(idempotencyKey);
         if (existing.isPresent()) {
-            return existing.get();
+            EvidenceSubmission prior = existing.get();
+            if (!prior.getActorId().equals(actorId) ||
+                !java.util.Objects.equals(prior.getLocationCode(), locationCode) ||
+                !prior.getEvidenceFingerprint().equals(fingerprint) ||
+                !java.util.Objects.equals(prior.getPayloadJson(), structuredPayloadJson))
+                throw new EvidenceConflictException("Idempotency key already used for different evidence");
+            return prior;
         }
-
-        String fingerprint = sha256Hex(evidenceBytes != null ? evidenceBytes
-                : (structuredPayloadJson != null ? structuredPayloadJson.getBytes(StandardCharsets.UTF_8) : new byte[0]));
 
         String chainPayload = String.format(
                 "{\"type\":\"evidence\",\"location\":\"%s\",\"fingerprint\":\"%s\",\"contentType\":\"%s\",\"size\":%d,\"data\":%s}",
@@ -73,6 +83,17 @@ public class EvidenceService {
 
         store.save(sub);
         return sub;
+    }
+
+    static String detectImageType(byte[] bytes) {
+        if (bytes == null) return null;
+        if (bytes.length >= 8 && Arrays.equals(Arrays.copyOf(bytes, 8),
+                new byte[]{(byte)137, 80, 78, 71, 13, 10, 26, 10})) return "image/png";
+        if (bytes.length >= 4 && (bytes[0] & 255) == 255 &&
+                (bytes[1] & 255) == 216 && (bytes[2] & 255) == 255 &&
+                (bytes[bytes.length - 2] & 255) == 255 &&
+                (bytes[bytes.length - 1] & 255) == 217) return "image/jpeg";
+        return null;
     }
 
     public Optional<EvidenceSubmission> findByIdempotency(String key) {
