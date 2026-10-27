@@ -61,8 +61,6 @@ public class ReviewQueueService {
 
     public ReviewItem enqueue(String evidenceId, VisionResult result) {
         ReviewItem item = new ReviewItem(evidenceId, result);
-        pending.add(item);
-        byId.put(item.id, item);
         store.saveReview(
                 item.id.toString(),
                 evidenceId,
@@ -72,6 +70,8 @@ public class ReviewQueueService {
                 Decision.PENDING.name(),
                 item.enqueuedAt.toString()
         );
+        pending.add(item);
+        byId.put(item.id, item);
         return item;
     }
 
@@ -85,18 +85,13 @@ public class ReviewQueueService {
         if (item.decision != Decision.PENDING) {
             throw new IllegalStateException("already decided");
         }
+        Instant decidedAt = Instant.now();
+        store.updateReviewDecision(item.id.toString(), decision.name(), reviewerId, notes, decidedAt.toString());
         item.decision = decision;
         item.reviewerId = reviewerId;
-        item.decidedAt = Instant.now();
+        item.decidedAt = decidedAt;
         item.reviewerNotes = notes;
         pending.remove(item);
-        store.updateReviewDecision(
-                item.id.toString(),
-                decision.name(),
-                reviewerId,
-                notes,
-                item.decidedAt.toString()
-        );
         return Optional.of(item);
     }
 }
