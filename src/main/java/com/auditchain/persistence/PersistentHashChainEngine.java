@@ -32,8 +32,15 @@ public class PersistentHashChainEngine {
                              String actorId,
                              String locationCode) {
 
-        AuditEntry entry = engine.append(payloadJson, role, actorId, locationCode);
+        // Build the candidate on a temporary engine so a failed durable write
+        // cannot leave the live in-memory chain ahead of persisted storage.
+        HashChainEngine candidate = new HashChainEngine();
+        for (AuditEntry existing : engine.getChain()) {
+            candidate.restoreEntry(existing);
+        }
+        AuditEntry entry = candidate.append(payloadJson, role, actorId, locationCode);
         store.append(entry);
+        engine.restoreEntry(entry);
         return entry;
     }
 
