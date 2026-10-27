@@ -15,18 +15,24 @@ public class ReviewQueueService {
     public enum Decision { PENDING, CONSISTENT, INCONSISTENT, NEEDS_MORE_INFO }
 
     public static final class ReviewItem {
-        public final UUID id = UUID.randomUUID();
+        public final UUID id;
         public final String evidenceId;
         public final VisionResult visionResult;
-        public final Instant enqueuedAt = Instant.now();
+        public final Instant enqueuedAt;
         public volatile Decision decision = Decision.PENDING;
         public String reviewerId;
         public Instant decidedAt;
         public String reviewerNotes;
 
         public ReviewItem(String evidenceId, VisionResult visionResult) {
+            this(UUID.randomUUID(), evidenceId, visionResult, Instant.now());
+        }
+
+        public ReviewItem(UUID id, String evidenceId, VisionResult visionResult, Instant enqueuedAt) {
+            this.id = id;
             this.evidenceId = evidenceId;
             this.visionResult = visionResult;
+            this.enqueuedAt = enqueuedAt;
         }
     }
 
@@ -36,6 +42,21 @@ public class ReviewQueueService {
 
     public ReviewQueueService(EvidenceService evidenceService) {
         this.store = evidenceService.store();
+        for (Map<String, Object> row : store.loadReviews()) {
+            VisionResult vision = new VisionResult();
+            vision.setNotes((String) row.get("notes"));
+            vision.setArithmeticConsistent(Boolean.TRUE.equals(row.get("arithmeticConsistent")));
+            vision.setRequiresHumanReview(Boolean.TRUE.equals(row.get("requiresHumanReview")));
+            ReviewItem item = new ReviewItem(UUID.fromString((String) row.get("id")),
+                    (String) row.get("evidenceId"), vision, Instant.parse((String) row.get("enqueuedAt")));
+            item.decision = Decision.valueOf((String) row.get("decision"));
+            item.reviewerId = (String) row.get("reviewerId");
+            item.reviewerNotes = (String) row.get("reviewerNotes");
+            Object decidedAt = row.get("decidedAt");
+            if (decidedAt instanceof String value && !value.isBlank()) item.decidedAt = Instant.parse(value);
+            byId.put(item.id, item);
+            if (item.decision == Decision.PENDING) pending.add(item);
+        }
     }
 
     public ReviewItem enqueue(String evidenceId, VisionResult result) {
