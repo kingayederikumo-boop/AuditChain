@@ -6,6 +6,8 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.ObjectProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.sql.DataSource;
 
 import java.nio.charset.StandardCharsets;
@@ -70,14 +72,18 @@ public class EvidenceService {
             return prior;
         }
 
-        String chainPayload = String.format(
-                "{\"type\":\"evidence\",\"location\":\"%s\",\"fingerprint\":\"%s\",\"contentType\":\"%s\",\"size\":%d,\"data\":%s}",
-                locationCode == null ? "" : locationCode,
-                fingerprint,
-                contentType == null ? "application/octet-stream" : contentType,
-                evidenceBytes == null ? 0 : evidenceBytes.length,
-                structuredPayloadJson == null ? "null" : structuredPayloadJson
-        );
+        ObjectNode chainData = new ObjectMapper().createObjectNode();
+        chainData.put("type", "evidence");
+        chainData.put("location", locationCode == null ? "" : locationCode);
+        chainData.put("fingerprint", fingerprint);
+        chainData.put("contentType", contentType);
+        chainData.put("size", evidenceBytes.length);
+        try {
+            chainData.set("data", new ObjectMapper().readTree(structuredPayloadJson));
+        } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+            throw new IllegalArgumentException("Invalid structured JSON", ex);
+        }
+        String chainPayload = chainData.toString();
 
         AuditEntry entry = chainService.appendEvidence(chainPayload, actorId, locationCode);
 
