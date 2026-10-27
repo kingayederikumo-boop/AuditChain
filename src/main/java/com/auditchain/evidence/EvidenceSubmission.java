@@ -15,6 +15,7 @@ public class EvidenceSubmission {
     private Instant submittedAt;
     private UUID chainEntryId;
     private String receiptHash;
+    private byte[] evidenceBytes;
 
     public EvidenceSubmission() {
         this.id = UUID.randomUUID();
@@ -43,4 +44,6 @@ public class EvidenceSubmission {
     public void setChainEntryId(UUID chainEntryId) { this.chainEntryId = chainEntryId; }
     public String getReceiptHash() { return receiptHash; }
     public void setReceiptHash(String receiptHash) { this.receiptHash = receiptHash; }
+    public byte[] getEvidenceBytes() { return evidenceBytes == null ? null : evidenceBytes.clone(); }
+    public void setEvidenceBytes(byte[] evidenceBytes) { this.evidenceBytes = evidenceBytes == null ? null : evidenceBytes.clone(); }
 }
