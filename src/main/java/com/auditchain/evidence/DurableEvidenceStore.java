@@ -14,6 +14,11 @@ public class DurableEvidenceStore implements AutoCloseable {
 
     private final Connection connection;
 
+    protected DurableEvidenceStore(boolean initialize) {
+        if (initialize) throw new IllegalArgumentException("Use path constructor for SQLite");
+        this.connection = null;
+    }
+
     public DurableEvidenceStore(Path dbPath) {
         try {
             Path parent = dbPath.toAbsolutePath().getParent();
