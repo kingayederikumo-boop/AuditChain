@@ -56,6 +56,23 @@ public class PostgresEvidenceStore extends DurableEvidenceStore {
         } catch (SQLException ex) { throw new IllegalStateException("Failed to save evidence", ex); }
     }
 
+    @Override public java.util.List<java.util.Map<String, Object>> loadReviews() {
+        java.util.List<java.util.Map<String, Object>> rows = new java.util.ArrayList<>();
+        String sql = "SELECT id,evidence_id,vision_notes,arithmetic_consistent,requires_human_review,decision,reviewer_id,decided_at,reviewer_notes,enqueued_at FROM review_item ORDER BY enqueued_at";
+        try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+                row.put("id", rs.getString("id")); row.put("evidenceId", rs.getString("evidence_id"));
+                row.put("notes", rs.getString("vision_notes")); row.put("arithmeticConsistent", rs.getBoolean("arithmetic_consistent"));
+                row.put("requiresHumanReview", rs.getBoolean("requires_human_review")); row.put("decision", rs.getString("decision"));
+                row.put("reviewerId", rs.getString("reviewer_id")); row.put("decidedAt", rs.getString("decided_at"));
+                row.put("reviewerNotes", rs.getString("reviewer_notes")); row.put("enqueuedAt", rs.getString("enqueued_at"));
+                rows.add(row);
+            }
+            return rows;
+        } catch (SQLException ex) { throw new IllegalStateException("Failed to load review queue", ex); }
+    }
+
     @Override public void saveReview(String id, String evidenceId, String notes, boolean arithmeticOk, boolean needsReview, String decision, String enqueuedAt) {
         String sql = "INSERT INTO review_item (id,evidence_id,vision_notes,arithmetic_consistent,requires_human_review,decision,enqueued_at) VALUES (?,?,?,?,?,?,?)";
         try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
