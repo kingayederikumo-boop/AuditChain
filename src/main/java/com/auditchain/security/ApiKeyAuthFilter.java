@@ -78,6 +78,9 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         if (role == Role.ADMIN) return true;
         String path = req.getRequestURI();
         String method = req.getMethod();
+        if (path.startsWith("/api/review") && "GET".equalsIgnoreCase(method)) {
+            return role == Role.REVIEWER || role == Role.AUDITOR;
+        }
         if (path.startsWith("/api/evidence") && "POST".equalsIgnoreCase(method)) {
             return role == Role.OFFICER || role == Role.AUDITOR;
         }
