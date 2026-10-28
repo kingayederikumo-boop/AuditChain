@@ -67,6 +67,8 @@ public class EvidenceService {
             if (!prior.getActorId().equals(actorId) ||
                 !java.util.Objects.equals(prior.getLocationCode(), locationCode) ||
                 !prior.getEvidenceFingerprint().equals(fingerprint) ||
+                !java.util.Objects.equals(prior.getContentType(), contentType) ||
+                prior.getSizeBytes() != evidenceBytes.length ||
                 !java.util.Objects.equals(prior.getPayloadJson(), structuredPayloadJson))
                 throw new EvidenceConflictException("Idempotency key already used for different evidence");
             return prior;
