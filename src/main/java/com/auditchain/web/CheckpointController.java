@@ -32,6 +32,21 @@ public class CheckpointController {
         return checkpointService.listPublished().stream().map(this::toView).collect(Collectors.toList());
     }
 
+    @GetMapping("/verify")
+    public Map<String, Object> verifyPublished() {
+        var chain = chainService.getChain();
+        Map<Long, String> hashes = chain.stream().collect(Collectors.toMap(
+                entry -> entry.getSequenceNumber(), entry -> entry.getCurrentHash()));
+        var issue = checkpointService.detectTampering(chainService.size(), chainService.getLatestHash(),
+                hashes, checkpointService.listPublished());
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("valid", issue.isEmpty());
+        result.put("chainSize", chainService.size());
+        result.put("checkpointCount", checkpointService.listPublished().size());
+        result.put("error", issue.orElse(null));
+        return result;
+    }
+
     @GetMapping("/public-key")
     public Map<String, String> publicKey() {
         return Map.of("publicKeyHex", checkpointService.publicKeyHex());
