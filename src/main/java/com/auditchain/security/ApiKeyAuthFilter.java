@@ -21,7 +21,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final boolean enforce;
 
     private static final Set<String> PUBLIC_GET = Set.of(
-            "/health", "/api/chain", "/actuator", "/", "/index.html", "/favicon.ico",
+            "/health", "/api/chain", "/actuator", "/", "/index.html", "/submit.html", "/favicon.ico",
             "/api/checkpoints/public-key"
     );
 
