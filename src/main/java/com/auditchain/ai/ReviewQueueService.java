@@ -2,6 +2,9 @@ package com.auditchain.ai;
 
 import com.auditchain.evidence.DurableEvidenceStore;
 import com.auditchain.evidence.EvidenceService;
+import com.auditchain.service.ChainService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -39,9 +42,12 @@ public class ReviewQueueService {
     private final Queue<ReviewItem> pending = new ConcurrentLinkedQueue<>();
     private final Map<UUID, ReviewItem> byId = new ConcurrentHashMap<>();
     private final DurableEvidenceStore store;
+    private final ChainService chainService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ReviewQueueService(EvidenceService evidenceService) {
+    public ReviewQueueService(EvidenceService evidenceService, ChainService chainService) {
         this.store = evidenceService.store();
+        this.chainService = chainService;
         for (Map<String, Object> row : store.loadReviews()) {
             VisionResult vision = new VisionResult();
             vision.setNotes((String) row.get("notes"));
@@ -59,8 +65,19 @@ public class ReviewQueueService {
         }
     }
 
-    public ReviewItem enqueue(String evidenceId, VisionResult result) {
+    public synchronized ReviewItem enqueue(String evidenceId, VisionResult result) {
         ReviewItem item = new ReviewItem(evidenceId, result);
+        ObjectNode aiEvent = objectMapper.createObjectNode();
+        aiEvent.put("type", "AI_CHECK");
+        aiEvent.put("evidenceId", evidenceId);
+        aiEvent.put("arithmeticConsistent", result.isArithmeticConsistent());
+        aiEvent.put("requiresHumanReview", result.isRequiresHumanReview());
+        aiEvent.put("notes", result.getNotes() == null ? "" : result.getNotes());
+        try {
+            chainService.appendSystemEvent(aiEvent.toString(), "system:vision", null);
+        } catch (RuntimeException ex) {
+            throw new IllegalStateException("Unable to record AI result on audit chain", ex);
+        }
         store.saveReview(
                 item.id.toString(),
                 evidenceId,
@@ -79,13 +96,26 @@ public class ReviewQueueService {
         return pending.stream().filter(i -> i.decision == Decision.PENDING).toList();
     }
 
-    public Optional<ReviewItem> decide(UUID itemId, String reviewerId, Decision decision, String notes) {
+    public synchronized Optional<ReviewItem> decide(UUID itemId, String reviewerId, Decision decision, String notes) {
         ReviewItem item = byId.get(itemId);
         if (item == null) return Optional.empty();
         if (item.decision != Decision.PENDING) {
             throw new IllegalStateException("already decided");
         }
         Instant decidedAt = Instant.now();
+        ObjectNode decisionEvent = objectMapper.createObjectNode();
+        decisionEvent.put("type", "REVIEW_DECISION");
+        decisionEvent.put("reviewItemId", item.id.toString());
+        decisionEvent.put("evidenceId", item.evidenceId);
+        decisionEvent.put("decision", decision.name());
+        decisionEvent.put("reviewerId", reviewerId == null ? "" : reviewerId);
+        decisionEvent.put("notes", notes == null ? "" : notes);
+        decisionEvent.put("decidedAt", decidedAt.toString());
+        try {
+            chainService.appendSystemEvent(decisionEvent.toString(), "review:" + (reviewerId == null ? "unknown" : reviewerId), null);
+        } catch (RuntimeException ex) {
+            throw new IllegalStateException("Unable to record reviewer decision on audit chain", ex);
+        }
         store.updateReviewDecision(item.id.toString(), decision.name(), reviewerId, notes, decidedAt.toString());
         item.decision = decision;
         item.reviewerId = reviewerId;
