@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 
 @Component
@@ -61,7 +63,10 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             response.getWriter().write("{\"error\":\"insufficient role\",\"role\":\"" + role + "\"}");
             return;
         }
+        String keyFingerprint = fingerprint(provided.trim());
         request.setAttribute("auditchain.role", role);
+        request.setAttribute("auditchain.actorId", role.name().toLowerCase(Locale.ROOT) + ":" + keyFingerprint);
+        request.setAttribute("auditchain.rateLimitKey", keyFingerprint + ":" + request.getRemoteAddr());
         chain.doFilter(request, response);
     }
 
@@ -72,6 +77,17 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             if (path.equals(p) || path.startsWith(p + "/")) return true;
         }
         return false;
+    }
+
+    private String fingerprint(String value) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+            StringBuilder out = new StringBuilder(16);
+            for (int i = 0; i < 8; i++) out.append(String.format("%02x", digest[i]));
+            return out.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
     }
 
     private boolean authorized(HttpServletRequest req, Role role) {
