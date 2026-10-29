@@ -69,6 +69,11 @@ public class ChainService {
         return engine.append(payloadJson, AuditEntry.ActorRole.PU_OFFICER, actorId, locationCode);
     }
 
+    /** Append system-generated integrity events such as AI checks and review decisions. */
+    public synchronized AuditEntry appendSystemEvent(String payloadJson, String actorId, String locationCode) {
+        return engine.append(payloadJson, AuditEntry.ActorRole.AUDITOR, actorId, locationCode);
+    }
+
     private void requireDemoMode() {
         if (!demoMode) throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.FORBIDDEN, "Demo-only operation disabled");
