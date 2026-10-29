@@ -27,6 +27,20 @@ async function items(){const d=await db();try{return await new Promise((resolve,
 async function put(item){await operation('readwrite',s=>s.put(item));}
 async function remove(nonce){await operation('readwrite',s=>s.delete(nonce));}
 function status(message){$('status').textContent=message;}
+async function sanitizeImage(file){
+ const bitmap=await createImageBitmap(file);
+ const scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
+ const canvas=document.createElement('canvas');
+ canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+ canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+ const context=canvas.getContext('2d');
+ if(!context){bitmap.close();throw new Error('Image processing is unavailable in this browser.');}
+ context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+ bitmap.close();
+ const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not process image.')),'image/jpeg',0.82));
+ if(blob.size>2*1024*1024) throw new Error('Image is still over 2 MB after compression. Choose a smaller image.');
+ return new File([blob],'evidence.jpg',{type:'image/jpeg',lastModified:Date.now()});
+}
 async function transmit(item){
  const key=$('key').value.trim();if(!key){status('Enter your officer API key to retry.');return false;}
  const form=new FormData();form.append('actorId',item.actor);form.append('locationCode',item.location);form.append('payloadJson',item.payload);form.append('file',item.file,item.file.name);
@@ -39,7 +53,7 @@ async function transmit(item){
  return false;
 }
 async function retry(){const queue=await items();if(!queue.length){status('No queued submissions.');return;}for(const item of queue){if(!(await transmit(item)))break;}}
-$('form').addEventListener('submit',async e=>{e.preventDefault();const file=$('file').files[0];if(!file||file.size>2*1024*1024||!['image/png','image/jpeg'].includes(file.type)){status('Select a PNG or JPEG image up to 2 MB.');return;}try{JSON.parse($('payload').value);}catch(e){status('Figures must be valid JSON.');return;}const item={nonce:crypto.randomUUID(),actor:$('actor').value.trim(),location:$('location').value.trim(),payload:$('payload').value,file,createdAt:new Date().toISOString()};try{await put(item);status('Saved to offline queue.');if(navigator.onLine)await transmit(item);}catch(err){status('Unable to save locally: '+err.message);}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();const source=$('file').files[0];if(!source||!['image/png','image/jpeg'].includes(source.type)){status('Select a PNG or JPEG image.');return;}try{JSON.parse($('payload').value);}catch(e){status('Figures must be valid JSON.');return;}try{status('Removing image metadata and compressing…');const file=await sanitizeImage(source);const item={nonce:crypto.randomUUID(),actor:$('actor').value.trim(),location:$('location').value.trim(),payload:$('payload').value,file,createdAt:new Date().toISOString()};await put(item);status('Privacy-processed image saved to offline queue.');if(navigator.onLine)await transmit(item);}catch(err){status('Unable to process or save image: '+err.message);}});
 $('retry').onclick=()=>retry().catch(e=>status('Retry error: '+e.message));
 $('clear').onclick=async()=>{if(!confirm('Delete every locally queued submission?'))return;for(const item of await items())await remove(item.nonce);status('Local queue deleted.');};
 window.addEventListener('online',()=>{if($('key').value)retry().catch(()=>{});else status('Connection restored. Enter API key and select Retry.');});
