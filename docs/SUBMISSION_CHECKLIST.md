@@ -34,7 +34,7 @@
 - [ ] Execute and record the accessibility tests.
 - [ ] Run CI on the exact final submission commit and record the result.
 - [ ] Verify the current live deployment and core endpoints after the latest deploy finishes.
-- [ ] Connect an existing external PostgreSQL database (no new paid Render database) and verify migrations, persistence, and restart recovery if the submission claims persistent hosted storage.
+- [ ] Configure the existing AuditChain Supabase project as the Render PostgreSQL backend (no new project or paid Render database); verify credentials, Flyway state, persistence, and restart recovery.
 - [ ] Configure GitHub repository variable `AUDITCHAIN_BASE_URL` and secret `AUDITCHAIN_AUDITOR_KEY` for scheduled checkpoint anchoring.
 - [ ] Confirm the real vision provider is optional and disclose that mock AI is the default unless a provider is configured.
 - [ ] Check dependency licenses and confirm that no third-party assets or datasets are missing attribution.
