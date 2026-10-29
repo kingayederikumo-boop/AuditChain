@@ -127,6 +127,18 @@ public class CheckpointService {
         return Optional.empty();
     }
 
+    public void restorePublished(Checkpoint checkpoint) {
+        if (!verify(checkpoint)) {
+            throw new IllegalArgumentException("Cannot restore an invalid checkpoint");
+        }
+        synchronized (published) {
+            boolean exists = published.stream().anyMatch(existing ->
+                    existing.sequence == checkpoint.sequence
+                    && existing.signatureHex.equals(checkpoint.signatureHex));
+            if (!exists) published.add(checkpoint);
+        }
+    }
+
     public List<Checkpoint> listPublished() {
         synchronized (published) {
             return List.copyOf(published);
