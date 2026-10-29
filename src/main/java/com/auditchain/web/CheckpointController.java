@@ -2,6 +2,10 @@ package com.auditchain.web;
 
 import com.auditchain.crypto.CheckpointService;
 import com.auditchain.service.ChainService;
+import com.auditchain.model.AuditEntry;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -15,15 +19,46 @@ public class CheckpointController {
 
     private final CheckpointService checkpointService;
     private final ChainService chainService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public CheckpointController(CheckpointService checkpointService, ChainService chainService) {
         this.checkpointService = checkpointService;
         this.chainService = chainService;
+        restoreFromChain();
+    }
+
+    private void restoreFromChain() {
+        for (AuditEntry entry : chainService.getChain()) {
+            try {
+                JsonNode node = objectMapper.readTree(entry.getPayload());
+                if (!"CHECKPOINT".equals(node.path("type").asText())) continue;
+                checkpointService.restorePublished(new CheckpointService.Checkpoint(
+                        node.path("sequence").asLong(),
+                        node.path("chainTipHash").asText(),
+                        Instant.parse(node.path("createdAt").asText()),
+                        node.path("signatureHex").asText(),
+                        node.path("publicKeyHex").asText()));
+            } catch (Exception ignored) {
+                // Non-checkpoint entries and legacy payloads are intentionally ignored.
+            }
+        }
     }
 
     @PostMapping
     public Map<String, Object> create() {
         var cp = checkpointService.createAndPublish(chainService.size(), chainService.getLatestHash());
+        Map<String, Object> event = new LinkedHashMap<>();
+        event.put("type", "CHECKPOINT");
+        event.put("sequence", cp.sequence);
+        event.put("chainTipHash", cp.chainTipHash);
+        event.put("createdAt", cp.createdAt.toString());
+        event.put("signatureHex", cp.signatureHex);
+        event.put("publicKeyHex", cp.publicKeyHex);
+        try {
+            chainService.appendSystemEvent(objectMapper.writeValueAsString(event), "system:checkpoint", null);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to persist checkpoint in audit chain", ex);
+        }
         return toView(cp);
     }
 
