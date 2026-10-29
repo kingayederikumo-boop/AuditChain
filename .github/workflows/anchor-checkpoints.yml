@@ -1,0 +1,53 @@
+name: Publish signed audit checkpoints
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-checkpoint-anchoring
+  cancel-in-progress: false
+
+jobs:
+  anchor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request signed checkpoint
+        id: checkpoint
+        env:
+          AUDITCHAIN_BASE_URL: ${{ vars.AUDITCHAIN_BASE_URL }}
+          AUDITCHAIN_AUDITOR_KEY: ${{ secrets.AUDITCHAIN_AUDITOR_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$AUDITCHAIN_BASE_URL" || { echo "Repository variable AUDITCHAIN_BASE_URL is required"; exit 1; }
+          test -n "$AUDITCHAIN_AUDITOR_KEY" || { echo "Repository secret AUDITCHAIN_AUDITOR_KEY is required"; exit 1; }
+          curl --fail-with-body --silent --show-error \
+            -X POST "${AUDITCHAIN_BASE_URL%/}/api/checkpoints" \
+            -H "X-API-Key: $AUDITCHAIN_AUDITOR_KEY" \
+            -H "Accept: application/json" \
+            -o checkpoint.json
+          jq -e '.sequence != null and .chainTipHash != null and .signatureHex != null and .publicKeyHex != null and .valid == true' checkpoint.json >/dev/null
+          jq -c '{anchoredAt: (now | todate), checkpoint: .}' checkpoint.json > anchor-record.json
+      - name: Append checkpoint to public anchor branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin audit-anchors >/dev/null 2>&1; then
+            git fetch origin audit-anchors
+            git checkout -B audit-anchors origin/audit-anchors
+          else
+            git checkout --orphan audit-anchors
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p anchors
+          cat anchor-record.json >> anchors/log.jsonl
+          git add anchors/log.jsonl
+          git commit -m "anchor: publish signed checkpoint"
+          git push origin HEAD:audit-anchors
