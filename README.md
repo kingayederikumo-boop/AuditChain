@@ -87,9 +87,26 @@ java -jar target/auditchain-*.jar --spring.profiles.active=postgres
 - SQLite on ephemeral host disks is **not** production persistence.
 - Vision defaults to **mock**; set `AUDITCHAIN_VISION_URL` for an HTTP provider.
 - Rate limiter is process-local.
-- Checkpoints are held in memory by this prototype; export/publish them externally if they must survive a restart.
+- Published checkpoints are represented in the audit chain for reconstruction; external anchors are still required for independent trust.
 - Synthetic data only — no real election systems.
 
 ## CI
 
 `mvn -B verify` on every push to `main`.
+
+
+## Submission and governance documents
+
+- [Privacy notice](docs/PRIVACY.md)
+- [Responsible AI statement](docs/RESPONSIBLE_AI.md)
+- [Accessibility statement and test plan](docs/ACCESSIBILITY.md)
+- [Evaluation plan and results status](docs/EVALUATION.md)
+- [Deployment guide](docs/DEPLOYMENT.md)
+- [Pre-existing work and attribution disclosure](docs/PRE_EXISTING_WORK.md)
+- [Submission checklist](docs/SUBMISSION_CHECKLIST.md)
+- [Threat model](docs/STRIDE_Threat_Model.md)
+- [Checkpoint anchoring setup](docs/ANCHORING.md)
+
+## License
+
+AuditChain's project contributions are licensed under the [MIT License](LICENSE). Third-party dependencies remain subject to their own licenses.
