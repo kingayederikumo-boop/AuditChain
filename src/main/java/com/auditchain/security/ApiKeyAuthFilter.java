@@ -87,7 +87,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/review") && "POST".equalsIgnoreCase(method)) {
             return role == Role.REVIEWER || role == Role.AUDITOR;
         }
-        if (path.startsWith("/api/checkpoints") && "POST".equalsIgnoreCase(method)) {
+        if ((path.startsWith("/api/checkpoints") || path.startsWith("/api/scenarios"))
+                && "POST".equalsIgnoreCase(method)) {
             return role == Role.AUDITOR;
         }
         return true;
