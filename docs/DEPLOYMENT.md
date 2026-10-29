@@ -9,7 +9,7 @@
 - Application: Java 17 / Spring Boot 3, containerized with the repository Dockerfile.
 - Hosting: Render web service `auditchain`, free plan, health-check path `/health`.
 - Current configured storage default: SQLite.
-- A managed/external PostgreSQL connection is **not yet configured** for the deployed service.
+- An existing active Supabase project named **AuditChain** is available in the connected account and already contains the prototype's audit/evidence/review tables plus Flyway history. However, the Render service is **not yet configured to connect to it**; database credentials must be set as Render secrets.
 - Render free hosting may use ephemeral storage; SQLite data on an ephemeral disk must not be treated as durable across restarts or redeploys.
 - The latest code deployment must be checked in Render and through the live health endpoint before describing it as healthy.
 
@@ -46,11 +46,11 @@ PostgreSQL is supported by the application and local Docker Compose setup, but t
 
 1. Choose an existing database provider/account and confirm its free-tier limits, sleep/expiry behavior, backup policy, and connection limits.
 2. Create a dedicated database/user with least privilege; do not use an owner or personal admin credential for the application.
-3. Apply the repository's Flyway migrations using the application's documented PostgreSQL profile.
-4. Configure the service with `AUDITCHAIN_STORE_TYPE=postgres`, the appropriate Spring datasource URL, username, and password as hosting secrets, and the PostgreSQL profile required by the app.
+3. Confirm the existing schema and Flyway history before applying migrations. The connected AuditChain Supabase project already has audit/evidence/review tables and Flyway history; do not reset or recreate its schema. Apply only pending repository Flyway migrations using the application's PostgreSQL profile.
+4. Configure the service with `AUDITCHAIN_STORE_TYPE=postgres`, `SPRING_PROFILES_ACTIVE=postgres`, the Supabase PostgreSQL connection URL, username, and password as Render environment variables/secrets. Use Supabase's recommended connection mode for the Render network; do not put the password in the repository or this document.
 5. Confirm TLS/SSL requirements from the provider and use the provider's supported connection mode.
 6. Deploy, inspect startup/migration logs, create a synthetic record, restart/redeploy, and verify the record and chain remain available.
-7. Test backups and recovery before claiming production-grade durability.
+7. Test backups and recovery before claiming production-grade durability. Verify that the existing Supabase project's billing/usage remains within the intended free allowance; do not create a second database or a paid Render database.
 
 Do not paste database passwords into issues, chat, source files, or public documentation. No database has been provisioned by this guide.
 
