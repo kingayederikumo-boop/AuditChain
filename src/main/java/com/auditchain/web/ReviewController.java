@@ -3,6 +3,7 @@ package com.auditchain.web;
 import com.auditchain.ai.ReviewQueueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.*;
 
@@ -35,7 +36,8 @@ public class ReviewController {
     public ResponseEntity<?> decide(@PathVariable UUID id,
                                     @RequestParam String reviewerId,
                                     @RequestParam String decision,
-                                    @RequestParam(required = false) String notes) {
+                                    @RequestParam(required = false) String notes,
+                                    HttpServletRequest request) {
         ReviewQueueService.Decision d;
         try {
             d = ReviewQueueService.Decision.valueOf(decision.toUpperCase());
@@ -45,7 +47,11 @@ public class ReviewController {
         if (d == ReviewQueueService.Decision.PENDING) {
             return ResponseEntity.badRequest().body(Map.of("error", "cannot set PENDING"));
         }
-        return reviewQueue.decide(id, reviewerId, d, notes)
+        String authenticatedReviewer = (String) request.getAttribute("auditchain.actorId");
+        if (authenticatedReviewer == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "authenticated reviewer identity unavailable"));
+        }
+        return reviewQueue.decide(id, authenticatedReviewer, d, notes)
                 .map(item -> ResponseEntity.ok(Map.of(
                         "id", item.id.toString(),
                         "decision", item.decision.name(),
