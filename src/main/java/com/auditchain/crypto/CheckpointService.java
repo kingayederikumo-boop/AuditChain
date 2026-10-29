@@ -12,6 +12,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -96,12 +97,31 @@ public class CheckpointService {
 
     public Optional<String> detectTampering(long currentSequence, String currentTipHash,
                                             List<Checkpoint> externalCheckpoints) {
+        return detectTampering(currentSequence, currentTipHash, Map.of(currentSequence, currentTipHash),
+                externalCheckpoints);
+    }
+
+    /**
+     * Compare each signed checkpoint against the live chain hash at that exact
+     * sequence, not merely against the current tip. This detects rewritten
+     * history even after newer entries have been appended.
+     */
+    public Optional<String> detectTampering(long currentSequence, String currentTipHash,
+                                            Map<Long, String> liveHashes,
+                                            List<Checkpoint> externalCheckpoints) {
         for (Checkpoint cp : externalCheckpoints) {
             if (!verify(cp)) {
                 return Optional.of("checkpoint signature invalid at sequence " + cp.sequence);
             }
-            if (cp.sequence == currentSequence && !cp.chainTipHash.equals(currentTipHash)) {
-                return Optional.of("tip hash diverged from published checkpoint at sequence " + cp.sequence);
+            if (cp.sequence < 0 || cp.sequence > currentSequence) {
+                return Optional.of("checkpoint sequence outside live chain at sequence " + cp.sequence);
+            }
+            String liveHash = liveHashes.get(cp.sequence);
+            if (liveHash == null) {
+                return Optional.of("live chain hash unavailable at checkpoint sequence " + cp.sequence);
+            }
+            if (!cp.chainTipHash.equals(liveHash)) {
+                return Optional.of("chain hash diverged from published checkpoint at sequence " + cp.sequence);
             }
         }
         return Optional.empty();
