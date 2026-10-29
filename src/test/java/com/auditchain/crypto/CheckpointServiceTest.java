@@ -24,6 +24,36 @@ class CheckpointServiceTest {
     }
 
     @Test
+    void detectsHistoricalRewriteAfterChainHasGrown() {
+        CheckpointService svc = new CheckpointService("");
+        var cp = svc.createAndPublish(2, "original-sequence-two-hash");
+        var liveHashes = java.util.Map.of(
+                1L, "hash-one",
+                2L, "rewritten-sequence-two-hash",
+                3L, "hash-three",
+                4L, "hash-four",
+                5L, "current-tip"
+        );
+
+        var result = svc.detectTampering(5, "current-tip", liveHashes, java.util.List.of(cp));
+
+        assertTrue(result.isPresent());
+        assertTrue(result.get().contains("sequence 2"));
+    }
+
+    @Test
+    void detectsMissingHistoricalHashRatherThanSilentlySkippingCheckpoint() {
+        CheckpointService svc = new CheckpointService("");
+        var cp = svc.createAndPublish(2, "original-sequence-two-hash");
+
+        var result = svc.detectTampering(5, "current-tip",
+                java.util.Map.of(5L, "current-tip"), java.util.List.of(cp));
+
+        assertTrue(result.isPresent());
+        assertTrue(result.get().contains("unavailable"));
+    }
+
+    @Test
     void rejectsCheckpointSignedByAnUntrustedKey() {
         CheckpointService trusted = new CheckpointService("");
         CheckpointService attacker = new CheckpointService("");
