@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,11 +41,17 @@ public class EvidenceController {
             @RequestParam String actorId,
             @RequestParam(required = false) String locationCode,
             @RequestParam(required = false) String payloadJson,
-            @RequestParam(required = false) MultipartFile file) throws Exception {
+            @RequestParam(required = false) MultipartFile file,
+            HttpServletRequest request) throws Exception {
 
         if (idempotencyKey == null || idempotencyKey.isBlank()) return ResponseEntity.badRequest().body(Map.of("error", "Idempotency-Key required"));
         String key = idempotencyKey;
-        if (!rateLimiter.tryAcquire(actorId)) {
+        String authenticatedActor = (String) request.getAttribute("auditchain.actorId");
+        String rateLimitKey = (String) request.getAttribute("auditchain.rateLimitKey");
+        if (authenticatedActor == null || rateLimitKey == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "authenticated actor identity unavailable"));
+        }
+        if (!rateLimiter.tryAcquire(rateLimitKey)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(Map.of("error", "rate limit exceeded"));
         }
@@ -57,7 +64,7 @@ public class EvidenceController {
         boolean previouslySubmitted = evidenceService.findByIdempotency(key).isPresent();
         EvidenceSubmission sub;
         try {
-            sub = evidenceService.submit(key, actorId, locationCode, contentType, bytes, payloadJson);
+            sub = evidenceService.submit(key, authenticatedActor, locationCode, contentType, bytes, payloadJson);
         } catch (EvidenceConflictException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
         } catch (IllegalArgumentException ex) {
