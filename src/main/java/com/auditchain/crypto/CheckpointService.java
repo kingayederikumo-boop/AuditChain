@@ -16,8 +16,8 @@ import java.util.Optional;
 
 /**
  * Ed25519-signed checkpoints of the hash-chain tip.
- * Checkpoints can be published independently so third parties can detect
- * historical record modification.
+ * Verification is pinned to this service's trusted public key, not the
+ * public key supplied by an untrusted checkpoint payload.
  */
 @Service
 public class CheckpointService {
@@ -72,11 +72,26 @@ public class CheckpointService {
         return cp;
     }
 
+    /**
+     * Verify both the signature and that the checkpoint names this service's
+     * trusted key. Never trust a public key merely because it is embedded in
+     * the checkpoint being checked.
+     */
     public boolean verify(Checkpoint cp) {
+        if (cp == null || cp.chainTipHash == null || cp.createdAt == null
+                || cp.signatureHex == null || cp.publicKeyHex == null) {
+            return false;
+        }
+        if (!publicKeyHex().equalsIgnoreCase(cp.publicKeyHex)) {
+            return false;
+        }
         String message = cp.sequence + "|" + cp.chainTipHash + "|" + cp.createdAt;
-        return verify(message.getBytes(StandardCharsets.UTF_8),
-                Hex.decode(cp.signatureHex),
-                Hex.decode(cp.publicKeyHex));
+        try {
+            return verify(message.getBytes(StandardCharsets.UTF_8),
+                    Hex.decode(cp.signatureHex), publicKey.getEncoded());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public Optional<String> detectTampering(long currentSequence, String currentTipHash,
