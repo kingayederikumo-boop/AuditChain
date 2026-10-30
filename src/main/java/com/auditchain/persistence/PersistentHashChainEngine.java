@@ -15,19 +15,24 @@ import java.util.Optional;
  */
 public class PersistentHashChainEngine {
 
-    private final HashChainEngine engine;
+    private HashChainEngine engine;
     private final AuditStore store;
 
     public PersistentHashChainEngine(AuditStore store) {
         this.store = store;
-        this.engine = new HashChainEngine();
-        List<AuditEntry> existing = store.loadAll();
-        for (AuditEntry e : existing) {
-            engine.restoreEntry(e);
-        }
+        reload();
     }
 
-    public AuditEntry append(String payloadJson,
+    public synchronized void reload() {
+        HashChainEngine refreshed = new HashChainEngine();
+        List<AuditEntry> existing = store.loadAll();
+        for (AuditEntry entry : existing) {
+            refreshed.restoreEntry(entry);
+        }
+        this.engine = refreshed;
+    }
+
+    public synchronized AuditEntry append(String payloadJson,
                              AuditEntry.ActorRole role,
                              String actorId,
                              String locationCode) {
@@ -44,27 +49,27 @@ public class PersistentHashChainEngine {
         return entry;
     }
 
-    public Optional<Long> verifyChain() {
+    public synchronized Optional<Long> verifyChain() {
         return engine.verifyChain();
     }
 
-    public List<AuditEntry> getChain() {
+    public synchronized List<AuditEntry> getChain() {
         return engine.getChain();
     }
 
-    public int size() {
+    public synchronized int size() {
         return engine.size();
     }
 
-    public String getLatestHash() {
+    public synchronized String getLatestHash() {
         return engine.getLatestHash();
     }
 
-    public List<AuditEntry> getPendingSync() {
+    public synchronized List<AuditEntry> getPendingSync() {
         return store.findPendingSync();
     }
 
-    public void markSynced(List<AuditEntry> entries) {
+    public synchronized void markSynced(List<AuditEntry> entries) {
         for (AuditEntry e : entries) {
             store.markSynced(e.getId());
             e.setStatus(AuditEntry.EntryStatus.SYNCED);

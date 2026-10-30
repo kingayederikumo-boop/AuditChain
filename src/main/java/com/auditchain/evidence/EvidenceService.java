@@ -10,10 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.sql.DataSource;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -56,7 +55,7 @@ public class EvidenceService {
         if (structuredPayloadJson == null || structuredPayloadJson.isBlank())
             throw new IllegalArgumentException("Structured JSON required");
         try {
-            new com.fasterxml.jackson.databind.ObjectMapper().readTree(structuredPayloadJson);
+            new ObjectMapper().readTree(structuredPayloadJson);
         } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
             throw new IllegalArgumentException("Invalid structured JSON", ex);
         }
@@ -74,20 +73,19 @@ public class EvidenceService {
             return prior;
         }
 
-        ObjectNode chainData = new ObjectMapper().createObjectNode();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode chainData = mapper.createObjectNode();
         chainData.put("type", "evidence");
         chainData.put("location", locationCode == null ? "" : locationCode);
         chainData.put("fingerprint", fingerprint);
         chainData.put("contentType", contentType);
         chainData.put("size", evidenceBytes.length);
         try {
-            chainData.set("data", new ObjectMapper().readTree(structuredPayloadJson));
+            chainData.set("data", mapper.readTree(structuredPayloadJson));
         } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
             throw new IllegalArgumentException("Invalid structured JSON", ex);
         }
         String chainPayload = chainData.toString();
-
-        AuditEntry entry = chainService.appendEvidence(chainPayload, actorId, locationCode);
 
         EvidenceSubmission sub = new EvidenceSubmission();
         sub.setIdempotencyKey(idempotencyKey);
@@ -95,12 +93,19 @@ public class EvidenceService {
         sub.setLocationCode(locationCode);
         sub.setEvidenceFingerprint(fingerprint);
         sub.setContentType(contentType);
-        sub.setSizeBytes(evidenceBytes == null ? 0 : evidenceBytes.length);
+        sub.setSizeBytes(evidenceBytes.length);
         sub.setPayloadJson(structuredPayloadJson);
-        sub.setChainEntryId(entry.getId());
-        sub.setReceiptHash(entry.getCurrentHash());
         sub.setEvidenceBytes(evidenceBytes);
 
+        if (store instanceof PostgresEvidenceStore postgresStore) {
+            EvidenceSubmission saved = postgresStore.saveAtomically(chainPayload, actorId, locationCode, sub);
+            chainService.reloadFromStore();
+            return saved;
+        }
+
+        AuditEntry entry = chainService.appendEvidence(chainPayload, actorId, locationCode);
+        sub.setChainEntryId(entry.getId());
+        sub.setReceiptHash(entry.getCurrentHash());
         store.save(sub);
         return sub;
     }

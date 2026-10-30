@@ -1,5 +1,7 @@
 package com.auditchain.persistence;
 
+import com.auditchain.evidence.EvidenceSubmission;
+import com.auditchain.evidence.PostgresEvidenceStore;
 import com.auditchain.model.AuditEntry;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,8 +63,9 @@ class PostgresAuditStoreTest {
                 .load()
                 .migrate();
 
-        // Isolate tests: clear table so previous test data cannot break the chain
         try (Connection c = dataSource.getConnection(); Statement st = c.createStatement()) {
+            st.execute("TRUNCATE TABLE evidence_submission");
+            st.execute("TRUNCATE TABLE review_item");
             st.execute("TRUNCATE TABLE audit_entry");
         }
 
@@ -111,6 +115,35 @@ class PostgresAuditStoreTest {
         for (int i = 0; i < n; i++) {
             assertEquals(i + 1, engine.getChain().get(i).getSequenceNumber());
         }
+    }
+
+    @Test
+    void atomicEvidenceWriteRollsBackChainEntryWhenEvidenceInsertFails() {
+        PostgresEvidenceStore evidenceStore = new PostgresEvidenceStore(dataSource);
+        EvidenceSubmission first = submission("same-idempotency-key");
+        evidenceStore.saveAtomically("{\"type\":\"evidence\"}", "officer-a", "PU-01", first);
+
+        EvidenceSubmission duplicate = submission("same-idempotency-key");
+        assertThrows(IllegalStateException.class, () ->
+                evidenceStore.saveAtomically("{\"type\":\"evidence\"}", "officer-a", "PU-01", duplicate));
+
+        assertEquals(1, store.size(), "failed evidence insert must roll back its corresponding audit entry");
+        assertEquals(1, evidenceStore.findByIdempotency("same-idempotency-key").stream().count());
+        assertTrue(new PersistentHashChainEngine(store).verifyChain().isEmpty());
+    }
+
+    private EvidenceSubmission submission(String idempotencyKey) {
+        EvidenceSubmission sub = new EvidenceSubmission();
+        sub.setId(UUID.randomUUID());
+        sub.setIdempotencyKey(idempotencyKey);
+        sub.setActorId("officer-a");
+        sub.setLocationCode("PU-01");
+        sub.setEvidenceFingerprint("a".repeat(64));
+        sub.setContentType("image/png");
+        sub.setSizeBytes(9);
+        sub.setPayloadJson("{\"votes\":42}");
+        sub.setEvidenceBytes(new byte[]{(byte)137, 80, 78, 71, 13, 10, 26, 10, 0});
+        return sub;
     }
 
     @Test
