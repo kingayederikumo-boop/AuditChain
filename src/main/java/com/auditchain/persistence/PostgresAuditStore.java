@@ -12,12 +12,11 @@ import java.util.UUID;
 
 /**
  * PostgreSQL-backed AuditStore for production / multi-instance use.
- * Relies on Flyway-managed schema. Uses transactions for append safety.
- * Sequence uniqueness is enforced by UNIQUE constraint on sequence_number.
- * Timestamp is stored as ISO-8601 text so hash canonical form is stable across round-trips.
+ * Uses a transaction-scoped advisory lock to serialize chain writes with atomic evidence submissions.
  */
 public class PostgresAuditStore implements AuditStore {
 
+    private static final long AUDIT_CHAIN_ADVISORY_LOCK = 782347123L;
     private final DataSource dataSource;
 
     public PostgresAuditStore(DataSource dataSource) {
@@ -34,20 +33,25 @@ public class PostgresAuditStore implements AuditStore {
             """;
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setObject(1, entry.getId());
-                ps.setLong(2, entry.getSequenceNumber());
-                ps.setString(3, entry.getPreviousHash());
-                ps.setString(4, entry.getPayload());
-                ps.setString(5, entry.getActorRole().name());
-                ps.setString(6, entry.getActorId());
-                // Store as ISO string so Instant.parse round-trip is exact and hashes stay valid
-                ps.setString(7, entry.getTimestamp().toString());
-                ps.setString(8, entry.getCurrentHash());
-                ps.setString(9, entry.getSignature());
-                ps.setString(10, entry.getLocationCode());
-                ps.setString(11, entry.getStatus().name());
-                ps.executeUpdate();
+            try {
+                try (PreparedStatement lock = conn.prepareStatement("SELECT pg_advisory_xact_lock(?)")) {
+                    lock.setLong(1, AUDIT_CHAIN_ADVISORY_LOCK);
+                    lock.execute();
+                }
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setObject(1, entry.getId());
+                    ps.setLong(2, entry.getSequenceNumber());
+                    ps.setString(3, entry.getPreviousHash());
+                    ps.setString(4, entry.getPayload());
+                    ps.setString(5, entry.getActorRole().name());
+                    ps.setString(6, entry.getActorId());
+                    ps.setString(7, entry.getTimestamp().toString());
+                    ps.setString(8, entry.getCurrentHash());
+                    ps.setString(9, entry.getSignature());
+                    ps.setString(10, entry.getLocationCode());
+                    ps.setString(11, entry.getStatus().name());
+                    ps.executeUpdate();
+                }
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
@@ -65,9 +69,7 @@ public class PostgresAuditStore implements AuditStore {
         try (Connection conn = dataSource.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(mapRow(rs));
-            }
+            while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to load chain", e);
         }
@@ -80,9 +82,7 @@ public class PostgresAuditStore implements AuditStore {
         try (Connection conn = dataSource.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-            if (rs.next()) {
-                return Optional.of(mapRow(rs));
-            }
+            if (rs.next()) return Optional.of(mapRow(rs));
             return Optional.empty();
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to get latest entry", e);
@@ -108,9 +108,7 @@ public class PostgresAuditStore implements AuditStore {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, AuditEntry.EntryStatus.PENDING_SYNC.name());
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
+                while (rs.next()) list.add(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to query pending sync", e);
@@ -139,11 +137,7 @@ public class PostgresAuditStore implements AuditStore {
     private AuditEntry mapRow(ResultSet rs) throws SQLException {
         AuditEntry e = new AuditEntry();
         Object idObj = rs.getObject("id");
-        if (idObj instanceof UUID) {
-            e.setId((UUID) idObj);
-        } else {
-            e.setId(UUID.fromString(idObj.toString()));
-        }
+        e.setId(idObj instanceof UUID uuid ? uuid : UUID.fromString(idObj.toString()));
         e.setSequenceNumber(rs.getLong("sequence_number"));
         e.setPreviousHash(rs.getString("previous_hash"));
         e.setPayload(rs.getString("payload"));
