@@ -32,11 +32,12 @@
 
 - [ ] Project owner confirms the pre-existing-work disclosure, including any work created outside this repository before the project start.
 - [ ] Execute and record the accessibility tests.
-- [ ] Run CI on the exact final submission commit and record the result.
-- [ ] Verify the current live deployment and core endpoints after the latest deploy finishes.
-- [ ] Configure the existing AuditChain Supabase project as the Render PostgreSQL backend (no new project or paid Render database); verify credentials, Flyway state, persistence, and restart recovery.
-- [ ] Configure GitHub repository variable `AUDITCHAIN_BASE_URL` and secret `AUDITCHAIN_AUDITOR_KEY` for scheduled checkpoint anchoring.
-- [ ] Confirm the real vision provider is optional and disclose that mock AI is the default unless a provider is configured.
+- [ ] Run CI on the exact final submission commit and record the result (this checklist update will trigger a new CI run).
+- [ ] Run HTTP smoke tests against the live health, authentication, evidence submission/receipt, review, and checkpoint-verification endpoints. Render logs confirm the app starts, but this tool session could not independently fetch the live endpoints.
+- [x] Existing AuditChain Supabase PostgreSQL backend is connected to Render; application logs confirm a PostgreSQL connection and five validated migrations (schema version 4, up to date). No new database was created.
+- [ ] Verify durable writes by submitting synthetic test data, confirming it remains after an application restart, and checking audit-chain/checkpoint recovery. Do not use real electoral data.
+- [ ] Configure GitHub repository variable `AUDITCHAIN_BASE_URL` and secret `AUDITCHAIN_AUDITOR_KEY` for scheduled checkpoint anchoring; the GitHub connector cannot inspect or manage repository secrets.
+- [x] Documentation states that the mock AI path is the default and a real vision provider is optional; owner should verify this matches the intended submission configuration.
 - [ ] Check dependency licenses and confirm that no third-party assets or datasets are missing attribution.
 
 ## Honesty rule
