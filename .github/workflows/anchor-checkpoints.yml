@@ -41,8 +41,6 @@ jobs:
           jq -c '{anchoredAt: (now | todate), checkpoint: .}' checkpoint.json > anchor-record.json
 
       - name: Append checkpoint to public anchor branch
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -61,12 +59,15 @@ jobs:
           git push origin HEAD:audit-anchors
 
       - name: Mirror anchor to independent repository (optional)
-        if: ${{ vars.AUDITCHAIN_ANCHOR_REPO != '' && secrets.AUDITCHAIN_ANCHOR_REPO_TOKEN != '' }}
         env:
           ANCHOR_REPO: ${{ vars.AUDITCHAIN_ANCHOR_REPO }}
           ANCHOR_REPO_TOKEN: ${{ secrets.AUDITCHAIN_ANCHOR_REPO_TOKEN }}
         run: |
           set -euo pipefail
+          if [ -z "$ANCHOR_REPO" ] || [ -z "$ANCHOR_REPO_TOKEN" ]; then
+            echo "Independent mirror not configured; same-repository anchor branch remains the fallback."
+            exit 0
+          fi
           git clone "https://x-access-token:${ANCHOR_REPO_TOKEN}@github.com/${ANCHOR_REPO}.git" mirror
           cd mirror
           git config user.name "github-actions[bot]"
