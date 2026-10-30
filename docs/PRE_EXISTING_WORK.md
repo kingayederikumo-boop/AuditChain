@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This disclosure distinguishes the AuditChain work represented in this repository from third-party tools and any earlier work relevant to the submission. The project owner has confirmed the first three items in the owner-confirmation checklist below. Remaining data/assets and repository-timeline confirmations are still pending.
+This disclosure distinguishes the AuditChain work represented in this repository from third-party tools and any earlier work relevant to the submission. The project owner has confirmed the first three items in the owner-confirmation checklist below. The owner has also confirmed that the demo uses fictional/test records and project-owned code only, with no imported real election data, downloaded datasets, or outside images; the owner confirms the repository history is accurate.
 
 ## AuditChain-specific work
 
@@ -28,14 +28,14 @@ This repository does not claim ownership of those third-party components. The pr
 
 - The intended demo dataset is synthetic; no real electoral records should be used.
 - The default AI vision path is a mock provider. Any optional external model/provider is separately governed by its terms.
-- The project owner still needs to confirm whether any non-synthetic data, third-party datasets, external model output, images, or other assets are included. Do not represent such material as original project work; record its source, license, and modifications here before submission.
+- The project owner confirms that the submitted demo uses fictional/test records and project-owned code only; no real election data, downloaded datasets, or outside images were imported. The default AI vision path is a mock provider. Revisit this disclosure if the submission later adds external datasets, model outputs, images, or other assets.
 
 ## Owner confirmation status
 
 - [x] Confirmed: no AuditChain code, architecture, design, or documentation existed before this project began.
 - [x] Confirmed: no code or designs were reused from an earlier personal/team project.
 - [x] Confirmed: individual project; no other contributor or third party has rights in the submitted work, to the owner's knowledge.
-- [ ] Pending: confirm whether any non-synthetic data, third-party datasets, external model output, images, or other assets are included.
-- [ ] Pending: confirm that repository commit history accurately represents the development timeline and that no work was imported from another source.
+- [x] Confirmed: fictional/test records and project-owned code only; no imported real election data, downloaded datasets, or outside images.
+- [x] Confirmed: repository commit history accurately represents the development timeline; no work was imported from another source.
 
 If either pending item requires a disclosure, add the relevant source, date, owner/contributors, license/permission, and exact portions used before submission.
