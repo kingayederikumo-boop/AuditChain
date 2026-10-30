@@ -6,13 +6,17 @@
 
 ## Purpose
 
-This disclosure distinguishes the AuditChain work represented in this repository from third-party tools and any earlier work that may be relevant to the submission. It is based on the available repository history and project documents; the project owner must review it for completeness before submitting.
+This disclosure distinguishes the AuditChain work represented in this repository from third-party tools and any earlier work relevant to the submission. The project owner has confirmed the first three items in the owner-confirmation checklist below. Remaining data/assets and repository-timeline confirmations are still pending.
 
 ## AuditChain-specific work
 
-The public GitHub repository `kingayederikumo-boop/AuditChain` was created on 2026-10-23 according to GitHub repository metadata. The repository contains the AuditChain prototype, documentation, tests, container/deployment configuration, and CI workflow. Its described scope is a simulated, defensive, offline-tolerant, hash-chained audit trail for synthetic electoral-results transmission.
+The public GitHub repository `kingayederikumo-boop/AuditChain` was created on 2026-10-23 according to GitHub repository metadata. The project owner confirms that no AuditChain code, architecture, design, or documentation existed before work on this project began, and that no components were reused from an earlier project.
 
-Repository creation date is not proof that every idea, design, or code fragment was first conceived on that date. Any earlier notes, prototypes, diagrams, or code outside this repository must be disclosed by the project owner if they materially contributed to this submission.
+The repository contains the AuditChain prototype, documentation, tests, container/deployment configuration, and CI workflow. Its described scope is a simulated, defensive, offline-tolerant, hash-chained audit trail for synthetic electoral-results transmission.
+
+## Contributors and rights
+
+The project owner confirms that this is an individual project and that no teammate, mentor, employer, school, client, or other contributor has rights in the submitted work, to the owner's knowledge.
 
 ## Third-party software
 
@@ -24,16 +28,14 @@ This repository does not claim ownership of those third-party components. The pr
 
 - The intended demo dataset is synthetic; no real electoral records should be used.
 - The default AI vision path is a mock provider. Any optional external model/provider is separately governed by its terms.
-- No external dataset, model weights, or third-party media asset should be represented as original project work. Record any such material, its source, license, and modifications here before submission.
+- The project owner still needs to confirm whether any non-synthetic data, third-party datasets, external model output, images, or other assets are included. Do not represent such material as original project work; record its source, license, and modifications here before submission.
 
-## Owner confirmation required
+## Owner confirmation status
 
-Before submission, the project owner must confirm or amend the following:
+- [x] Confirmed: no AuditChain code, architecture, design, or documentation existed before this project began.
+- [x] Confirmed: no code or designs were reused from an earlier personal/team project.
+- [x] Confirmed: individual project; no other contributor or third party has rights in the submitted work, to the owner's knowledge.
+- [ ] Pending: confirm whether any non-synthetic data, third-party datasets, external model output, images, or other assets are included.
+- [ ] Pending: confirm that repository commit history accurately represents the development timeline and that no work was imported from another source.
 
-- [ ] Whether any AuditChain code, architecture, design, or documentation existed before the hackathon/project start and, if so, which parts.
-- [ ] Whether code or designs from an earlier personal/team project were reused; identify the project and the reused components.
-- [ ] Whether any teammate, mentor, employer, school, client, or other contributor has rights in submitted work.
-- [ ] Whether any non-synthetic data, third-party datasets, external model output, images, or other assets are included.
-- [ ] Whether repository commit history accurately represents the development timeline, or whether work was imported from another source.
-
-Do not submit this disclosure as a categorical statement that no prior work exists until the project owner has confirmed the checklist. If earlier work exists, add its name, date, owner/contributors, license/permission, and the exact portions reused.
+If either pending item requires a disclosure, add the relevant source, date, owner/contributors, license/permission, and exact portions used before submission.
