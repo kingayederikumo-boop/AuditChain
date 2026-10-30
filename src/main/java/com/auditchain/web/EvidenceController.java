@@ -72,8 +72,12 @@ public class EvidenceController {
         }
 
         VisionResult vision = visionProvider.analyse(bytes, payloadJson);
-        if (!previouslySubmitted && vision.isRequiresHumanReview()) {
-            reviewQueue.enqueue(sub.getId().toString(), vision);
+        if (!previouslySubmitted) {
+            // Every first-time AI result is tamper-evident, even when no review is needed.
+            reviewQueue.recordAiResult(sub.getId().toString(), vision);
+            if (vision.isRequiresHumanReview()) {
+                reviewQueue.enqueueAfterAiRecorded(sub.getId().toString(), vision);
+            }
         }
 
         Map<String, Object> body = new LinkedHashMap<>();
