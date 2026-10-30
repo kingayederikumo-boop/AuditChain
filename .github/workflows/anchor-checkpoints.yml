@@ -31,7 +31,8 @@ jobs:
           set -euo pipefail
           test -n "$AUDITCHAIN_BASE_URL" || { echo "Repository variable AUDITCHAIN_BASE_URL is required"; exit 1; }
           test -n "$AUDITCHAIN_AUDITOR_KEY" || { echo "Repository secret AUDITCHAIN_AUDITOR_KEY is required"; exit 1; }
-          curl --fail-with-body --silent --show-error \
+          curl --retry 5 --retry-delay 20 --retry-all-errors --connect-timeout 15 --max-time 60 \
+            --fail-with-body --silent --show-error \
             -X POST "${AUDITCHAIN_BASE_URL%/}/api/checkpoints" \
             -H "X-API-Key: $AUDITCHAIN_AUDITOR_KEY" \
             -H "Accept: application/json" \
@@ -58,3 +59,20 @@ jobs:
           git add anchors/log.jsonl
           git commit -m "anchor: publish signed checkpoint"
           git push origin HEAD:audit-anchors
+
+      - name: Mirror anchor to independent repository (optional)
+        if: ${{ vars.AUDITCHAIN_ANCHOR_REPO != '' && secrets.AUDITCHAIN_ANCHOR_REPO_TOKEN != '' }}
+        env:
+          ANCHOR_REPO: ${{ vars.AUDITCHAIN_ANCHOR_REPO }}
+          ANCHOR_REPO_TOKEN: ${{ secrets.AUDITCHAIN_ANCHOR_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone "https://x-access-token:${ANCHOR_REPO_TOKEN}@github.com/${ANCHOR_REPO}.git" mirror
+          cd mirror
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p anchors
+          cat ../anchor-record.json >> anchors/log.jsonl
+          git add anchors/log.jsonl
+          git commit -m "anchor: mirror signed checkpoint"
+          git push origin HEAD
