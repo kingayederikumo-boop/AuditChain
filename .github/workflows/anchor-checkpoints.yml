@@ -16,6 +16,12 @@ jobs:
   anchor:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
       - name: Request signed checkpoint
         id: checkpoint
         env:
@@ -32,6 +38,7 @@ jobs:
             -o checkpoint.json
           jq -e '.sequence != null and .chainTipHash != null and .signatureHex != null and .publicKeyHex != null and .valid == true' checkpoint.json >/dev/null
           jq -c '{anchoredAt: (now | todate), checkpoint: .}' checkpoint.json > anchor-record.json
+
       - name: Append checkpoint to public anchor branch
         env:
           GH_TOKEN: ${{ github.token }}
