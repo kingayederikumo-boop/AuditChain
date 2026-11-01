@@ -38,7 +38,6 @@ public class EvidenceController {
     @PostMapping
     public ResponseEntity<?> submit(
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
-            @RequestParam String actorId,
             @RequestParam(required = false) String locationCode,
             @RequestParam(required = false) String payloadJson,
             @RequestParam(required = false) MultipartFile file,
