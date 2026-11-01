@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AuditChain — Synthetic Evidence</title>
+<title>AuditChain — Evidence Submission</title>
 <style>
 body{font:16px system-ui;background:#101827;color:#e8edf6;margin:0;padding:1.2rem;max-width:680px;margin-inline:auto}
 label{display:block;margin-top:1rem}input,textarea,button{box-sizing:border-box;width:100%;padding:.75rem;border-radius:8px;border:1px solid #56657b;background:#1d293b;color:inherit;font:inherit}button{margin-top:1rem;background:#2563eb;border:0;font-weight:650;cursor:pointer}button:disabled{opacity:.5}small{color:#b8c5d8}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#1d293b;padding:1rem;border-radius:8px}a{color:#9cc8ff}.warning{border-left:4px solid #fbbf24;padding-left:.7rem}
+body{max-width:760px;padding:clamp(18px,4vw,42px)}.topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #263750;border-radius:12px;background:#111c2d;margin-bottom:28px}.topnav a{color:#9cc8ff;text-decoration:none;font-size:12px;font-weight:650}.brand{font-weight:800;letter-spacing:.12em;color:#e8edf6!important}.eyebrow{font-size:10px;letter-spacing:.16em;color:#57d6dc;font-weight:700}h1{font-size:clamp(26px,5vw,36px);letter-spacing:-.04em;margin:6px 0 8px}p{line-height:1.6;color:#b8c5d8}form{border:1px solid #263750;border-radius:14px;padding:clamp(16px,3vw,26px);background:linear-gradient(145deg,#142238,#101a2a);margin-top:20px}label{font-size:12px;font-weight:650;color:#dce8f7;margin-top:16px}input,textarea{margin-top:7px;background:#0d1929;border-color:#344a65}input:focus,textarea:focus{outline:2px solid #57d6dc;outline-offset:2px}button{border-radius:9px;background:#173b5c;border:1px solid #35577c}button:hover{background:#20517c}#retry,#clear{width:auto;margin-right:8px;padding:10px 14px}#status{padding:12px;border:1px solid #263750;border-radius:9px;background:#111c2d;font-size:12px}pre{border:1px solid #263750;font-size:11px}.warning{border-left-color:#f2bd63;background:#2a2419;padding:12px;border-radius:0 9px 9px 0;color:#e5d4b2}a:focus-visible,button:focus-visible{outline:2px solid #57d6dc;outline-offset:3px}@media(max-width:520px){#retry,#clear{width:100%;margin:8px 0 0}}
 </style></head><body>
-<a href="/">Chain verifier</a><h1>Submit synthetic evidence</h1>
+<nav class="topnav"><a class="brand" href="/">AUDITCHAIN</a><a href="/">← Integrity console</a></nav><div class="eyebrow">FIELD OPERATIONS / EVIDENCE INTAKE</div><h1>Submit evidence.</h1>
 <p class="warning">Prototype for synthetic test data only. Offline items remain on this device until successfully submitted or deleted. Do not use real election records or personal information.</p>
 <form id="form">
 <label>Officer API key (kept in memory only)<input id="key" type="password" autocomplete="off" required></label>
