@@ -2,7 +2,7 @@
 
 **Project:** AuditChain  
 **Scope:** Defensive, synthetic-data prototype for the #AI4Elections Track 4 submission  
-**Last reviewed:** 2026-10-30
+**Last reviewed:** 2026-11-01
 
 ## Evaluation questions
 
@@ -37,7 +37,10 @@ Use synthetic fixtures only. Do not test against a live electoral system or real
 
 ## Results currently evidenced
 
-- The repository's CI runs `mvn verify` on pushes to `main`.
+- GitHub Actions CI succeeded on the then-current `main` submission commit `79b5b586bad764b4da796308ce729f567aca5ad0` on 2026-10-30 (workflow run #101 / run ID `40983034008`). This is evidence for that exact commit, not for later commits.
+- The scheduled signed-checkpoint workflow succeeded on 2026-11-01 (run #14 / run ID `41312219959`). Both the checkpoint request and append steps passed.
+- The public `audit-anchors/anchors/log.jsonl` contained ten checkpoint records marked `valid: true` on 2026-11-01. This demonstrates the workflow's successful publication path, not independent third-party immutability; the anchor branch is in the same repository.
+- Prior deployment logs confirmed a PostgreSQL connection and five validated Flyway migrations. A synthetic record surviving an application restart has not yet been independently recorded.
 - At the last implementation checkpoint on 2026-10-29, a Render build reported 30 tests, 0 failures, 0 errors, and 4 skipped. This is a historical build result, not proof that every later commit or the current live deployment is healthy.
 - Regression tests were added for historical checkpoint verification.
 - No independent AI accuracy/fairness evaluation, penetration test, accessibility audit, or load test is documented as complete.
@@ -48,7 +51,7 @@ Do not invent accuracy percentages, latency figures, detection rates, uptime, or
 
 ## Acceptance criteria for submission
 
-- CI succeeds on the exact submission commit.
+- CI succeeds on the exact final submission commit.
 - Checkpoint regression tests are included and passing.
 - Demo uses only synthetic records and clearly labels simulation-only operations.
 - Any failed, skipped, or unavailable test is disclosed.
