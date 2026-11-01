@@ -31,7 +31,9 @@ jobs:
           set -euo pipefail
           test -n "$AUDITCHAIN_BASE_URL" || { echo "Repository variable AUDITCHAIN_BASE_URL is required"; exit 1; }
           test -n "$AUDITCHAIN_AUDITOR_KEY" || { echo "Repository secret AUDITCHAIN_AUDITOR_KEY is required"; exit 1; }
+          # The free Render instance can need ~90 s to cold-start, so retry through it.
           curl --fail-with-body --silent --show-error \
+            --retry 5 --retry-delay 20 --retry-all-errors --max-time 180 \
             -X POST "${AUDITCHAIN_BASE_URL%/}/api/checkpoints" \
             -H "X-API-Key: $AUDITCHAIN_AUDITOR_KEY" \
             -H "Accept: application/json" \

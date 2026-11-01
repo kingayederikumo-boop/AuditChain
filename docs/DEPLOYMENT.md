@@ -8,10 +8,11 @@
 
 - Application: Java 17 / Spring Boot 3, containerized with the repository Dockerfile.
 - Hosting: Render web service `auditchain`; the project is intended to remain on the existing free hosting arrangement.
+- Cold start: the free instance took about 81 seconds to start in the Render logs of 2026-11-01. The first request after an idle period can take that long, so warm the service before any demonstration.
 - Database: the existing Supabase project named **AuditChain** is connected to the Render service using PostgreSQL. Prior deployment logs confirmed a PostgreSQL connection and five validated Flyway migrations (schema version 4, up to date). No new Render database should be created.
 - The repository submission checklist records the PostgreSQL connection as complete. A synthetic write/read test across an application restart is still required before claiming durable production persistence.
 - The application supports SQLite by default and PostgreSQL through the `postgres` profile. Do not assume SQLite on an ephemeral host is durable.
-- Scheduled signed-checkpoint anchoring is operational: GitHub Actions run #14 succeeded on 2026-11-01 and appended a valid signed checkpoint to the public `audit-anchors` branch. The public log currently contains ten valid checkpoint records. This branch is in the same repository and is not an independent trust domain.
+- Scheduled signed-checkpoint anchoring is operational: GitHub Actions run #14 succeeded on 2026-11-01 and appended a valid signed checkpoint to the public `audit-anchors` branch. At the 2026-11-01 review the public log contained nine valid checkpoint records (sequences 2 to 10); it gains one record for each scheduled run. This branch is in the same repository and is not an independent trust domain.
 - Direct live HTTP smoke checks and accessibility testing remain outstanding. A successful scheduled anchor run does not replace those checks.
 
 ## Local run
@@ -63,11 +64,13 @@ The existing connection and migrations have been observed in deployment logs; th
 
 ## Checkpoints and external anchors
 
-The scheduled workflow in `.github/workflows/anchor-checkpoints.yml` requests a signed checkpoint from the deployed service and appends it to `audit-anchors/anchors/log.jsonl`.
+The scheduled workflow in `.github/workflows/anchor-checkpoints.yml` requests a signed checkpoint from the deployed service and appends it to `audit-anchors/anchors/log.jsonl`. The request retries for several minutes so that a cold-starting free instance does not fail the run.
 
-The scheduled workflow has succeeded repeatedly. The 2026-11-01 run (#14) completed both the checkpoint request and append steps successfully. The log contained ten records marked `valid: true` at the time of review.
+The scheduled workflow has succeeded repeatedly. The 2026-11-01 run (#14) completed both the checkpoint request and append steps successfully. The log contained nine records marked `valid: true` at the time of review.
 
 The workflow uses the repository variable `AUDITCHAIN_BASE_URL` and secret `AUDITCHAIN_AUDITOR_KEY`. Do not expose the auditor key. See [ANCHORING.md](ANCHORING.md) for setup and verification.
+
+`GET /api/checkpoints/verify-anchors` is a public, read-only check. It fetches `anchors/log.jsonl` from the public `audit-anchors` branch and compares every signed checkpoint with the live chain hash at that checkpoint's sequence. It returns `VERIFIED`, `MISMATCH` (HTTP 409) or `UNAVAILABLE` (HTTP 503). Unlike `GET /api/checkpoints/verify`, it does not depend on checkpoint entries stored inside the chain, so a history rewrite that also removes those entries is still detected. The source can be overridden with `auditchain.anchors.log-url`. The integrity console exposes the same check.
 
 A branch in the same repository is useful for a public append log but is not an independent trust domain: repository administrators can alter both branches. For stronger assurance, mirror signed anchors to a separately administered system or independently controlled immutable storage. That stronger separation is not currently claimed.
 
@@ -81,6 +84,7 @@ A branch in the same repository is useful for a public append log but is not an 
 - [x] Existing external PostgreSQL connection and Flyway migrations were confirmed in deployment logs.
 - [ ] Synthetic evidence survives an application restart.
 - [ ] Checkpoint creation and historical verification succeed in a live smoke test.
+- [ ] `GET /api/checkpoints/verify-anchors` returns `VERIFIED` on the live deployment.
 - [ ] Logs do not expose secrets or sensitive payloads.
 - [ ] Submission and accessibility flows have been tested on the deployed UI.
 
