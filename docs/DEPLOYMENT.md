@@ -2,16 +2,17 @@
 
 **Project:** AuditChain  
 **Status:** Prototype deployment guide  
-**Last reviewed:** 2026-10-30
+**Last reviewed:** 2026-11-01
 
 ## Current deployment posture
 
 - Application: Java 17 / Spring Boot 3, containerized with the repository Dockerfile.
-- Hosting: Render web service `auditchain`, free plan, health-check path `/health`.
-- Current configured storage default: SQLite.
-- An existing active Supabase project named **AuditChain** is available in the connected account and already contains the prototype's audit/evidence/review tables plus Flyway history. However, the Render service is **not yet configured to connect to it**; database credentials must be set as Render secrets.
-- Render free hosting may use ephemeral storage; SQLite data on an ephemeral disk must not be treated as durable across restarts or redeploys.
-- The latest code deployment must be checked in Render and through the live health endpoint before describing it as healthy.
+- Hosting: Render web service `auditchain`; the project is intended to remain on the existing free hosting arrangement.
+- Database: the existing Supabase project named **AuditChain** is connected to the Render service using PostgreSQL. Prior deployment logs confirmed a PostgreSQL connection and five validated Flyway migrations (schema version 4, up to date). No new Render database should be created.
+- The repository submission checklist records the PostgreSQL connection as complete. A synthetic write/read test across an application restart is still required before claiming durable production persistence.
+- The application supports SQLite by default and PostgreSQL through the `postgres` profile. Do not assume SQLite on an ephemeral host is durable.
+- Scheduled signed-checkpoint anchoring is operational: GitHub Actions run #14 succeeded on 2026-11-01 and appended a valid signed checkpoint to the public `audit-anchors` branch. The public log currently contains ten valid checkpoint records. This branch is in the same repository and is not an independent trust domain.
+- Direct live HTTP smoke checks and accessibility testing remain outstanding. A successful scheduled anchor run does not replace those checks.
 
 ## Local run
 
@@ -42,34 +43,44 @@ The Ed25519 seed must remain stable across restarts if the same signing identity
 
 ## External PostgreSQL
 
-PostgreSQL is supported by the application and local Docker Compose setup, but this repository does not currently contain a configured external database URL or credentials. To connect an existing external PostgreSQL service without creating a paid Render database:
+The existing AuditChain Supabase PostgreSQL project is the configured external database. Keep using it; do not create a second database or a paid Render database.
 
-1. Choose an existing database provider/account and confirm its free-tier limits, sleep/expiry behavior, backup policy, and connection limits.
-2. Create a dedicated database/user with least privilege; do not use an owner or personal admin credential for the application.
-3. Confirm the existing schema and Flyway history before applying migrations. The connected AuditChain Supabase project already has audit/evidence/review tables and Flyway history; do not reset or recreate its schema. Apply only pending repository Flyway migrations using the application's PostgreSQL profile.
-4. Configure the service with `AUDITCHAIN_STORE_TYPE=postgres`, `SPRING_PROFILES_ACTIVE=postgres`, the Supabase PostgreSQL connection URL, username, and password as Render environment variables/secrets. Use Supabase's recommended connection mode for the Render network; do not put the password in the repository or this document.
-5. Confirm TLS/SSL requirements from the provider and use the provider's supported connection mode.
-6. Deploy, inspect startup/migration logs, create a synthetic record, restart/redeploy, and verify the record and chain remain available.
-7. Test backups and recovery before claiming production-grade durability. Verify that the existing Supabase project's billing/usage remains within the intended free allowance; do not create a second database or a paid Render database.
+The Render service should use:
+- `AUDITCHAIN_STORE_TYPE=postgres`
+- `SPRING_PROFILES_ACTIVE=postgres`
+- the existing Supabase PostgreSQL connection URL, username, and password stored only as Render environment variables/secrets.
 
-Do not paste database passwords into issues, chat, source files, or public documentation. No database has been provisioned by this guide.
+Use Supabase's recommended connection mode for the Render network and comply with its TLS/SSL requirements. Do not paste database passwords into issues, chat, source files, or this document. Do not reset or recreate the existing schema. Apply only pending repository Flyway migrations.
+
+Before claiming durable persistence:
+1. Submit a synthetic evidence record and retain its receipt.
+2. Confirm the record and chain entry are readable.
+3. Restart or redeploy the Render service.
+4. Confirm the same record, receipt, and chain state remain available.
+5. Verify checkpoint recovery and review any provider backup/recovery limitations.
+
+The existing connection and migrations have been observed in deployment logs; the restart-persistence test remains pending.
 
 ## Checkpoints and external anchors
 
-See [ANCHORING.md](ANCHORING.md). The scheduled GitHub workflow requires the repository variable `AUDITCHAIN_BASE_URL` and repository secret `AUDITCHAIN_AUDITOR_KEY`. Configure these directly in GitHub Settings. Never place the auditor key in a public issue or commit.
+The scheduled workflow in `.github/workflows/anchor-checkpoints.yml` requests a signed checkpoint from the deployed service and appends it to `audit-anchors/anchors/log.jsonl`.
 
-A branch in the same repository is useful for publishing an audit trail but is not an independent trust domain. For stronger assurance, publish signed anchors to a separately controlled system or organization.
+The scheduled workflow has succeeded repeatedly. The 2026-11-01 run (#14) completed both the checkpoint request and append steps successfully. The log contained ten records marked `valid: true` at the time of review.
+
+The workflow uses the repository variable `AUDITCHAIN_BASE_URL` and secret `AUDITCHAIN_AUDITOR_KEY`. Do not expose the auditor key. See [ANCHORING.md](ANCHORING.md) for setup and verification.
+
+A branch in the same repository is useful for a public append log but is not an independent trust domain: repository administrators can alter both branches. For stronger assurance, mirror signed anchors to a separately administered system or independently controlled immutable storage. That stronger separation is not currently claimed.
 
 ## Post-deployment verification checklist
 
 - [ ] Latest intended commit is deployed and the service is live.
 - [ ] `GET /health` returns the expected healthy response.
-- [ ] CI is green for the exact commit.
+- [ ] CI is green for the exact final submission commit.
 - [ ] Authentication is enabled for protected endpoints.
-- [ ] Signing public key is available and the private seed is secret.
-- [ ] External PostgreSQL is configured and migrations complete, if persistent cloud storage is required.
-- [ ] Synthetic evidence survives a restart when persistence is claimed.
-- [ ] Checkpoint creation and historical verification succeed.
+- [x] Scheduled signed checkpoint anchoring and public append are working.
+- [x] Existing external PostgreSQL connection and Flyway migrations were confirmed in deployment logs.
+- [ ] Synthetic evidence survives an application restart.
+- [ ] Checkpoint creation and historical verification succeed in a live smoke test.
 - [ ] Logs do not expose secrets or sensitive payloads.
 - [ ] Submission and accessibility flows have been tested on the deployed UI.
 
