@@ -10,7 +10,6 @@ body{max-width:760px;padding:clamp(18px,4vw,42px)}.topnav{display:flex;align-ite
 <p class="warning">Prototype for synthetic test data only. Offline items remain on this device until successfully submitted or deleted. Do not use real election records or personal information.</p>
 <form id="form">
 <label>Officer API key (kept in memory only)<input id="key" type="password" autocomplete="off" required></label>
-<label>Actor identifier<input id="actor" required maxlength="100" autocomplete="off"></label>
 <label>Polling unit code<input id="location" required maxlength="100"></label>
 <label>Structured figures (JSON)<textarea id="payload" rows="5" required>{"partyVotes":{"A":10,"B":12},"totalVotes":22}</textarea></label>
 <label>Result-sheet image (PNG/JPEG, max 2 MB)<input id="file" type="file" accept="image/png,image/jpeg" required></label>
@@ -44,7 +43,7 @@ async function sanitizeImage(file){
 }
 async function transmit(item){
  const key=$('key').value.trim();if(!key){status('Enter your officer API key to retry.');return false;}
- const form=new FormData();form.append('actorId',item.actor);form.append('locationCode',item.location);form.append('payloadJson',item.payload);form.append('file',item.file,item.file.name);
+ const form=new FormData();form.append('locationCode',item.location);form.append('payloadJson',item.payload);form.append('file',item.file,item.file.name);
  let response;
  try{response=await fetch('/api/evidence',{method:'POST',headers:{'X-API-Key':key,'Idempotency-Key':item.nonce},body:form});}
  catch(e){status('Network unavailable. Submission remains queued.');return false;}
@@ -54,7 +53,7 @@ async function transmit(item){
  return false;
 }
 async function retry(){const queue=await items();if(!queue.length){status('No queued submissions.');return;}for(const item of queue){if(!(await transmit(item)))break;}}
-$('form').addEventListener('submit',async e=>{e.preventDefault();const source=$('file').files[0];if(!source||!['image/png','image/jpeg'].includes(source.type)){status('Select a PNG or JPEG image.');return;}try{JSON.parse($('payload').value);}catch(e){status('Figures must be valid JSON.');return;}try{status('Removing image metadata and compressing…');const file=await sanitizeImage(source);const item={nonce:crypto.randomUUID(),actor:$('actor').value.trim(),location:$('location').value.trim(),payload:$('payload').value,file,createdAt:new Date().toISOString()};await put(item);status('Privacy-processed image saved to offline queue.');if(navigator.onLine)await transmit(item);}catch(err){status('Unable to process or save image: '+err.message);}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();const source=$('file').files[0];if(!source||!['image/png','image/jpeg'].includes(source.type)){status('Select a PNG or JPEG image.');return;}try{JSON.parse($('payload').value);}catch(e){status('Figures must be valid JSON.');return;}try{status('Removing image metadata and compressing…');const file=await sanitizeImage(source);const item={nonce:crypto.randomUUID(),location:$('location').value.trim(),payload:$('payload').value,file,createdAt:new Date().toISOString()};await put(item);status('Privacy-processed image saved to offline queue.');if(navigator.onLine)await transmit(item);}catch(err){status('Unable to process or save image: '+err.message);}});
 $('retry').onclick=()=>retry().catch(e=>status('Retry error: '+e.message));
 $('clear').onclick=async()=>{if(!confirm('Delete every locally queued submission?'))return;for(const item of await items())await remove(item.nonce);status('Local queue deleted.');};
 window.addEventListener('online',()=>{if($('key').value)retry().catch(()=>{});else status('Connection restored. Enter API key and select Retry.');});
