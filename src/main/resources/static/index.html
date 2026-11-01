@@ -1,77 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AuditChain Verifier</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="AuditChain evidence integrity and audit verification console.">
+<title>AuditChain — Integrity Console</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #0f1218; color: #e6e9ef; }
-  h1 { font-size: 1.3rem; margin: 0 0 12px; }
-  .status { padding: 12px; border-radius: 8px; font-weight: 600; margin-bottom: 12px; }
-  .ok { background: #14532d; }
-  .bad { background: #7f1d1d; }
-  .meta { font-size: .85rem; opacity: .85; margin-bottom: 12px; word-break: break-all; }
-  .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  button { padding: 10px 14px; border: 0; border-radius: 6px; background: #2563eb; color: #fff; font-size: .9rem; }
-  button.warn { background: #b45309; }
-  button.gray { background: #475569; }
-  .entry { border: 1px solid #263041; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: .8rem; word-break: break-all; }
-  .entry.broken { border-color: #ef4444; }
-  .entry b { color: #93c5fd; }
-  code { color: #fcd34d; }
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111c2d;--panel2:#152238;--line:#263750;--text:#edf4ff;--muted:#91a4bd;--blue:#58a6ff;--cyan:#57d6dc;--green:#43d49a;--amber:#f2bd63;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -20%,#17395a 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}.shell{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}
+aside{border-right:1px solid var(--line);padding:26px 18px;background:#0c1524d9;display:flex;flex-direction:column;gap:30px}.brand{display:flex;align-items:center;gap:12px;padding:0 8px}.mark{width:36px;height:36px;border:1px solid #3d729a;border-radius:11px;display:grid;place-items:center;color:var(--cyan);font-weight:800;background:#10283c}.brand strong{display:block;letter-spacing:.08em;font-size:14px}.brand small{color:var(--muted);font-size:11px}.nav-label{font-size:10px;color:#71849d;letter-spacing:.16em;padding:0 10px;margin-bottom:8px}.nav{display:grid;gap:5px}.nav a{padding:10px 12px;border-radius:9px;color:#a9bad0;font-size:13px}.nav a.active,.nav a:hover{background:#172a41;color:white}.nav a span{display:inline-block;width:24px;color:var(--cyan)}.side-note{margin-top:auto;padding:14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11px}.side-note b{color:var(--text);display:block;margin-bottom:5px}
+main{min-width:0;padding:30px clamp(18px,4vw,54px) 50px;max-width:1600px;width:100%;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:30px}.eyebrow{font-size:10px;letter-spacing:.17em;color:var(--cyan);font-weight:700}.top h1{font-size:clamp(25px,3vw,34px);letter-spacing:-.04em;margin:5px 0}.sub{color:var(--muted);margin:0;font-size:13px}.top-right{display:flex;gap:10px;align-items:center}.pill{border:1px solid var(--line);border-radius:30px;padding:7px 11px;color:var(--muted);font-size:11px}.btn{border:1px solid #35577c;background:#173b5c;color:#eaf5ff;border-radius:9px;padding:10px 14px;font-size:12px;font-weight:650}.btn:hover{background:#20517c}.btn.secondary{background:#142237;border-color:var(--line);color:#c6d4e6}.btn.danger{background:#38222a;border-color:#70404a;color:#ffd9dc}
+.grid{display:grid;gap:15px}.metrics{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:linear-gradient(145deg,#142238,#101a2a);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}.metric-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11px}.metric-icon{color:var(--cyan);font-size:16px}.metric-value{font-size:27px;font-weight:700;letter-spacing:-.04em;margin:12px 0 2px}.metric-foot{color:#8195af;font-size:10px}.layout{grid-template-columns:minmax(0,1.55fr) minmax(270px,.85fr)}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.section-head h2{font-size:14px;margin:0}.section-head small{color:var(--muted);font-size:10px}.status-line{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px currentColor}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}.chain-summary{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px;background:#0d1929;border:1px solid #21334a;border-radius:10px;margin-bottom:14px}.chain-summary strong{display:block;font-size:13px}.chain-summary small{color:var(--muted);font-size:10px}.chain-actions{display:flex;gap:7px;flex-wrap:wrap}.entries{display:grid;gap:8px;max-height:390px;overflow:auto}.entry{padding:12px;border:1px solid #23354c;background:#0d1928;border-radius:9px;min-width:0}.entry-top{display:flex;justify-content:space-between;gap:12px;font-size:11px}.entry-top b{color:#c7e4ff}.entry-meta{font-size:10px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}.hash{font:10px ui-monospace,monospace;color:#79c9d2;overflow-wrap:anywhere;margin-top:6px}.empty{padding:25px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:9px}
+.stack{display:grid;gap:15px}.action-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid #263951;background:#0d1929;border-radius:10px;margin-top:9px}.action-icon{width:34px;height:34px;flex:none;border-radius:9px;background:#18344c;color:var(--cyan);display:grid;place-items:center}.action-card b{display:block;font-size:12px}.action-card p{font-size:10px;color:var(--muted);margin:3px 0 8px}.text-link{color:#83c6ff;font-size:11px;font-weight:650}.notice{border-left:3px solid var(--amber);padding:10px 12px;background:#2a2419;border-radius:0 8px 8px 0;color:#d9c69f;font-size:10px;margin-top:14px}.climate{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.climate div{padding:12px 10px;border-radius:9px;background:#0d1928;border:1px solid #263951}.climate b{display:block;font-size:12px}.climate small{color:var(--muted);font-size:9px}
+footer{margin-top:25px;padding-top:15px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;color:#6f829c;font-size:10px}
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+@media(max-width:680px){.shell{display:block}aside{padding:12px 14px;border-right:0;border-bottom:1px solid var(--line);gap:12px}.brand{padding:0 2px}.nav-label,.side-note{display:none}.nav{display:flex;overflow:auto;gap:4px}.nav a{white-space:nowrap;padding:8px 10px;font-size:11px}.nav a span{width:auto;margin-right:5px}main{padding:22px 14px 35px}.top{align-items:flex-start;flex-direction:column;margin-bottom:20px}.top-right{width:100%;justify-content:space-between}.metrics{gap:9px}.card{padding:14px}.metric-value{font-size:23px}.chain-summary{align-items:flex-start;flex-direction:column}.climate{grid-template-columns:1fr}footer{flex-direction:column}}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 </style>
 </head>
 <body>
-<h1>AuditChain Verifier</h1>
-<div id="status" class="status">Loading...</div>
-<div id="meta" class="meta"></div>
-<div class="bar">
-  <button id="gen">Generate 5 PUs</button>
-  <button id="tamper" class="warn">Tamper entry 2</button>
-  <button id="reset" class="gray">Reset</button>
-  <button id="refresh" class="gray">Refresh</button>
+<div class="shell">
+<aside>
+ <a class="brand" href="/" aria-label="AuditChain home"><span class="mark">A</span><span><strong>AUDITCHAIN</strong><small>INTEGRITY CONSOLE</small></span></a>
+ <div><div class="nav-label">WORKSPACE</div><nav class="nav" aria-label="Main navigation">
+ <a class="active" href="#overview"><span>◈</span>Overview</a><a href="#ledger"><span>▤</span>Audit ledger</a><a href="/submit.html"><span>＋</span>Submit evidence</a><a href="#climate"><span>⌁</span>Climate resilience</a><a href="#verification"><span>✓</span>Verification</a>
+ </nav></div>
+ <div class="side-note"><b>Prototype environment</b>AuditChain demonstrates tamper-evident evidence records and review workflows. It is not an official election results system.</div>
+</aside>
+<main id="overview">
+ <header class="top"><div><div class="eyebrow">SYSTEM OVERVIEW / 01</div><h1>Integrity at a glance.</h1><p class="sub">Monitor the evidence chain, review activity and verification state.</p></div><div class="top-right"><span class="pill" id="lastUpdated">Connecting…</span><button class="btn secondary" id="refresh">↻ Refresh</button></div></header>
+ <section class="grid metrics" aria-label="Chain metrics">
+  <article class="card"><div class="metric-head">CHAIN STATUS <span class="metric-icon">◉</span></div><div class="metric-value" id="chainState">—</div><div class="metric-foot" id="chainHint">Checking integrity</div></article>
+  <article class="card"><div class="metric-head">RECORDED ENTRIES <span class="metric-icon">▤</span></div><div class="metric-value" id="entryCount">—</div><div class="metric-foot">Entries currently returned by the verifier</div></article>
+  <article class="card"><div class="metric-head">PENDING SYNC <span class="metric-icon">⇄</span></div><div class="metric-value" id="pendingCount">—</div><div class="metric-foot">Items awaiting synchronisation</div></article>
+  <article class="card"><div class="metric-head">LATEST SEQUENCE <span class="metric-icon">⌁</span></div><div class="metric-value" id="latestSequence">—</div><div class="metric-foot">Most recent visible chain entry</div></article>
+ </section>
+ <section class="grid layout">
+  <article class="card" id="ledger"><div class="section-head"><h2>Audit ledger</h2><small>LIVE CHAIN VIEW</small></div>
+   <div class="chain-summary"><div><div class="status-line"><i class="dot" id="healthDot"></i><strong id="healthText">Awaiting chain response</strong></div><small id="hashSummary">Latest hash unavailable</small></div><div class="chain-actions"><button class="btn secondary" id="refreshLedger">Refresh ledger</button></div></div>
+   <div class="entries" id="entries" aria-live="polite"><div class="empty">Loading chain records…</div></div>
+  </article>
+  <div class="stack">
+   <article class="card"><div class="section-head"><h2>Evidence workflow</h2><small>FIELD OPERATIONS</small></div>
+    <div class="action-card"><div class="action-icon">＋</div><div><b>Submit evidence</b><p>Upload structured synthetic evidence. Offline submissions remain queued on this device.</p><a class="text-link" href="/submit.html">Open submission form →</a></div></div>
+    <div class="action-card"><div class="action-icon">⌕</div><div><b>Review the ledger</b><p>Inspect recorded entries, sequence numbers and hash links.</p><a class="text-link" href="#ledger">View chain entries →</a></div></div>
+   </article>
+   <article class="card" id="verification"><div class="section-head"><h2>Verification</h2><small>TRUST BOUNDARY</small></div>
+    <div class="status-line"><i class="dot" id="verifyDot"></i><span id="verifyText">Verification status not yet checked</span></div>
+    <p class="sub" style="margin-top:10px">The chain endpoint reports current integrity. Signed checkpoint verification is a separate operation and must be run independently.</p>
+    <div class="notice">A valid local chain does not, by itself, prove that an external checkpoint anchor exists or that an election result is authentic.</div>
+   </article>
+  </div>
+ </section>
+ <section class="card" id="climate" style="margin-top:15px"><div class="section-head"><h2>Climate resilience</h2><small>DESIGN OBJECTIVE</small></div>
+  <div class="climate"><div><b>Offline-first capture</b><small>Client-side queue supports temporary connectivity loss.</small></div><div><b>Retry on reconnect</b><small>Queued items can be retried when a network returns.</small></div><div><b>Evidence continuity</b><small>Idempotency keys help avoid duplicate submissions on retry.</small></div></div>
+  <div class="notice">These are implemented workflow capabilities, not a live climate-risk forecast or proof of solar-power operation. Hardware resilience and field conditions require separate testing.</div>
+ </section>
+ <footer><span>AuditChain · Evidence integrity prototype</span><span>Use synthetic data only · No official election use</span></footer>
+</main>
 </div>
-<div id="entries"></div>
 <script>
-  function el(tag, cls, text) {
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text !== undefined) e.textContent = text;
-    return e;
-  }
-  function render(d) {
-    var s = document.getElementById('status');
-    s.className = 'status ' + (d.valid ? 'ok' : 'bad');
-    s.textContent = d.valid ? 'Chain VALID' : 'Chain BROKEN at sequence ' + d.breakSequence;
-    document.getElementById('meta').textContent =
-      'Entries: ' + d.size + ' | Pending sync: ' + d.pendingSync + ' | Latest hash: ' + d.latestHash;
-    var box = document.getElementById('entries');
-    box.textContent = '';
-    (d.entries || []).forEach(function (e) {
-      var div = el('div', 'entry' + (d.breakSequence === e.sequence ? ' broken' : ''));
-      div.appendChild(el('b', null, '#' + e.sequence + ' ' + e.role + ' '));
-      div.appendChild(document.createTextNode(e.actorId + ' @ ' + e.location + ' [' + e.status + ']'));
-      div.appendChild(el('div', null, 'prev: ' + e.previousHash));
-      div.appendChild(el('div', null, 'hash: ' + e.currentHash));
-      div.appendChild(el('div', null, 'payload: ' + e.payload));
-      box.appendChild(div);
-    });
-  }
-  function call(method, url) {
-    return fetch(url, { method: method })
-      .then(function (r) { return r.json(); })
-      .then(render)
-      .catch(function (err) {
-        var s = document.getElementById('status');
-        s.className = 'status bad';
-        s.textContent = 'Request failed: ' + err;
-      });
-  }
-  document.getElementById('gen').onclick = function () { call('POST', '/api/generate?puCount=5'); };
-  document.getElementById('tamper').onclick = function () { call('POST', '/api/tamper?sequence=2'); };
-  document.getElementById('reset').onclick = function () { call('POST', '/api/reset'); };
-  document.getElementById('refresh').onclick = function () { call('GET', '/api/chain'); };
-  call('GET', '/api/chain');
+'use strict';
+const byId=id=>document.getElementById(id);
+function text(id,value){byId(id).textContent=value;}
+function setDot(id,state){byId(id).className='dot'+(state===true?' ok':state===false?' bad':'');}
+function render(data){
+ const valid=data.valid===true;
+ text('chainState',valid?'VALID':data.valid===false?'BROKEN':'UNKNOWN');
+ text('chainHint',valid?'No chain break reported':'Integrity needs attention');
+ text('entryCount',Number.isFinite(data.size)?data.size:'—');
+ text('pendingCount',Number.isFinite(data.pendingSync)?data.pendingSync:'—');
+ const entries=Array.isArray(data.entries)?data.entries:[];
+ const latest=entries.length?entries[entries.length-1]:null;
+ text('latestSequence',latest?.sequence??data.size??'—');
+ text('healthText',valid?'Chain integrity valid':data.valid===false?'Chain integrity failure':'Chain status unavailable');
+ text('hashSummary',data.latestHash?'Latest hash · '+data.latestHash:'Latest hash unavailable');
+ setDot('healthDot',valid);
+ setDot('verifyDot',valid);
+ text('verifyText',valid?'Live chain check passed; external checkpoint not checked':'Live chain check did not pass');
+ const box=byId('entries');box.replaceChildren();
+ if(!entries.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No entries were returned by the chain endpoint.';box.append(empty);}
+ entries.slice().reverse().forEach(entry=>{
+  const row=document.createElement('article');row.className='entry';
+  const top=document.createElement('div');top.className='entry-top';
+  const label=document.createElement('b');label.textContent='#'+entry.sequence+' · '+(entry.role||'ENTRY');
+  const state=document.createElement('span');state.textContent=entry.status||'RECORDED';
+  top.append(label,state);row.append(top);
+  const meta=document.createElement('div');meta.className='entry-meta';meta.textContent=(entry.actorId||'Unknown actor')+' · '+(entry.location||'Location not supplied');row.append(meta);
+  const hash=document.createElement('div');hash.className='hash';hash.textContent='HASH  '+(entry.currentHash||'Not provided');row.append(hash);
+  box.append(row);
+ });
+ text('lastUpdated','Updated '+new Date().toLocaleTimeString());
+}
+async function refresh(){
+ text('chainState','…');text('healthText','Checking chain integrity');
+ try{const response=await fetch('/api/chain',{headers:{'Accept':'application/json'},cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();render(data);}
+ catch(error){text('chainState','OFFLINE');text('chainHint','Unable to load chain data');text('healthText','Chain endpoint unavailable');text('verifyText','Verification not available');setDot('healthDot',false);setDot('verifyDot',false);text('lastUpdated','Connection error');const box=byId('entries');box.replaceChildren();const empty=document.createElement('div');empty.className='empty';empty.textContent='Could not load /api/chain. Check the deployment and try again.';box.append(empty);}
+}
+byId('refresh').addEventListener('click',refresh);byId('refreshLedger').addEventListener('click',refresh);refresh();
 </script>
-</body>
-</html>
+</body></html>
