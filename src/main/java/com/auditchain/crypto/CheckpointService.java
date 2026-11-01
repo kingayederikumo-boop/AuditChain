@@ -23,6 +23,9 @@ import java.util.Optional;
 @Service
 public class CheckpointService {
 
+    /** Hash that precedes the first entry; a checkpoint of an empty chain (sequence 0) names it. */
+    private static final String GENESIS_HASH = "0".repeat(64);
+
     public static final class Checkpoint {
         public final long sequence;
         public final String chainTipHash;
@@ -116,7 +119,7 @@ public class CheckpointService {
             if (cp.sequence < 0 || cp.sequence > currentSequence) {
                 return Optional.of("checkpoint sequence outside live chain at sequence " + cp.sequence);
             }
-            String liveHash = liveHashes.get(cp.sequence);
+            String liveHash = cp.sequence == 0 ? GENESIS_HASH : liveHashes.get(cp.sequence);
             if (liveHash == null) {
                 return Optional.of("live chain hash unavailable at checkpoint sequence " + cp.sequence);
             }
