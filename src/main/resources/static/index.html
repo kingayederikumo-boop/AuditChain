@@ -48,7 +48,9 @@ footer{margin-top:25px;padding-top:15px;border-top:1px solid var(--line);display
    </article>
    <article class="card" id="verification"><div class="section-head"><h2>Verification</h2><small>TRUST BOUNDARY</small></div>
     <div class="status-line"><i class="dot" id="verifyDot"></i><span id="verifyText">Verification status not yet checked</span></div>
-    <p class="sub" style="margin-top:10px">The chain endpoint reports current integrity. Signed checkpoint verification is a separate operation and must be run independently.</p>
+    <p class="sub" style="margin-top:10px">The chain endpoint reports current integrity. The button below compares the live chain with the signed checkpoints published on the public audit-anchors branch.</p>
+    <div class="chain-actions" style="margin-top:12px"><button class="btn secondary" id="verifyAnchors">Verify against public anchors</button></div>
+    <p class="sub" id="anchorResult" role="status" aria-live="polite" style="margin-top:10px"></p>
     <div class="notice">A valid local chain does not, by itself, prove that an external checkpoint anchor exists or that an election result is authentic.</div>
    </article>
   </div>
@@ -98,6 +100,18 @@ async function refresh(){
  try{const response=await fetch('/api/chain',{headers:{'Accept':'application/json'},cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();render(data);}
  catch(error){text('chainState','OFFLINE');text('chainHint','Unable to load chain data');text('healthText','Chain endpoint unavailable');text('verifyText','Verification not available');setDot('healthDot',false);setDot('verifyDot',false);text('lastUpdated','Connection error');const box=byId('entries');box.replaceChildren();const empty=document.createElement('div');empty.className='empty';empty.textContent='Could not load /api/chain. Check the deployment and try again.';box.append(empty);}
 }
-byId('refresh').addEventListener('click',refresh);byId('refreshLedger').addEventListener('click',refresh);refresh();
+async function verifyAnchors(){
+ text('anchorResult','Checking the public anchor log…');
+ try{
+  const response=await fetch('/api/checkpoints/verify',{headers:{'Accept':'application/json'},cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();
+  const count=Number.isFinite(data.externalAnchorCount)?data.externalAnchorCount:0;
+  if(data.valid===true&&data.externalAnchorsValid===true){text('anchorResult','✓ '+count+' signed anchors match the live chain.');setDot('verifyDot',true);text('verifyText','Live chain matches the public anchor log');}
+  else if(count===0){text('anchorResult','Anchor log unavailable or empty: '+(data.externalAnchorError||data.error||'no detail'));setDot('verifyDot',null);text('verifyText','Public anchor log could not be checked');}
+  else{text('anchorResult','✗ Mismatch: '+(data.error||'the live chain differs from the published anchors'));setDot('verifyDot',false);text('verifyText','Live chain does not match the public anchor log');}
+ }catch(error){text('anchorResult','Anchor check failed: '+error.message);}
+}
+byId('refresh').addEventListener('click',refresh);byId('refreshLedger').addEventListener('click',refresh);byId('verifyAnchors').addEventListener('click',verifyAnchors);refresh();
 </script>
 </body></html>
