@@ -113,7 +113,8 @@ function updateOverall(){
  if(chain.valid===false){setText('overallState','Issue found');setText('overallHint','The record chain did not pass verification');return;}
  if(!anchors){setText('overallState','Partial');setText('overallHint','Public checkpoints could not be checked');return;}
  if(anchors.externalAnchorsValid===true&&Number(anchors.externalAnchorCount)>0&&anchors.valid===true){setText('overallState','Verified');setText('overallHint','Record chain and published checkpoints match');return;}
- if(Number(anchors.externalAnchorCount)>0&&anchors.valid===false){setText('overallState','Review needed');setText('overallHint','Checkpoint verification did not pass');return;}
+ if(anchors.internalCheckpointValid===false){setText('overallState','Issue found');setText('overallHint','A stored signed checkpoint does not match the current chain');return;}
+ if(Number(anchors.externalAnchorCount)>0&&anchors.externalAnchorsValid===false){setText('overallState','Review needed');setText('overallHint','Published checkpoint verification did not pass');return;}
  setText('overallState','Partial');setText('overallHint','Local chain passes; independent checkpoint verification is incomplete');
 }
 function updateAlert(){
@@ -122,8 +123,12 @@ function updateAlert(){
   showAlert('bad','Integrity issue detected',seq!==null&&seq!==undefined?'The record chain is broken at sequence '+seq+'. The affected history should not be treated as verified until investigated.':'The record chain did not pass verification. Investigate the audit history before relying on it.');
   return;
  }
- if(lastAnchors&&Number(lastAnchors.externalAnchorCount)>0&&lastAnchors.valid===false){
-  showAlert('bad','Checkpoint verification failed',lastAnchors.error||lastAnchors.externalAnchorError||'The checkpoint comparison did not pass. Investigate before relying on this history.');
+ if(lastAnchors&&lastAnchors.internalCheckpointValid===false){
+  showAlert('bad','Stored checkpoint integrity issue',lastAnchors.internalCheckpointError||'A stored signed checkpoint does not match the current record history. Investigate before relying on this history.');
+  return;
+ }
+ if(lastAnchors&&Number(lastAnchors.externalAnchorCount)>0&&lastAnchors.externalAnchorsValid===false){
+  showAlert('bad','Published checkpoint mismatch',lastAnchors.externalAnchorError||lastAnchors.error||'The published checkpoint history does not match the current record chain. Investigate before relying on this history.');
   return;
  }
  if(lastChain&&lastChain.valid===true&&lastAnchors&&lastAnchors.externalAnchorsValid===true&&Number(lastAnchors.externalAnchorCount)>0&&lastAnchors.valid===true){
@@ -152,10 +157,12 @@ async function loadAnchors(){
  const data=await response.json();lastAnchors=data;
  const count=Number.isFinite(data.externalAnchorCount)?data.externalAnchorCount:0;
  setText('anchorCount',count);
- if(data.valid===true&&data.externalAnchorsValid===true&&count>0){
-  setDot('anchorDot',true);setText('anchorResult',count+' signed public checkpoint(s) were found and all available checkpoint checks passed.');
+ if(data.internalCheckpointValid===false){
+  setDot('anchorDot',false);setText('anchorResult','Stored checkpoint check failed. '+(data.internalCheckpointError||'The stored checkpoint history differs from the live chain.'));
+ }else if(data.externalAnchorsValid===true&&count>0){
+  setDot('anchorDot',true);setText('anchorResult',count+' signed public checkpoint(s) were found and the comparisons passed.');
  }else if(count>0){
-  setDot('anchorDot',false);setText('anchorResult','Checkpoint verification did not pass. '+(data.error||data.externalAnchorError||'Review the verification result.'));
+  setDot('anchorDot',false);setText('anchorResult','Published checkpoint comparison did not pass. '+(data.externalAnchorError||'Review the verification result.'));
  }else{
   setDot('anchorDot',null);setText('anchorResult','No usable public checkpoints were confirmed. '+(data.externalAnchorError||'Independent verification is incomplete.'));
  }
