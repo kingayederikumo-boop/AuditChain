@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -37,7 +38,7 @@ class CheckpointControllerTest {
         Map<String, Object> result = controller.verifyPublished();
 
         assertEquals(true, result.get("internalCheckpointValid"));
-        assertEquals(null, result.get("internalCheckpointError"));
+        assertNull(result.get("internalCheckpointError"));
         assertEquals(false, result.get("externalAnchorsValid"));
         assertEquals(false, result.get("valid"));
     }
