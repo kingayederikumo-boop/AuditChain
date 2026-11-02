@@ -46,6 +46,11 @@ public class ChainService {
         return engine.getPendingSync().size();
     }
 
+    /** Refresh after a transaction that committed an audit entry outside the in-memory engine. */
+    public synchronized void reloadFromStore() {
+        engine.reload();
+    }
+
     public synchronized void generateSynthetic(int puCount) {
         requireDemoMode();
         runGeneratorInto(engine, Math.max(1, Math.min(puCount, 20)));

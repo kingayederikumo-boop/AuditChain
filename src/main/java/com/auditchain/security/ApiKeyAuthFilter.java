@@ -10,9 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.*;
 
 @Component
@@ -21,6 +23,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private final Map<String, Role> keyToRole = new HashMap<>();
     private final boolean enforce;
+    private final byte[] actorHmacSecret;
 
     private static final Set<String> PUBLIC_GET = Set.of(
             "/health", "/api/chain", "/actuator", "/", "/index.html", "/submit.html", "/favicon.ico",
@@ -33,13 +36,23 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             @Value("${auditchain.api-key.reviewer:}") String reviewerKey,
             @Value("${auditchain.api-key.auditor:}") String auditorKey,
             @Value("${auditchain.api-key.admin:}") String adminKey,
-            @Value("${auditchain.auth.enforce:true}") boolean enforceFlag) {
+            @Value("${auditchain.auth.enforce:true}") boolean enforceFlag,
+            @Value("${auditchain.actor.hmac-secret:}") String configuredHmacSecret) {
         if (legacyKey != null && !legacyKey.isBlank()) keyToRole.put(legacyKey.trim(), Role.ADMIN);
         if (adminKey != null && !adminKey.isBlank()) keyToRole.put(adminKey.trim(), Role.ADMIN);
         if (officerKey != null && !officerKey.isBlank()) keyToRole.put(officerKey.trim(), Role.OFFICER);
         if (reviewerKey != null && !reviewerKey.isBlank()) keyToRole.put(reviewerKey.trim(), Role.REVIEWER);
         if (auditorKey != null && !auditorKey.isBlank()) keyToRole.put(auditorKey.trim(), Role.AUDITOR);
         this.enforce = enforceFlag;
+
+        if (configuredHmacSecret != null && !configuredHmacSecret.isBlank()) {
+            this.actorHmacSecret = configuredHmacSecret.getBytes(StandardCharsets.UTF_8);
+        } else {
+            // Secure fallback prevents API-key guessing from public actor IDs.
+            // Configure AUDITCHAIN_ACTOR_HMAC_SECRET to keep pseudonyms stable across restarts.
+            this.actorHmacSecret = new byte[32];
+            new SecureRandom().nextBytes(this.actorHmacSecret);
+        }
     }
 
     @Override
@@ -63,10 +76,10 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             response.getWriter().write("{\"error\":\"insufficient role\",\"role\":\"" + role + "\"}");
             return;
         }
-        String keyFingerprint = fingerprint(provided.trim());
+        String pseudonym = pseudonym(provided.trim());
         request.setAttribute("auditchain.role", role);
-        request.setAttribute("auditchain.actorId", role.name().toLowerCase(Locale.ROOT) + ":" + keyFingerprint);
-        request.setAttribute("auditchain.rateLimitKey", keyFingerprint + ":" + request.getRemoteAddr());
+        request.setAttribute("auditchain.actorId", role.name().toLowerCase(Locale.ROOT) + ":" + pseudonym);
+        request.setAttribute("auditchain.rateLimitKey", pseudonym + ":" + request.getRemoteAddr());
         chain.doFilter(request, response);
     }
 
@@ -79,14 +92,16 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private String fingerprint(String value) {
+    private String pseudonym(String apiKey) {
         try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
-            StringBuilder out = new StringBuilder(16);
-            for (int i = 0; i < 8; i++) out.append(String.format("%02x", digest[i]));
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(actorHmacSecret, "HmacSHA256"));
+            byte[] digest = mac.doFinal(apiKey.getBytes(StandardCharsets.UTF_8));
+            StringBuilder out = new StringBuilder(32);
+            for (int i = 0; i < 16; i++) out.append(String.format("%02x", digest[i]));
             return out.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 unavailable", e);
+        } catch (java.security.GeneralSecurityException e) {
+            throw new IllegalStateException("HMAC-SHA256 unavailable", e);
         }
     }
 

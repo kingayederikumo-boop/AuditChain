@@ -1,6 +1,7 @@
 package com.auditchain.web;
 
 import com.auditchain.crypto.CheckpointService;
+import com.auditchain.crypto.ExternalAnchorVerifier;
 import com.auditchain.service.ChainService;
 import com.auditchain.model.AuditEntry;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,12 +19,16 @@ import java.util.stream.Collectors;
 public class CheckpointController {
 
     private final CheckpointService checkpointService;
+    private final ExternalAnchorVerifier externalAnchorVerifier;
     private final ChainService chainService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public CheckpointController(CheckpointService checkpointService, ChainService chainService) {
+    public CheckpointController(CheckpointService checkpointService,
+                                ChainService chainService,
+                                ExternalAnchorVerifier externalAnchorVerifier) {
         this.checkpointService = checkpointService;
         this.chainService = chainService;
+        this.externalAnchorVerifier = externalAnchorVerifier;
         restoreFromChain();
     }
 
@@ -72,13 +77,20 @@ public class CheckpointController {
         var chain = chainService.getChain();
         Map<Long, String> hashes = chain.stream().collect(Collectors.toMap(
                 entry -> entry.getSequenceNumber(), entry -> entry.getCurrentHash()));
-        var issue = checkpointService.detectTampering(chainService.size(), chainService.getLatestHash(),
+        hashes.put(0L, "0000000000000000000000000000000000000000000000000000000000000000");
+
+        var internalIssue = checkpointService.detectTampering(chainService.size(), chainService.getLatestHash(),
                 hashes, checkpointService.listPublished());
+        var external = externalAnchorVerifier.verify(chain, checkpointService);
+
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("valid", issue.isEmpty());
+        result.put("valid", internalIssue.isEmpty() && external.valid());
         result.put("chainSize", chainService.size());
         result.put("checkpointCount", checkpointService.listPublished().size());
-        result.put("error", issue.orElse(null));
+        result.put("externalAnchorCount", external.checkpointCount());
+        result.put("externalAnchorsValid", external.valid());
+        result.put("error", internalIssue.orElse(external.error()));
+        result.put("externalAnchorError", external.error());
         return result;
     }
 

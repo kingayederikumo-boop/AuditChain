@@ -65,8 +65,8 @@ public class ReviewQueueService {
         }
     }
 
-    public synchronized ReviewItem enqueue(String evidenceId, VisionResult result) {
-        ReviewItem item = new ReviewItem(evidenceId, result);
+    /** Record every AI result, including clean results that do not need human review. */
+    public synchronized void recordAiResult(String evidenceId, VisionResult result) {
         ObjectNode aiEvent = objectMapper.createObjectNode();
         aiEvent.put("type", "AI_CHECK");
         aiEvent.put("evidenceId", evidenceId);
@@ -78,6 +78,16 @@ public class ReviewQueueService {
         } catch (RuntimeException ex) {
             throw new IllegalStateException("Unable to record AI result on audit chain", ex);
         }
+    }
+
+    public synchronized ReviewItem enqueue(String evidenceId, VisionResult result) {
+        recordAiResult(evidenceId, result);
+        return enqueueAfterAiRecorded(evidenceId, result);
+    }
+
+    /** Queue a result whose AI_CHECK event has already been appended. */
+    public synchronized ReviewItem enqueueAfterAiRecorded(String evidenceId, VisionResult result) {
+        ReviewItem item = new ReviewItem(evidenceId, result);
         store.saveReview(
                 item.id.toString(),
                 evidenceId,
