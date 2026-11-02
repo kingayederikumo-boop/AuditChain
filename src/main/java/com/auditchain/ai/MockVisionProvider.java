@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 public class MockVisionProvider implements VisionProvider {
 
     private static final Pattern PARTY = Pattern.compile("\"([A-Z]{2,5})\"\\s*:\\s*(\\d+)");
+    private static final Pattern TOTAL =
+            Pattern.compile("\"(?:votes_cast|total_votes|totalvotes)\"\\s*:\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
 
     @Override
     public VisionResult analyse(byte[] imageBytes, String declaredPayload) {
@@ -35,7 +37,7 @@ public class MockVisionProvider implements VisionProvider {
         r.setTotalVotesExtracted(sum);
 
         int declaredTotal = -1;
-        Matcher t = Pattern.compile("\"(?:votes_cast|total_votes)\"\\s*:\\s*(\\d+)").matcher(declaredPayload);
+        Matcher t = TOTAL.matcher(declaredPayload);
         if (t.find()) declaredTotal = Integer.parseInt(t.group(1));
 
         boolean consistent = declaredTotal < 0 || declaredTotal == sum;
