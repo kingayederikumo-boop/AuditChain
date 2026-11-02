@@ -27,7 +27,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private static final Set<String> PUBLIC_GET = Set.of(
             "/health", "/api/chain", "/actuator", "/", "/index.html", "/submit.html", "/favicon.ico",
-            "/api/checkpoints/public-key"
+            "/api/checkpoints/public-key", "/api/checkpoints/verify"
     );
 
     public ApiKeyAuthFilter(

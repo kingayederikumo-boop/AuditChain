@@ -1,16 +1,17 @@
 # Submission checklist
 
 **Project:** AuditChain — #AI4Elections 2026, Track 4 + Climate Extra Track  
-**Last reviewed:** 2026-11-01
+**Last reviewed:** 2026-11-02
 
 ## Core prototype and evidence
 
 - [x] Hash-chained audit trail with verification.
 - [x] SQLite default storage and PostgreSQL support in code.
-- [x] Evidence submission with SHA-256 fingerprint, idempotency, and receipt.
-- [x] Mock AI path and optional HTTP provider; human review queue; AI does not autonomously declare fraud.
+- [x] Evidence submission with SHA-256 fingerprint, idempotency, and receipt; on PostgreSQL the receipt and chain entry commit in one transaction.
+- [x] Mock AI path and optional HTTP provider; every first-time AI result is recorded on the chain; human review queue; AI does not autonomously declare fraud.
 - [x] Ed25519 chain-tip checkpoints and historical checkpoint regression tests.
-- [x] Role-based API keys (OFFICER / REVIEWER / AUDITOR / ADMIN).
+- [x] Verification of the live chain against the public anchor log (`GET /api/checkpoints/verify`), with a test that a consistently re-hashed history, which passes internal verification, fails the anchor check.
+- [x] Role-based API keys (OFFICER / REVIEWER / AUDITOR / ADMIN); actor IDs are HMAC pseudonyms.
 - [x] Process-local rate limiting, documented as a prototype limitation.
 - [x] CI workflow running `mvn verify`.
 - [x] Docker Compose for local PostgreSQL.
@@ -32,11 +33,11 @@
 
 - [x] Project owner supplied the pre-existing-work and contributor-history confirmation; retain the disclosure in the submission.
 - [ ] Execute and record the accessibility tests in ACCESSIBILITY.md.
-- [ ] Run CI on the exact final submission commit and record the result. The last verified main-branch CI run is for commit `79b5b586bad764b4da796308ce729f567aca5ad0`; documentation commits made on 2026-11-01 have triggered new CI runs that must finish successfully.
+- [ ] Run CI on the exact final submission commit and record the result. Re-confirm after any later commit.
 - [ ] Run HTTP smoke tests against the live health, authentication, evidence submission/receipt, review, and checkpoint-verification endpoints.
-- [x] Existing AuditChain Supabase PostgreSQL backend is connected to Render; prior application logs confirmed PostgreSQL connectivity and five validated Flyway migrations (schema version 4, up to date). No new database was created.
+- [x] Existing AuditChain Supabase PostgreSQL backend is connected to Render; deployment logs of 2026-11-02 confirmed the PostgreSQL store and five validated Flyway migrations (schema version 4, up to date). No new database was created.
 - [ ] Verify durable writes by submitting synthetic test data, confirming it remains after an application restart, and checking audit-chain/checkpoint recovery. Do not use real electoral data.
-- [x] Scheduled GitHub checkpoint anchoring is configured and operational. Run #14 succeeded on 2026-11-01, and the public `audit-anchors/anchors/log.jsonl` contained ten records marked `valid: true`. This is same-repository publication, not an independent trust domain.
+- [x] Scheduled GitHub checkpoint anchoring is configured and operational. The public `audit-anchors/anchors/log.jsonl` held nine records (sequences 2 to 10) on 2026-11-01 and gains one record per run. This is same-repository publication, not an independent trust domain.
 - [x] Documentation states that the mock AI path is the default and a real vision provider is optional; owner should verify this matches the intended submission configuration.
 - [ ] Check dependency licenses and confirm that no third-party assets or datasets are missing attribution.
 
