@@ -43,7 +43,7 @@ A green local-chain result alone must never be described as complete independent
 | Displayed information | Source |
 |---|---|
 | Record count, local chain status, break sequence, latest hash, pending sync, entries | `GET /api/chain` |
-| Public checkpoint count, external-anchor result and error | `GET /api/checkpoints/verify` |
+| Stored-checkpoint result, public checkpoint count, external-anchor result and errors | `GET /api/checkpoints/verify` (`internalCheckpointValid`, `internalCheckpointError`, `externalAnchorCount`, `externalAnchorsValid`, `externalAnchorError`) |
 | Submission workflow | `/submit.html` |
 
 The console must render server-returned values only. It must not invent sample counts, incidents, successful verifications, or climate conditions.
@@ -51,6 +51,7 @@ The console must render server-returned values only. It must not invent sample c
 ## Integrity alert behavior
 
 - A broken local chain produces a prominent integrity alert with the break sequence, if supplied.
+- A failed stored-checkpoint comparison produces an integrity alert even if the public anchor log is unavailable.
 - A failed comparison when published checkpoints exist produces a checkpoint-mismatch alert.
 - A passing local chain with no usable external checkpoint history produces an amber incomplete-verification notice, not a tampering alert.
 - Endpoint failures produce an unavailable state, not a compromised state.
