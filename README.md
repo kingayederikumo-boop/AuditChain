@@ -51,6 +51,10 @@ Telegram delivery is optional and does not block the audit workflow. Configure b
 
 The bot token must remain server-side and must never be included in the app or source repository. When credentials are missing or Telegram is unreachable, the API reports that no notification was sent.
 
+## Local tamper demonstration
+
+The tamper route is for a local synthetic-data demonstration only. Keep `AUDITCHAIN_DEMO_ENABLED=false` in every deployed environment. Follow [the isolated tamper demo](docs/TAMPER_DEMO.md), which uses a disposable SQLite file and explicitly documents that the current demo mutates in-memory state rather than persisted rows.
+
 ## Climate-disruption simulation
 
 `POST /api/scenarios/climate-disruption` accepts these optional query parameters:
