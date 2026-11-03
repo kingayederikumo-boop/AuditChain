@@ -2,165 +2,273 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0e1013">
-<meta name="description" content="AuditChain checks whether polling-unit result records have been altered.">
-<title>AuditChain — Has this record been altered?</title>
+<meta name="theme-color" content="#0c0e12">
+<meta name="description" content="AuditChain checks whether recorded result sheets have been altered.">
+<title>AuditChain — Integrity console</title>
 <style>
-:root{color-scheme:dark;--onyx:#0e1013;--panel:#161a20;--line:#2a313c;--text:#eceff4;--soft:#a4adbb;--royal:#4169e1;--royal-hi:#e8ebf1;--red:#ff7b72;--amber:#f0b441;--tint-royal:#16213f;--tint-red:#2a1719;--tint-amber:#2b2310;
- --serif:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+:root{color-scheme:dark;--bg:#0c0e12;--sidebar:#101318;--surface:#141820;--surface-2:#191f29;--line:#252d39;--line-soft:#1d242e;--text:#edf1f7;--muted:#929dad;--dim:#667181;--blue:#5278ed;--blue-soft:#172344;--green:#71c6a0;--green-soft:#13271f;--amber:#e7b765;--amber-soft:#2a2114;--red:#ef827e;--red-soft:#2c191b;--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 *{box-sizing:border-box}
-body{margin:0;background:var(--onyx);color:var(--text);font:16px/1.6 var(--sans)}
-main{max-width:720px;margin:0 auto;padding:20px 18px 56px}
-a{color:var(--royal-hi);font-weight:600;text-underline-offset:3px}
-a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--royal-hi);outline-offset:3px}
-header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:14px;border-bottom:2px solid var(--royal);margin-bottom:28px}
-.brand{font:700 20px/1 var(--serif);letter-spacing:.01em}.brand span{display:block;font:400 13px/1.4 var(--sans);color:var(--soft);margin-top:6px}
-.verdict{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:26px}
-.stamp{width:132px;height:132px;border:3px solid var(--soft);outline:1px solid var(--soft);outline-offset:3px;border-radius:50%;display:grid;place-items:center;text-align:center;color:var(--soft);transform:rotate(-6deg);font:700 15px/1.2 var(--serif);padding:10px}
-.stamp small{display:block;font:600 11px/1.3 var(--sans);margin-top:4px}
-.stamp.ok{color:var(--royal-hi);border-color:var(--royal);outline-color:var(--royal)}.stamp.bad{color:var(--red);border-color:var(--red);outline-color:var(--red)}.stamp.wait{color:var(--amber);border-color:var(--amber);outline-color:var(--amber)}
-h1{font:700 clamp(26px,6.4vw,38px)/1.12 var(--serif);margin:0 0 8px;letter-spacing:-.01em}
-.lede{margin:0;color:var(--soft);max-width:46ch}
-h2{font:700 20px/1.25 var(--serif);margin:34px 0 10px}
-.checks{border-top:1px solid var(--line);margin:0;padding:0;list-style:none}
-.checks li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:14px 0;border-bottom:1px solid var(--line)}
-.mark{width:22px;height:22px;border-radius:50%;margin-top:3px;display:grid;place-items:center;font:700 13px/1 var(--sans);color:#0e1013;background:var(--amber)}.mark.ok{background:var(--royal);color:#fff}.mark.bad{background:var(--red)}
-.checks b{display:block}.checks span.t{color:var(--soft);font-size:15px}
-.actions{margin-top:18px}
-button{font:inherit;font-weight:600;cursor:pointer;min-height:46px;padding:10px 20px;border-radius:6px;border:2px solid var(--royal);background:var(--royal);color:#fff}
-button:hover{background:#3558c8;border-color:#3558c8}
-.sheet{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--soft);margin-top:12px;padding:6px 16px 12px;border-radius:2px}
-.sheet.ok{border-left-color:var(--royal)}.sheet.bad{border-left-color:var(--red);background:#1c1415}.sheet.na{border-left-color:var(--amber)}
-.sheet h3{font:700 17px/1.3 var(--serif);margin:10px 0 4px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
-.pill{font:600 13px/1 var(--sans);padding:5px 10px;border-radius:20px}.pill.ok{background:var(--tint-royal);color:var(--royal-hi)}.pill.bad{background:var(--tint-red);color:var(--red)}.pill.na{background:var(--tint-amber);color:var(--amber)}
-dl{margin:0}.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dotted var(--line);font-size:15px}.row:last-child{border-bottom:0}.row dt{color:var(--soft)}.row dd{margin:0;font-weight:600;text-align:right;overflow-wrap:anywhere}
-.row dd.mono{font:500 12px/1.5 var(--mono)}
-.warn{margin:8px 0 2px;color:var(--red);font-size:15px;font-weight:600}
-.note{margin-top:14px;padding:10px 14px;background:var(--tint-amber);color:#e8d3a0;font-size:14px;border-radius:4px}
-ol.steps{margin:0;padding-left:22px;color:var(--soft)}ol.steps li{margin:8px 0;padding-left:4px}ol.steps b{color:var(--text)}
-details{margin-top:14px;border-top:1px solid var(--line)}summary{cursor:pointer;font:700 17px/1.3 var(--serif);padding:14px 0;min-height:46px}
-.inner{padding-bottom:10px;color:var(--soft);font-size:15px}.entry{padding:9px 0;border-bottom:1px dotted var(--line);font-size:14px}.entry b{color:var(--text)}.entry .mono{font:500 12px/1.5 var(--mono);overflow-wrap:anywhere}
-footer{margin-top:34px;padding-top:14px;border-top:2px solid var(--royal);color:var(--soft);font-size:13px}
-@media(max-width:520px){.verdict{grid-template-columns:1fr;gap:14px}.stamp{width:112px;height:112px;font-size:13px}}
-@media(prefers-reduced-motion:no-preference){.stamp{transition:color .25s,border-color .25s,outline-color .25s}}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #9bb2ff;outline-offset:3px}
+.app{min-height:100vh}
+.sidebar{position:fixed;inset:0 auto 0 0;width:248px;background:var(--sidebar);border-right:1px solid var(--line-soft);display:flex;flex-direction:column;padding:25px 16px 18px;z-index:5}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px 28px}
+.brand-mark{width:31px;height:31px;border:1px solid #3c5bb0;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#1d2d55,#121a2b);color:#a9bcff}
+.brand-mark svg{width:17px;height:17px}
+.brand-name{font-size:15px;font-weight:680;letter-spacing:-.035em}.brand-sub{display:block;color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.nav-label{padding:0 11px;margin:9px 0 9px;color:#697587;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.nav{display:grid;gap:4px}
+.nav a{height:41px;padding:0 11px;border-radius:8px;display:flex;align-items:center;gap:12px;color:#9ba6b5;font-size:13px;transition:background .18s,color .18s}
+.nav a:hover{background:#191f29;color:var(--text)}
+.nav a.active{background:#19233b;color:#dce5ff}
+.nav svg{width:16px;height:16px;opacity:.85}
+.sidebar-bottom{margin-top:auto}
+.workspace{border-top:1px solid var(--line-soft);padding:17px 10px 0}
+.workspace-label{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.workspace-status{display:flex;align-items:center;gap:8px;margin-top:10px;color:#c4ccd7;font-size:12px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px #71c6a018}
+.workspace-note{color:var(--dim);font-size:11px;margin-top:5px;line-height:1.5}
+.main{margin-left:248px;min-height:100vh}
+.topbar{height:68px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,4vw,58px);position:sticky;top:0;background:#0c0e12ed;backdrop-filter:blur(16px);z-index:4}
+.crumb{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px}.crumb strong{color:#dfe5ee;font-weight:580}
+.top-actions{display:flex;align-items:center;gap:12px}
+.live-label{display:flex;align-items:center;gap:7px;color:#a7b1c0;font-size:11px}
+.live-label .pulse{width:6px;height:6px}
+.refresh{border:1px solid #303a49;background:#151a22;color:#dce3ed;border-radius:7px;height:34px;padding:0 12px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;cursor:pointer}
+.refresh:hover{border-color:#526da9;background:#1a2231}
+.refresh svg{width:14px;height:14px}
+.content{max-width:1190px;margin:0 auto;padding:39px clamp(24px,4vw,58px) 70px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:27px}
+.eyebrow{color:#8290a4;font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+h1{font-size:clamp(27px,3.2vw,36px);line-height:1.12;letter-spacing:-.055em;font-weight:610;margin:0}
+.page-desc{color:var(--muted);font-size:13px;margin:9px 0 0;max-width:560px}
+.updated{font-size:11px;color:var(--dim);white-space:nowrap;padding-bottom:3px}
+.overview{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,.8fr);gap:14px;margin-bottom:14px}
+.verdict{position:relative;overflow:hidden;background:linear-gradient(120deg,#151c2a 0%,#131820 64%,#12161d 100%);border:1px solid #29364e;border-radius:12px;padding:25px 27px;min-height:190px}
+.verdict:after{content:"";position:absolute;width:240px;height:240px;border:1px solid #ffffff08;border-radius:50%;right:-84px;top:-105px;box-shadow:0 0 0 26px #ffffff04,0 0 0 52px #ffffff03}
+.verdict-top{display:flex;align-items:center;gap:9px;color:#aebbd1;font-size:11px;font-weight:650;letter-spacing:.09em;text-transform:uppercase}
+.status-icon{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#1e3158;color:#a9beff}
+.status-icon svg{width:15px;height:15px}
+.verdict h2{font-size:25px;line-height:1.2;letter-spacing:-.045em;font-weight:610;margin:17px 0 7px}
+.verdict p{max-width:500px;color:#aab5c5;font-size:13px;margin:0}
+.verdict-foot{display:flex;align-items:center;gap:8px;margin-top:19px;color:#8e9caf;font-size:11px}
+.verdict-foot .dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.check-panel,.metric-panel,.records-panel,.details-panel{background:var(--surface);border:1px solid var(--line);border-radius:11px}
+.check-panel{padding:19px 20px}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.panel-title h2{font-size:13px;font-weight:640;letter-spacing:-.01em;margin:0}
+.panel-kicker{font-size:10px;color:var(--dim);letter-spacing:.09em;text-transform:uppercase}
+.check-row{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-top:1px solid var(--line-soft)}
+.check-row:first-of-type{border-top:0}
+.check-icon{flex:0 0 23px;width:23px;height:23px;border-radius:7px;display:grid;place-items:center;background:#202936;color:#aab8ce;font-size:12px}
+.check-icon.ok{background:var(--green-soft);color:var(--green)}.check-icon.bad{background:var(--red-soft);color:var(--red)}.check-icon.warn{background:var(--amber-soft);color:var(--amber)}
+.check-copy{min-width:0;flex:1}.check-copy b{display:block;font-size:12px;font-weight:620}.check-copy span{display:block;color:var(--muted);font-size:11px;margin-top:3px;line-height:1.45}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:28px}
+.metric-panel{padding:16px 18px}
+.metric-label{color:var(--muted);font-size:11px}
+.metric-value{font-size:24px;font-weight:620;letter-spacing:-.05em;margin-top:7px}
+.metric-foot{font-size:10px;color:var(--dim);margin-top:3px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 0 12px}
+.section-head h2{font-size:17px;letter-spacing:-.035em;font-weight:620;margin:0}
+.section-head p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.text-link{color:#a9bcff;font-size:11px;font-weight:600}
+.records-panel{overflow:hidden}
+.records-toolbar{padding:13px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.records-toolbar span{font-size:11px;color:var(--muted)}
+.search{width:min(230px,48%);height:32px;border:1px solid #2a3442;background:#10151c;border-radius:7px;padding:0 10px;color:var(--text);font:12px var(--sans)}
+.search::placeholder{color:#697586}
+.record{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(110px,.8fr) auto;align-items:center;gap:18px;padding:15px 18px;border-bottom:1px solid var(--line-soft)}
+.record:last-child{border-bottom:0}
+.record-name{font-size:12px;font-weight:620;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.record-meta{font-size:10px;color:var(--muted);margin-top:4px}
+.record-total{font-size:11px;color:#b8c2d0}
+.record-state{font-size:10px;color:var(--green);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.record-state.warn{color:var(--amber)}.record-state .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.empty{padding:25px 18px;text-align:center;color:var(--muted);font-size:12px}
+.details-panel{margin-top:18px;padding:0 18px}
+details summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:50px;color:#c6cfdb;font-size:12px;font-weight:600}
+details summary::-webkit-details-marker{display:none}
+details summary:after{content:"+";font-size:17px;color:var(--muted);font-weight:400}
+details[open] summary:after{content:"−"}
+.tech-content{border-top:1px solid var(--line-soft);padding:14px 0;color:var(--muted);font-size:11px}
+.tech-entry{padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.tech-entry:last-child{border:0}
+.mono{font:10px/1.5 var(--mono);overflow-wrap:anywhere;color:#9aa8bd;margin-top:4px}
+.scope{display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:12px 14px;border:1px solid #302b20;background:#17150f;border-radius:8px;color:#b8a77f;font-size:11px;line-height:1.5}
+.scope svg{width:15px;height:15px;flex:none;margin-top:1px}
+.footer{border-top:1px solid var(--line-soft);margin-top:28px;padding-top:15px;color:var(--dim);font-size:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mobile-brand{display:none}
+@media(max-width:900px){.sidebar{width:210px}.main{margin-left:210px}.overview{grid-template-columns:1fr}.check-panel{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.check-panel .panel-title{grid-column:1/-1}.check-row:nth-of-type(2){border-top:0}}
+@media(max-width:680px){.sidebar{display:none}.main{margin-left:0}.topbar{height:58px;padding:0 18px}.mobile-brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:680}.mobile-brand .brand-mark{width:25px;height:25px;border-radius:7px}.crumb{display:none}.live-label{display:none}.content{padding:27px 17px 48px}.page-head{display:block;margin-bottom:20px}.updated{margin-top:13px}.verdict{padding:21px;min-height:180px}.verdict h2{font-size:22px}.check-panel{display:block}.check-row:nth-of-type(2){border-top:1px solid var(--line-soft)}.metrics{gap:8px}.metric-panel{padding:13px 12px}.metric-value{font-size:21px}.metric-label{font-size:10px}.metric-foot{font-size:9px}.record{grid-template-columns:minmax(0,1fr) auto;gap:8px}.record-total{grid-column:1;grid-row:2}.record-state{grid-column:2;grid-row:1/3}.records-toolbar{padding:11px 12px}.records-toolbar span{font-size:10px}.search{width:48%}.footer{font-size:9px}}
+@media(prefers-reduced-motion:no-preference){.refresh svg{transition:transform .35s}.refresh:hover svg{transform:rotate(45deg)}.nav a{transition:background .16s,color .16s}}
 </style>
 </head>
 <body>
-<main>
- <header><div class="brand">AuditChain<span>Polling-unit result verification</span></div><a href="/submit.html">Submit a sheet</a></header>
+<div class="app">
+<aside class="sidebar">
+ <a class="brand" href="/" aria-label="AuditChain home">
+  <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 19 6v5c0 4.6-2.8 8-7 10-4.2-2-7-5.4-7-10V6l7-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>
+  <span><span class="brand-name">AuditChain</span><span class="brand-sub">Integrity console</span></span>
+ </a>
+ <div class="nav-label">Workspace</div>
+ <nav class="nav" aria-label="Main navigation">
+  <a class="active" href="#overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg>Overview</a>
+  <a href="#records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Result sheets</a>
+  <a href="/submit.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m-4 4 4-4 4 4"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>Submit evidence</a>
+ </nav>
+ <div class="sidebar-bottom">
+  <div class="workspace">
+   <div class="workspace-label">Environment</div>
+   <div class="workspace-status"><span class="pulse"></span> Prototype environment</div>
+   <div class="workspace-note">Synthetic records · Read-only console</div>
+  </div>
+ </div>
+</aside>
+<div class="main">
+ <header class="topbar">
+  <div class="mobile-brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 19 6v5c0 4.6-2.8 8-7 10-4.2-2-7-5.4-7-10V6l7-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>AuditChain</div>
+  <div class="crumb"><span>Workspace</span><span> / </span><strong>Integrity overview</strong></div>
+  <div class="top-actions"><span class="live-label"><span class="pulse"></span> Live checks</span><button class="refresh" id="refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11a8 8 0 0 0-14.8-3L3 11"/><path d="M3 5v6h6M4 13a8 8 0 0 0 14.8 3L21 13"/><path d="M21 19v-6h-6"/></svg>Refresh</button></div>
+ </header>
+ <main class="content" id="overview">
+  <div class="page-head">
+   <div><div class="eyebrow">Monitoring / Integrity</div><h1>Integrity overview</h1><p class="page-desc">A clear view of whether recorded result sheets still match their verified history.</p></div>
+   <div class="updated" id="lastUpdated">Waiting for first check</div>
+  </div>
 
- <section class="verdict" aria-labelledby="headline">
-  <div class="stamp wait" id="stamp" aria-hidden="true"><div id="stampText">Checking<small id="stampSmall">please wait</small></div></div>
-  <div><h1 id="headline">Checking the records…</h1><p class="lede" id="headlineSub">This takes a few seconds. The first visit after a quiet period can take longer.</p></div>
- </section>
+  <section class="overview" aria-label="Integrity status">
+   <article class="verdict">
+    <div class="verdict-top"><span class="status-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 19 6v5c0 4.6-2.8 8-7 10-4.2-2-7-5.4-7-10V6l7-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span> Current integrity status</div>
+    <h2 id="overallState">Checking records…</h2>
+    <p id="overallHint">The console is checking the record chain and published checkpoints.</p>
+    <div class="verdict-foot"><span class="dot"></span><span id="verdictFoot">Checks run directly against the audit history</span></div>
+   </article>
+   <article class="check-panel">
+    <div class="panel-title"><h2>Verification checks</h2><span class="panel-kicker">Live status</span></div>
+    <div class="check-row"><span class="check-icon" id="chainIcon">…</span><div class="check-copy"><b>Record chain</b><span id="chainResult">Waiting for the record check.</span></div></div>
+    <div class="check-row"><span class="check-icon" id="anchorIcon">…</span><div class="check-copy"><b>Public checkpoints</b><span id="anchorResult">Waiting for the checkpoint check.</span></div></div>
+   </article>
+  </section>
 
- <ul class="checks" aria-live="polite">
-  <li><span class="mark" id="markChain" aria-hidden="true">…</span><div><b>Chain check</b><span class="t" id="txtChain">Waiting…</span></div></li>
-  <li><span class="mark" id="markAnchor" aria-hidden="true">…</span><div><b>Public checkpoint check</b><span class="t" id="txtAnchor">Waiting…</span></div></li>
- </ul>
- <div class="actions"><button id="recheck">Check again</button></div>
+  <section class="metrics" aria-label="Record summary">
+   <article class="metric-panel"><div class="metric-label">Recorded entries</div><div class="metric-value" id="entryCount">—</div><div class="metric-foot">Items in the audit history</div></article>
+   <article class="metric-panel"><div class="metric-label">Public checkpoints</div><div class="metric-value" id="anchorCount">—</div><div class="metric-foot">Signed history snapshots found</div></article>
+   <article class="metric-panel"><div class="metric-label">Waiting to sync</div><div class="metric-value" id="pendingCount">—</div><div class="metric-foot">Submissions waiting for delivery</div></article>
+  </section>
 
- <h2>Recorded result sheets</h2>
- <p class="lede" id="sheetsSub">Loading…</p>
- <div id="sheets"></div>
- <div class="note">Every sheet shown is synthetic test data. AuditChain is a prototype, not an official election results system.</div>
+  <section id="records">
+   <div class="section-head"><div><h2>Recorded result sheets</h2><p>Evidence records received by AuditChain, newest first.</p></div><a class="text-link" href="/submit.html">Submit evidence ↗</a></div>
+   <div class="records-panel">
+    <div class="records-toolbar"><span id="sheetsSub">Loading result sheets…</span><input class="search" id="recordSearch" type="search" placeholder="Search records" aria-label="Search result sheets"></div>
+    <div id="sheets"><div class="empty">Loading records…</div></div>
+   </div>
+  </section>
 
- <h2>How the check works</h2>
- <ol class="steps">
-  <li><b>Each record is locked to the one before it.</b> Changing one record breaks the lock on every record after it.</li>
-  <li><b>Signed checkpoints are published in public</b> on a separate branch, every six hours.</li>
-  <li><b>This page compares the two.</b> If history is rewritten, the public checkpoints stop matching.</li>
- </ol>
-
- <details>
-  <summary>Technical details</summary>
-  <div class="inner"><p id="techSummary">Loading…</p><div id="entries"></div></div>
- </details>
- <details>
-  <summary>If the network drops</summary>
-  <div class="inner"><p>The submit page keeps a queue on the phone and retries when the network returns. Each submission carries a unique key, so a retry is not counted twice. Power and coverage in the field still need real-world testing.</p></div>
- </details>
-
- <footer>AuditChain. Use synthetic data only. Not for official election use.</footer>
-</main>
+  <section class="details-panel">
+   <details>
+    <summary>Technical audit details</summary>
+    <div class="tech-content"><p id="techSummary">Loading technical details…</p><div id="entries"></div></div>
+   </details>
+  </section>
+  <div class="scope"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>Prototype scope: records shown here are synthetic test data. A successful integrity check confirms that recorded history matches its checksums and available checkpoints; it does not prove that the original figures submitted were truthful or that an election outcome is correct.</span></div>
+  <footer class="footer"><span>AuditChain · Electoral records integrity prototype</span><span>For demonstration and authorized testing only</span></footer>
+ </main>
+</div>
+</div>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-function mark(prefix,state,text){const m=$('mark'+prefix);m.className='mark'+(state===true?' ok':state===false?' bad':'');m.textContent=state===true?'✓':state===false?'!':'?';$('txt'+prefix).textContent=text;}
-function headline(state,stamp,small,title,sub){const s=$('stamp');s.className='stamp '+(state===true?'ok':state===false?'bad':'wait');$('stampText').firstChild.nodeValue=stamp;$('stampSmall').textContent=small;$('headline').textContent=title;$('headlineSub').textContent=sub;}
-function parse(p){try{return JSON.parse(p);}catch(e){return null;}}
-function sheetFrom(entry){
- const p=parse(entry.payload);if(!p||p.type!=='evidence')return null;
- const data=p.data||{};const parties=data.partyVotes&&typeof data.partyVotes==='object'?data.partyVotes:null;
- let sum=null;if(parties){sum=0;for(const k of Object.keys(parties)){const v=Number(parties[k]);if(Number.isFinite(v))sum+=v;}}
- const total=[data.totalVotes,data.total_votes,data.votes_cast].map(Number).find(Number.isFinite);
- return{seq:entry.sequence,loc:p.location||entry.location||'Unknown location',parties,sum,total,hash:entry.currentHash};
+let state={chain:null,anchors:null,entries:[]};
+function setText(id,value){$(id).textContent=value;}
+function setCheck(id,stateValue,message){
+ const icon=$(id);icon.className='check-icon'+(stateValue===true?' ok':stateValue===false?' bad':stateValue==='warn'?' warn':'');
+ icon.textContent=stateValue===true?'✓':stateValue===false?'!':stateValue==='warn'?'–':'…';
+ if(id==='chainIcon')setText('chainResult',message);else setText('anchorResult',message);
 }
-function row(dt,dd,mono){const r=document.createElement('div');r.className='row';const a=document.createElement('dt');a.textContent=dt;const b=document.createElement('dd');if(mono)b.className='mono';b.textContent=dd;r.append(a,b);return r;}
-function renderSheets(entries){
+function headline(title,description,foot){setText('overallState',title);setText('overallHint',description);setText('verdictFoot',foot);}
+function evidence(entry){
+ let p;try{p=typeof entry.payload==='string'?JSON.parse(entry.payload):entry.payload;}catch{return null;}
+ if(!p||p.type!=='evidence')return null;
+ const d=p.data||{},votes=d.partyVotes&&typeof d.partyVotes==='object'?d.partyVotes:null;
+ let sum=null;if(votes){sum=0;for(const value of Object.values(votes)){const n=Number(value);if(Number.isFinite(n))sum+=n;}}
+ const total=[d.totalVotes,d.total_votes,d.votes_cast].map(Number).find(Number.isFinite);
+ return{sequence:entry.sequence,location:p.location||entry.location||'Unspecified polling unit',role:entry.role||'Evidence submission',timestamp:entry.timestamp,hash:entry.currentHash,votes,sum,total};
+}
+function recordRow(item){
+ const row=document.createElement('article');row.className='record';
+ const left=document.createElement('div');
+ const name=document.createElement('div');name.className='record-name';name.textContent=item.location;
+ const meta=document.createElement('div');meta.className='record-meta';meta.textContent='Record #'+item.sequence+' · '+item.role+(item.timestamp?' · '+new Date(item.timestamp).toLocaleString():'');
+ left.append(name,meta);
+ const total=document.createElement('div');total.className='record-total';
+ if(item.sum!==null&&item.total!==undefined)total.textContent='Party total '+item.sum.toLocaleString()+' / Sheet total '+item.total.toLocaleString();
+ else total.textContent='Arithmetic check unavailable';
+ const stateEl=document.createElement('div');stateEl.className='record-state'+(item.sum!==null&&item.total!==undefined&&item.sum!==item.total?' warn':'');
+ const dot=document.createElement('span');dot.className='dot';stateEl.append(dot,document.createTextNode(item.sum!==null&&item.total!==undefined?(item.sum===item.total?'Totals match':'Review figures'):'Not checked'));
+ row.append(left,total,stateEl);return row;
+}
+function renderRecords(){
  const box=$('sheets');box.replaceChildren();
- const sheets=entries.map(sheetFrom).filter(Boolean).reverse();
- $('sheetsSub').textContent=sheets.length?sheets.length+(sheets.length===1?' sheet':' sheets')+' recorded, newest first.':'No result sheets have been recorded yet. Submit one from the submit page.';
- sheets.forEach(s=>{
-  const ok=s.sum!==null&&s.total!==undefined&&s.sum===s.total;
-  const bad=s.sum!==null&&s.total!==undefined&&s.sum!==s.total;
-  const el=document.createElement('article');el.className='sheet '+(ok?'ok':bad?'bad':'na');
-  const h=document.createElement('h3');const name=document.createElement('span');name.textContent=s.loc;
-  const pill=document.createElement('span');pill.className='pill '+(ok?'ok':bad?'bad':'na');pill.textContent=ok?'Totals add up':bad?'Totals do not add up':'No total to compare';
-  h.append(name,pill);el.append(h);
-  const dl=document.createElement('dl');
-  if(s.parties)Object.keys(s.parties).forEach(k=>dl.append(row('Party '+k,String(s.parties[k]))));
-  if(s.sum!==null)dl.append(row('Sum of parties',String(s.sum)));
-  if(s.total!==undefined)dl.append(row('Total on sheet',String(s.total)));
-  dl.append(row('Receipt',s.hash||'unavailable',true));
-  el.append(dl);
-  if(bad){const w=document.createElement('p');w.className='warn';w.textContent='Parties add up to '+s.sum+' but the sheet says '+s.total+'. A person should review this sheet.';el.append(w);}
-  box.append(el);
- });
+ const q=$('recordSearch').value.trim().toLowerCase();
+ const items=state.entries.map(evidence).filter(Boolean).reverse().filter(x=>(x.location+' '+x.sequence+' '+x.role).toLowerCase().includes(q));
+ setText('sheetsSub',items.length+' result sheet'+(items.length===1?'':'s')+(q?' matching search':' recorded'));
+ if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=q?'No result sheets match that search.':'No result sheets have been recorded yet.';box.append(empty);return;}
+ items.slice(0,50).forEach(item=>box.append(recordRow(item)));
 }
-function renderTech(data){
+function renderTechnical(data){
  const entries=Array.isArray(data.entries)?data.entries:[];
- $('techSummary').textContent=entries.length+' entries. Latest hash '+(data.latestHash||'unavailable')+'. '+(Number.isFinite(data.pendingSync)?data.pendingSync:0)+' waiting to sync.';
+ setText('techSummary',entries.length+' audit entries · Latest fingerprint '+(data.latestHash||'not available')+'.');
  const box=$('entries');box.replaceChildren();
  entries.slice().reverse().forEach(e=>{
-  const r=document.createElement('div');r.className='entry';
-  const t=document.createElement('div');const b=document.createElement('b');b.textContent='#'+e.sequence+' '+(e.role||'ENTRY');t.append(b,document.createTextNode(', '+(e.status||'RECORDED')));
-  const m=document.createElement('div');m.textContent=(e.actorId||'unknown actor')+', '+(e.location||'no location');
-  const h=document.createElement('div');h.className='mono';h.textContent=e.currentHash||'';
-  r.append(t,m,h);box.append(r);
+  const el=document.createElement('div');el.className='tech-entry';
+  const label=document.createElement('div');label.textContent='Record #'+e.sequence+' · '+(e.role||'ENTRY')+' · '+(e.status||'RECORDED');
+  const hash=document.createElement('div');hash.className='mono';hash.textContent='Current fingerprint: '+(e.currentHash||'not provided');
+  el.append(label,hash);box.append(el);
  });
 }
-let last={chain:null,anchor:null};
 function summarise(){
- if(last.chain===false){headline(false,'Altered','record changed','A record has been altered','The live chain failed its own check. Do not rely on these records.');return;}
- if(last.anchor===false){headline(false,'Mismatch','public checkpoints','The records do not match the public checkpoints','History may have been rewritten. Investigate before relying on these records.');return;}
- if(last.chain===true&&last.anchor===true){headline(true,'Intact','both checks passed','Records intact','Both checks passed. There is no sign of alteration.');return;}
- if(last.chain===true){headline(null,'Partly','checked','Chain intact, checkpoints not confirmed','The public checkpoint log could not be checked just now. Try again shortly.');return;}
- headline(null,'Unknown','no answer','Status unknown','The service did not answer. Try again in a moment.');
+ const c=state.chain,a=state.anchors;
+ if(!c){headline('Status unavailable','The record-chain check could not be completed. Refresh before relying on this status.','The service did not return a complete result');return;}
+ if(c.valid===false){headline('Integrity issue detected','The record chain did not pass verification. The affected history should be investigated.','A broken record link was reported');return;}
+ if(a&&a.internalCheckpointValid===false){headline('Checkpoint mismatch','A stored signed checkpoint does not match the current record history. Investigate before relying on it.','A local checkpoint comparison failed');return;}
+ const count=a&&Number.isFinite(a.externalAnchorCount)?a.externalAnchorCount:0;
+ if(a&&count>0&&a.externalAnchorsValid===false){headline('Public checkpoint mismatch','The published checkpoint history did not pass comparison with the current record chain.','A public checkpoint comparison failed');return;}
+ if(a&&a.valid===true&&a.externalAnchorsValid===true&&count>0){headline('Records intact','The record chain and available signed public checkpoints match. No alteration was detected by these checks.','Both integrity checks passed');return;}
+ if(c.valid===true){headline('Chain intact · Partial verification','The local record chain passes. A usable public checkpoint history was not confirmed, so independent verification is incomplete.','The local check passed; public verification remains incomplete');return;}
+ headline('Status unknown','The available information is not sufficient to determine the integrity of the records.','Verification did not return a conclusive result');
 }
 async function loadChain(){
  try{
   const r=await fetch('/api/chain',{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
-  const data=await r.json();const entries=Array.isArray(data.entries)?data.entries:[];
-  last.chain=data.valid===true?true:data.valid===false?false:null;
-  mark('Chain',last.chain,data.valid===true?'All '+entries.length+' records link correctly.':data.valid===false?'Broken link at record '+(data.breakSequence!==null&&data.breakSequence!==undefined?data.breakSequence:'unknown')+'.':'No answer.');
-  renderSheets(entries);renderTech(data);
- }catch(e){last.chain=null;mark('Chain',null,'Could not load the records ('+e.message+').');$('sheetsSub').textContent='Could not load records.';$('techSummary').textContent='Could not load records.';}
+  const data=await r.json();state.chain=data;state.entries=Array.isArray(data.entries)?data.entries:[];
+  setText('entryCount',Number.isFinite(data.size)?data.size:state.entries.length);
+  setText('pendingCount',Number.isFinite(data.pendingSync)?data.pendingSync:'—');
+  setCheck('chainIcon',data.valid===true?true:data.valid===false?false:null,data.valid===true?'All '+state.entries.length+' records link correctly.':data.valid===false?'A broken link was reported'+(data.breakSequence!==undefined?' at record '+data.breakSequence:'')+'.':'The chain check returned no conclusive result.');
+  renderRecords();renderTechnical(data);
+ }catch(e){state.chain=null;setText('entryCount','—');setText('pendingCount','—');setCheck('chainIcon',null,'The record-chain check is unavailable ('+e.message+').');$('sheets').replaceChildren();const empty=document.createElement('div');empty.className='empty';empty.textContent='Could not load result sheets.';$('sheets').append(empty);}
 }
 async function loadAnchors(){
- mark('Anchor',null,'Checking the public log…');
  try{
   const r=await fetch('/api/checkpoints/verify',{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
-  const d=await r.json();const n=Number.isFinite(d.externalAnchorCount)?d.externalAnchorCount:0;
-  if(d.valid===true&&d.externalAnchorsValid===true){last.anchor=true;mark('Anchor',true,n+' signed checkpoints match the live chain.');}
-  else if(n===0){last.anchor=null;mark('Anchor',null,'The public log is empty or unreachable: '+(d.externalAnchorError||d.error||'no detail')+'.');}
-  else{last.anchor=false;mark('Anchor',false,'Mismatch: '+(d.error||'the live chain differs from the published checkpoints')+'.');}
- }catch(e){last.anchor=null;mark('Anchor',null,'Could not run the check ('+e.message+').');}
+  const d=await r.json();state.anchors=d;const count=Number.isFinite(d.externalAnchorCount)?d.externalAnchorCount:0;
+  setText('anchorCount',count);
+  if(d.internalCheckpointValid===false)setCheck('anchorIcon',false,d.internalCheckpointError||'A stored signed checkpoint does not match the current chain.');
+  else if(count>0&&d.externalAnchorsValid===true)setCheck('anchorIcon',true,count+' signed public checkpoint(s) match the current chain.');
+  else if(count>0)setCheck('anchorIcon',false,d.externalAnchorError||d.error||'The published checkpoint comparison did not pass.');
+  else setCheck('anchorIcon','warn','No usable public checkpoints were confirmed. Independent verification is incomplete.');
+ }catch(e){state.anchors=null;setText('anchorCount','—');setCheck('anchorIcon','warn','The public checkpoint check is unavailable ('+e.message+').');}
 }
-async function run(){
- headline(null,'Checking','please wait','Checking the records…','This takes a few seconds.');
- await Promise.all([loadChain(),loadAnchors()]);summarise();
+async function refreshAll(){
+ setText('lastUpdated','Checking live integrity…');state.chain=null;state.anchors=null;
+ headline('Checking records…','The console is checking the record chain and published checkpoints.','Live checks in progress');
+ await Promise.all([loadChain(),loadAnchors()]);summarise();setText('lastUpdated','Last checked '+new Date().toLocaleTimeString());
 }
-$('recheck').addEventListener('click',run);run();
+$('refresh').addEventListener('click',refreshAll);
+$('recordSearch').addEventListener('input',renderRecords);
+refreshAll();
 </script>
-</body></html>
+</body>
+</html>
