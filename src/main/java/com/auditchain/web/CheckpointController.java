@@ -87,6 +87,8 @@ public class CheckpointController {
         result.put("valid", internalIssue.isEmpty() && external.valid());
         result.put("chainSize", chainService.size());
         result.put("checkpointCount", checkpointService.listPublished().size());
+        result.put("internalCheckpointValid", internalIssue.isEmpty());
+        result.put("internalCheckpointError", internalIssue.orElse(null));
         result.put("externalAnchorCount", external.checkpointCount());
         result.put("externalAnchorsValid", external.valid());
         result.put("error", internalIssue.orElse(external.error()));
