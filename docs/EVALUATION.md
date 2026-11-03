@@ -2,7 +2,7 @@
 
 **Project:** AuditChain  
 **Scope:** Defensive, synthetic-data prototype for the #AI4Elections Track 4 submission  
-**Last reviewed:** 2026-11-01
+**Last reviewed:** 2026-11-03
 
 ## Evaluation questions
 
@@ -27,6 +27,7 @@ Use synthetic fixtures only. Do not test against a live electoral system or real
 | Area | Method | Evidence to retain |
 |---|---|---|
 | Chain integrity | Verify an unchanged chain; alter a stored payload/hash in a controlled test fixture and verify rejection | Test output and first failing sequence |
+| Local tamper demo | Run `docs/TAMPER_DEMO.md` against a new disposable SQLite file; run `python3 scripts/verify-tamper-demo.py` | Initial valid state, detection at sequence 2, and explicit in-memory-only limitation |
 | Historical checkpoints | Create a checkpoint, extend the chain, then mutate the historical hash in a test fixture | Regression test output |
 | Idempotency | Submit the same synthetic evidence with the same idempotency key twice | Receipt comparison |
 | Authorization | Call protected routes without a key, with a wrong key, and with each permitted role | HTTP status and route matrix |
