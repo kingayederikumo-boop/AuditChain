@@ -36,10 +36,10 @@ h1{font-size:34px;line-height:1.15;letter-spacing:-.045em;font-weight:650;margin
 .check-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line-soft)}.check-row:first-of-type{border-top:0}
 .check-icon{flex:0 0 21px;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:#202936;color:#aab8ce;font-size:11px}.check-icon.ok{background:var(--green-soft);color:var(--green)}.check-icon.bad{background:#281a1b;color:var(--red)}.check-icon.warn{background:#211d15;color:var(--amber)}
 .check-copy{min-width:0;flex:1}.check-copy b{display:block;font-size:12px;font-weight:650}.check-copy span{display:block;color:var(--muted);font-size:11px;margin-top:3px;line-height:1.5}
-.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 0 34px;border-bottom:1px solid var(--line)}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0 0 34px;border-bottom:1px solid var(--line)}
 .metric-panel{background:none;border:0;border-right:1px solid var(--line);border-radius:0;padding:19px 22px 20px 0}.metric-panel:not(:first-child){padding-left:22px}.metric-panel:last-child{border-right:0}
 .metric-label{color:var(--muted);font-size:12px}.metric-value{font-size:26px;font-weight:650;letter-spacing:-.04em;margin-top:6px}.metric-foot{font-size:11px;color:var(--dim);margin-top:3px}
-.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 0 14px}.section-head h2{font-size:18px;letter-spacing:-.025em;font-weight:650;margin:0}.section-head p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.review-section{margin:0 0 34px;padding:0 0 24px;border-bottom:1px solid var(--line)}.review-list{display:grid;gap:0}.review-item{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:13px 0;border-top:1px solid var(--line-soft)}.review-item:first-child{border-top:1px solid var(--line-soft)}.review-item strong{display:block;font-size:12px;font-weight:650}.review-item p{margin:4px 0 0;color:var(--muted);font-size:11px}.review-tag{flex:none;color:var(--amber);font-size:10px;white-space:nowrap}.review-empty{padding:14px 0;color:var(--green);font-size:12px}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 0 14px}.section-head h2{font-size:18px;letter-spacing:-.025em;font-weight:650;margin:0}.section-head p{font-size:12px;color:var(--muted);margin:4px 0 0}
 .text-link{color:#a9bcff;font-size:12px;font-weight:600}.text-link:hover{color:#d4deff}
 .records-panel{overflow:hidden;background:none;border:0;border-radius:0}.records-toolbar{padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:12px}
 .records-toolbar span{font-size:11px;color:var(--muted)}.search{width:min(220px,48%);height:33px;border:1px solid #303946;background:#11151b;border-radius:7px;padding:0 10px;color:var(--text);font:12px var(--sans)}.search::placeholder{color:#778291}
@@ -53,7 +53,7 @@ details summary{cursor:pointer;list-style:none;display:flex;align-items:center;j
 .scope{display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:10px 0 10px 13px;border:0;border-left:2px solid #65583d;background:none;border-radius:0;color:#a99d83;font-size:11px;line-height:1.6}.scope svg{width:15px;height:15px;flex:none;margin-top:1px}
 .footer{border-top:1px solid var(--line-soft);margin-top:26px;padding-top:14px;color:var(--dim);font-size:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.mobile-brand{display:none}
 @media(max-width:900px){.sidebar{width:205px}.main{margin-left:205px}.overview{grid-template-columns:1fr;gap:16px}.check-panel{border-left:0;border-top:1px solid var(--line);padding:16px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.check-panel .panel-title{grid-column:1/-1}.check-row:nth-of-type(2){border-top:0}}
-@media(max-width:680px){.sidebar{display:none}.main{margin-left:0}.topbar{height:58px;padding:0 17px}.mobile-brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}.mobile-brand .brand-mark{width:25px;height:25px;border-radius:7px}.crumb{display:none}.content{padding:30px 18px 45px}.page-head{display:block;margin-bottom:23px}h1{font-size:30px}.updated{margin-top:12px}.verdict h2{font-size:26px}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.metric-panel{padding:16px 10px 16px 0}.metric-panel:not(:first-child){padding-left:10px}.metric-value{font-size:22px}.metric-label{font-size:10px}.metric-foot{font-size:9px}.record{grid-template-columns:minmax(0,1fr) auto;gap:8px}.record-total{grid-column:1;grid-row:2}.record-state{grid-column:2;grid-row:1/3}.records-toolbar{padding:10px 0}.records-toolbar span{font-size:10px}.search{width:48%}.footer{font-size:9px}}
+@media(max-width:680px){.sidebar{display:none}.main{margin-left:0}.topbar{height:58px;padding:0 17px}.mobile-brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}.mobile-brand .brand-mark{width:25px;height:25px;border-radius:7px}.crumb{display:none}.content{padding:30px 18px 45px}.page-head{display:block;margin-bottom:23px}h1{font-size:30px}.updated{margin-top:12px}.verdict h2{font-size:26px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-panel{padding:16px 10px 16px 0}.metric-panel:not(:first-child){padding-left:10px}.metric-value{font-size:22px}.metric-label{font-size:10px}.metric-foot{font-size:9px}.record{grid-template-columns:minmax(0,1fr) auto;gap:8px}.record-total{grid-column:1;grid-row:2}.record-state{grid-column:2;grid-row:1/3}.records-toolbar{padding:10px 0}.records-toolbar span{font-size:10px}.search{width:48%}.footer{font-size:9px}}
 @media(prefers-reduced-motion:no-preference){.refresh svg{transition:transform .3s}.refresh:hover svg{transform:rotate(45deg)}}
 </style>
 </head>
@@ -108,6 +108,12 @@ details summary{cursor:pointer;list-style:none;display:flex;align-items:center;j
    <article class="metric-panel"><div class="metric-label">Recorded entries</div><div class="metric-value" id="entryCount">—</div><div class="metric-foot">Items in the audit history</div></article>
    <article class="metric-panel"><div class="metric-label">Public checkpoints</div><div class="metric-value" id="anchorCount">—</div><div class="metric-foot">Signed history snapshots found</div></article>
    <article class="metric-panel"><div class="metric-label">Waiting to sync</div><div class="metric-value" id="pendingCount">—</div><div class="metric-foot">Submissions waiting for delivery</div></article>
+   <article class="metric-panel"><div class="metric-label">Needs attention</div><div class="metric-value" id="reviewCount">—</div><div class="metric-foot">Figures or AI checks need review</div></article>
+  </section>
+
+  <section class="review-section" aria-labelledby="reviewHeading">
+   <div class="section-head"><div><h2 id="reviewHeading">Evidence needing attention</h2><p>Arithmetic checks and AI flags are review signals, not findings of fraud.</p></div></div>
+   <div id="reviewList" class="review-list"><div class="review-empty">Checking evidence…</div></div>
   </section>
 
   <section id="records">
@@ -132,7 +138,7 @@ details summary{cursor:pointer;list-style:none;display:flex;align-items:center;j
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-let state={chain:null,anchors:null,entries:[]};
+let state={chain:null,anchors:null,entries:[],reviews:[]};
 function setText(id,value){$(id).textContent=value;}
 function setCheck(id,stateValue,message){
  const icon=$(id);icon.className='check-icon'+(stateValue===true?' ok':stateValue===false?' bad':stateValue==='warn'?' warn':'');
@@ -146,7 +152,9 @@ function evidence(entry){
  const d=p.data||{},votes=d.partyVotes&&typeof d.partyVotes==='object'?d.partyVotes:null;
  let sum=null;if(votes){sum=0;for(const value of Object.values(votes)){const n=Number(value);if(Number.isFinite(n))sum+=n;}}
  const total=[d.totalVotes,d.total_votes,d.votes_cast].map(Number).find(Number.isFinite);
- return{sequence:entry.sequence,location:p.location||entry.location||'Unspecified polling unit',role:entry.role||'Evidence submission',timestamp:entry.timestamp,hash:entry.currentHash,votes,sum,total};
+ const ai=state.entries.map(x=>{try{return typeof x.payload==='string'?JSON.parse(x.payload):x.payload;}catch{return null;}}).find(x=>x&&x.type==='AI_CHECK'&&String(x.evidenceId)===String(entry.id));
+ const queued=state.reviews.some(x=>String(x.evidenceId)===String(entry.id));
+ return{id:entry.id,sequence:entry.sequence,location:p.location||entry.location||'Unspecified polling unit',role:entry.role||'Evidence submission',timestamp:entry.timestamp,hash:entry.currentHash,votes,sum,total,ai,queued};
 }
 function recordRow(item){
  const row=document.createElement('article');row.className='record';
@@ -157,8 +165,10 @@ function recordRow(item){
  const total=document.createElement('div');total.className='record-total';
  if(item.sum!==null&&item.total!==undefined)total.textContent='Party total '+item.sum.toLocaleString()+' / Sheet total '+item.total.toLocaleString();
  else total.textContent='Arithmetic check unavailable';
- const stateEl=document.createElement('div');stateEl.className='record-state'+(item.sum!==null&&item.total!==undefined&&item.sum!==item.total?' warn':'');
- const dot=document.createElement('span');dot.className='dot';stateEl.append(dot,document.createTextNode(item.sum!==null&&item.total!==undefined?(item.sum===item.total?'Totals match':'Review figures'):'Not checked'));
+ const mismatch=item.sum!==null&&item.total!==undefined&&item.sum!==item.total;
+ const flagged=Boolean(item.ai&&item.ai.requiresHumanReview)||item.queued;
+ const stateEl=document.createElement('div');stateEl.className='record-state'+(mismatch||flagged?' warn':'');
+ const dot=document.createElement('span');dot.className='dot';stateEl.append(dot,document.createTextNode(mismatch?'Figures differ':flagged?'Needs review':item.sum!==null&&item.total!==undefined?'Totals match':'Not checked'));
  row.append(left,total,stateEl);return row;
 }
 function renderRecords(){
@@ -168,6 +178,24 @@ function renderRecords(){
  setText('sheetsSub',items.length+' result sheet'+(items.length===1?'':'s')+(q?' matching search':' recorded'));
  if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=q?'No result sheets match that search.':'No result sheets have been recorded yet.';box.append(empty);return;}
  items.slice(0,50).forEach(item=>box.append(recordRow(item)));
+}
+function renderReview(){
+ const items=state.entries.map(evidence).filter(Boolean);
+ const flagged=items.filter(item=>(item.sum!==null&&item.total!==undefined&&item.sum!==item.total)||(item.ai&&item.ai.requiresHumanReview)||item.queued);
+ setText('reviewCount',flagged.length);
+ const box=$('reviewList');box.replaceChildren();
+ if(!flagged.length){const empty=document.createElement('div');empty.className='review-empty';empty.textContent='No records currently need attention based on the available arithmetic and AI checks.';box.append(empty);return;}
+ flagged.slice().reverse().slice(0,6).forEach(item=>{
+  const row=document.createElement('article');row.className='review-item';
+  const copy=document.createElement('div');const title=document.createElement('strong');title.textContent=item.location+' · Record #'+item.sequence;
+  const reason=document.createElement('p');const parts=[];
+  if(item.sum!==null&&item.total!==undefined&&item.sum!==item.total)parts.push('Party figures total '+item.sum.toLocaleString()+' while the sheet declares '+item.total.toLocaleString()+'.');
+  if(item.ai&&item.ai.requiresHumanReview)parts.push(item.ai.notes||'The automated check requested human review.');
+  if(item.queued)parts.push('Awaiting a human review decision.');
+  reason.textContent=parts.join(' ');copy.append(title,reason);
+  const tag=document.createElement('span');tag.className='review-tag';tag.textContent=item.queued?'Awaiting review':'Review suggested';
+  row.append(copy,tag);box.append(row);
+ });
 }
 function renderTechnical(data){
  const entries=Array.isArray(data.entries)?data.entries:[];
@@ -198,8 +226,12 @@ async function loadChain(){
   setText('entryCount',Number.isFinite(data.size)?data.size:state.entries.length);
   setText('pendingCount',Number.isFinite(data.pendingSync)?data.pendingSync:'—');
   setCheck('chainIcon',data.valid===true?true:data.valid===false?false:null,data.valid===true?'All '+state.entries.length+' records link correctly.':data.valid===false?'A broken link was reported'+(data.breakSequence!==undefined?' at record '+data.breakSequence:'')+'.':'The chain check returned no conclusive result.');
-  renderRecords();renderTechnical(data);
+  renderRecords();renderReview();renderTechnical(data);
  }catch(e){state.chain=null;setText('entryCount','—');setText('pendingCount','—');setCheck('chainIcon',null,'The record-chain check is unavailable ('+e.message+').');$('sheets').replaceChildren();const empty=document.createElement('div');empty.className='empty';empty.textContent='Could not load result sheets.';$('sheets').append(empty);}
+}
+async function loadReviews(){
+ try{const r=await fetch('/api/review/pending',{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const data=await r.json();state.reviews=Array.isArray(data)?data:[];renderRecords();renderReview();}
+ catch(e){state.reviews=[];renderReview();}
 }
 async function loadAnchors(){
  try{
@@ -215,7 +247,7 @@ async function loadAnchors(){
 async function refreshAll(){
  setText('lastUpdated','Checking live integrity…');state.chain=null;state.anchors=null;
  headline('Checking records…','The console is checking the record chain and published checkpoints.','Live checks in progress');
- await Promise.all([loadChain(),loadAnchors()]);summarise();setText('lastUpdated','Last checked '+new Date().toLocaleTimeString());
+ await Promise.all([loadChain(),loadAnchors(),loadReviews()]);summarise();setText('lastUpdated','Last checked '+new Date().toLocaleTimeString());
 }
 $('refresh').addEventListener('click',refreshAll);
 $('recordSearch').addEventListener('input',renderRecords);

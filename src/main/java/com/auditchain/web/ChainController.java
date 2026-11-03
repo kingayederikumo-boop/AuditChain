@@ -62,6 +62,7 @@ public class ChainController {
 
     private Map<String, Object> toView(AuditEntry e) {
         Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id", e.getId() != null ? e.getId().toString() : null);
         m.put("sequence", e.getSequenceNumber());
         m.put("role", e.getActorRole() != null ? e.getActorRole().name() : null);
         m.put("actorId", e.getActorId());

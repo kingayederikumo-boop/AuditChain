@@ -45,6 +45,7 @@ A green local-chain result alone must never be described as complete independent
 | Record count, local chain status, break sequence, latest hash, pending sync, entries | `GET /api/chain` |
 | Stored-checkpoint result, public checkpoint count, external-anchor result and errors | `GET /api/checkpoints/verify` (`internalCheckpointValid`, `internalCheckpointError`, `externalAnchorCount`, `externalAnchorsValid`, `externalAnchorError`) |
 | Submission workflow | `/submit.html` |
+| Evidence arithmetic flags and AI review signals | Parsed evidence payloads in `GET /api/chain` plus `GET /api/review/pending` |
 
 The console must render server-returned values only. It must not invent sample counts, incidents, successful verifications, or climate conditions.
 
@@ -56,6 +57,14 @@ The console must render server-returned values only. It must not invent sample c
 - A passing local chain with no usable external checkpoint history produces an amber incomplete-verification notice, not a tampering alert.
 - Endpoint failures produce an unavailable state, not a compromised state.
 - A successful check is described narrowly: it means the available checks passed, not that the original result was true.
+
+## Evidence review visibility
+
+- The overview shows a dedicated **Evidence needing attention** section and a count of records requiring attention.
+- A deterministic arithmetic mismatch is computed by comparing the sum of declared party figures with `totalVotes`, `total_votes`, or `votes_cast`.
+- AI review signals are associated with their audit-chain evidence entry ID; the AI event and pending-review item use that same ID.
+- Arithmetic mismatches, AI flags, and pending human review are shown as review signals. None is described as tampering or fraud.
+- The public console remains read-only. Reviewer decisions continue to require the authenticated reviewer API and are not available from this page.
 
 ## Scope boundaries and known gaps
 
@@ -76,3 +85,5 @@ The console must render server-returned values only. It must not invent sample c
 6. Search filters the visible record list without changing backend data.
 7. The navigation works on mobile and desktop, and keyboard focus remains visible.
 8. The page does not expose API keys or perform reviewer/admin actions.
+9. A mismatch between declared party figures and the sheet total appears in the attention list with the actual figures.
+10. AI flags and pending-review items are linked to the corresponding chain entry and never labelled as fraud.
