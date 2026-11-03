@@ -2,162 +2,163 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1220">
+<meta name="theme-color" content="#f4f5f1">
 <meta name="description" content="AuditChain checks whether polling-unit result records have been altered.">
 <title>AuditChain — Has this record been altered?</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#111c2d;--line:#263750;--text:#edf4ff;--muted:#a3b3c9;--blue:#58a6ff;--cyan:#57d6dc;--green:#43d49a;--amber:#f2bd63;--red:#ff7777}
+:root{--paper:#f4f5f1;--sheet:#fbfbf8;--ink:#14211b;--soft:#4d5b53;--rule:#c9d1c9;--green:#0e6b43;--red:#a8231b;--amber:#8a5a00;--tint-green:#e3f0e8;--tint-red:#f7e3e1;--tint-amber:#f6ecd5;
+ --serif:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:760px;margin:0 auto;padding:22px 16px 48px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
-.brand{font-weight:800;letter-spacing:.08em;font-size:14px}.brand small{display:block;color:var(--muted);font-weight:500;letter-spacing:0;font-size:12px}
-a.link{color:var(--blue);text-decoration:none;font-weight:600}a.link:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
-h1{font-size:clamp(24px,6vw,32px);line-height:1.2;margin:0 0 6px}h2{font-size:18px;margin:0 0 10px}
-.sub{color:var(--muted);margin:0}
-.status{display:flex;gap:14px;align-items:flex-start}
-.badge{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-weight:800;background:#2a2f3a;color:var(--amber)}
-.badge.ok{background:#12372b;color:var(--green)}.badge.bad{background:#3a1d22;color:var(--red)}
-.status h1{margin:0}.status p{margin:4px 0 0}
-.checks{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
-.checks li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:15px}
-.checks b{color:var(--text)}.dot{flex:none;margin-top:8px;width:10px;height:10px;border-radius:50%;background:var(--amber)}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}
-button{font:inherit;cursor:pointer;min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid #35577c;background:#173b5c;color:#eaf5ff;font-weight:650}
-button:hover{background:#20517c}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-ol.steps{margin:0;padding-left:20px;color:var(--muted)}ol.steps li{margin:6px 0}ol.steps b{color:var(--text)}
-.sheet{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;background:#0d1928}
-.sheet-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:700}
-.tag{font-size:13px;font-weight:700;padding:2px 10px;border-radius:20px;border:1px solid}
-.tag.ok{color:var(--green);border-color:#1f6b52}.tag.bad{color:var(--red);border-color:#7a3a42}.tag.na{color:var(--amber);border-color:#7a6230}
-.sheet p{margin:6px 0 0;color:var(--muted);font-size:15px}.mono{font:12px ui-monospace,monospace;color:#79c9d2;overflow-wrap:anywhere}
-details{margin-bottom:16px}summary{cursor:pointer;font-weight:700;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;min-height:44px}
-details[open] summary{border-radius:12px 12px 0 0}.inner{border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:14px;background:#0d1928}
-.entry{padding:10px 0;border-bottom:1px solid #1d2d44;font-size:13px}.entry:last-child{border-bottom:0}.entry b{color:#c7e4ff}
-.note{border-left:3px solid var(--amber);padding:10px 12px;background:#2a2419;border-radius:0 8px 8px 0;color:#e2d3ae;font-size:14px;margin-top:10px}
-footer{color:#8496ae;font-size:13px;margin-top:24px}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans)}
+main{max-width:720px;margin:0 auto;padding:20px 18px 56px}
+a{color:var(--green);font-weight:600;text-underline-offset:3px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:14px;border-bottom:2px solid var(--ink);margin-bottom:28px}
+.brand{font:700 20px/1 var(--serif);letter-spacing:.01em}.brand span{display:block;font:400 13px/1.4 var(--sans);color:var(--soft);margin-top:6px}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:26px}
+.stamp{width:132px;height:132px;border:3px solid var(--soft);outline:1px solid var(--soft);outline-offset:3px;border-radius:50%;display:grid;place-items:center;text-align:center;color:var(--soft);transform:rotate(-6deg);font:700 15px/1.2 var(--serif);padding:10px;background:transparent}
+.stamp small{display:block;font:600 11px/1.3 var(--sans);margin-top:4px}
+.stamp.ok{color:var(--green);border-color:var(--green);outline-color:var(--green)}.stamp.bad{color:var(--red);border-color:var(--red);outline-color:var(--red)}.stamp.wait{color:var(--amber);border-color:var(--amber);outline-color:var(--amber)}
+h1{font:700 clamp(26px,6.4vw,38px)/1.12 var(--serif);margin:0 0 8px;letter-spacing:-.01em}
+.lede{margin:0;color:var(--soft);max-width:46ch}
+h2{font:700 20px/1.25 var(--serif);margin:34px 0 10px}
+.checks{border-top:1px solid var(--rule);margin:0;padding:0;list-style:none}
+.checks li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.mark{width:22px;height:22px;border-radius:50%;margin-top:3px;display:grid;place-items:center;font:700 13px/1 var(--sans);color:#fff;background:var(--amber)}.mark.ok{background:var(--green)}.mark.bad{background:var(--red)}
+.checks b{display:block}.checks span.t{color:var(--soft);font-size:15px}
+.actions{margin-top:18px}
+button{font:inherit;font-weight:600;cursor:pointer;min-height:46px;padding:10px 20px;border-radius:6px;border:2px solid var(--ink);background:var(--ink);color:var(--paper)}
+button:hover{background:#26382e}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-left:5px solid var(--soft);margin-top:12px;padding:6px 16px 12px}
+.sheet.ok{border-left-color:var(--green)}.sheet.bad{border-left-color:var(--red);background:#fdf6f5}.sheet.na{border-left-color:var(--amber)}
+.sheet h3{font:700 17px/1.3 var(--serif);margin:10px 0 4px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.pill{font:600 13px/1 var(--sans);padding:5px 10px;border-radius:20px}.pill.ok{background:var(--tint-green);color:var(--green)}.pill.bad{background:var(--tint-red);color:var(--red)}.pill.na{background:var(--tint-amber);color:var(--amber)}
+dl{margin:0}.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dotted var(--rule);font-size:15px}.row:last-child{border-bottom:0}.row dt{color:var(--soft)}.row dd{margin:0;font-weight:600;text-align:right;overflow-wrap:anywhere}
+.row dd.mono{font:500 12px/1.5 var(--mono);font-weight:500}
+.warn{margin:8px 0 2px;color:var(--red);font-size:15px;font-weight:600}
+.note{margin-top:14px;padding:10px 14px;background:var(--tint-amber);color:#4a3200;font-size:14px;border-radius:4px}
+ol.steps{margin:0;padding-left:22px;color:var(--soft)}ol.steps li{margin:8px 0;padding-left:4px}ol.steps b{color:var(--ink)}
+details{margin-top:14px;border-top:1px solid var(--rule)}summary{cursor:pointer;font:700 17px/1.3 var(--serif);padding:14px 0;min-height:46px}
+.inner{padding-bottom:10px;color:var(--soft);font-size:15px}.entry{padding:9px 0;border-bottom:1px dotted var(--rule);font-size:14px}.entry b{color:var(--ink)}.entry .mono{font:500 12px/1.5 var(--mono);overflow-wrap:anywhere}
+footer{margin-top:34px;padding-top:14px;border-top:2px solid var(--ink);color:var(--soft);font-size:13px}
+@media(max-width:520px){.verdict{grid-template-columns:1fr;gap:14px}.stamp{width:112px;height:112px;font-size:13px}}
+@media(prefers-reduced-motion:no-preference){.stamp{transition:color .25s,border-color .25s,outline-color .25s}}
 </style>
 </head>
 <body>
 <main>
- <header><div class="brand">AUDITCHAIN<small>Result-record integrity check</small></div><a class="link" href="/submit.html">Submit a sheet →</a></header>
+ <header><div class="brand">AuditChain<span>Polling-unit result verification</span></div><a href="/submit.html">Submit a sheet</a></header>
 
- <section class="card" aria-labelledby="headline">
-  <div class="status"><div class="badge" id="badge" aria-hidden="true">…</div>
-   <div><h1 id="headline">Checking the records…</h1><p class="sub" id="headlineSub">This takes a few seconds. The first visit after a quiet period can take longer.</p></div></div>
-  <ul class="checks" aria-live="polite">
-   <li><i class="dot" id="dotChain"></i><span><b>Chain check.</b> <span id="txtChain">Waiting…</span></span></li>
-   <li><i class="dot" id="dotAnchor"></i><span><b>Public anchor check.</b> <span id="txtAnchor">Waiting…</span></span></li>
-  </ul>
-  <div class="actions"><button id="recheck">Check again</button></div>
+ <section class="verdict" aria-labelledby="headline">
+  <div class="stamp wait" id="stamp" aria-hidden="true"><div id="stampText">Checking<small id="stampSmall">please wait</small></div></div>
+  <div><h1 id="headline">Checking the records…</h1><p class="lede" id="headlineSub">This takes a few seconds. The first visit after a quiet period can take longer.</p></div>
  </section>
 
- <section class="card" aria-labelledby="how">
-  <h2 id="how">How it works</h2>
-  <ol class="steps">
-   <li><b>Each record is locked to the one before it.</b> Changing any record breaks the lock on every record after it.</li>
-   <li><b>Signed checkpoints are published in public</b> on a separate branch, every six hours.</li>
-   <li><b>This page compares the two.</b> If someone rewrites history, the public checkpoints no longer match.</li>
-  </ol>
- </section>
+ <ul class="checks" aria-live="polite">
+  <li><span class="mark" id="markChain" aria-hidden="true">…</span><div><b>Chain check</b><span class="t" id="txtChain">Waiting…</span></div></li>
+  <li><span class="mark" id="markAnchor" aria-hidden="true">…</span><div><b>Public checkpoint check</b><span class="t" id="txtAnchor">Waiting…</span></div></li>
+ </ul>
+ <div class="actions"><button id="recheck">Check again</button></div>
 
- <section class="card" aria-labelledby="sheetsH">
-  <h2 id="sheetsH">Result sheets recorded</h2>
-  <p class="sub" id="sheetsSub">Loading…</p>
-  <div id="sheets"></div>
-  <div class="note">All sheets shown are synthetic test data. This is a prototype, not an official election results system.</div>
- </section>
+ <h2>Recorded result sheets</h2>
+ <p class="lede" id="sheetsSub">Loading…</p>
+ <div id="sheets"></div>
+ <div class="note">Every sheet shown is synthetic test data. AuditChain is a prototype, not an official election results system.</div>
+
+ <h2>How the check works</h2>
+ <ol class="steps">
+  <li><b>Each record is locked to the one before it.</b> Changing one record breaks the lock on every record after it.</li>
+  <li><b>Signed checkpoints are published in public</b> on a separate branch, every six hours.</li>
+  <li><b>This page compares the two.</b> If history is rewritten, the public checkpoints stop matching.</li>
+ </ol>
 
  <details>
   <summary>Technical details</summary>
-  <div class="inner">
-   <p class="sub" id="techSummary">Loading…</p>
-   <div id="entries"></div>
-  </div>
+  <div class="inner"><p id="techSummary">Loading…</p><div id="entries"></div></div>
  </details>
-
  <details>
-  <summary>Built for connection loss</summary>
-  <div class="inner"><p class="sub">The submit page keeps a queue on the phone when the network drops and retries when it returns. Each submission carries a unique key so a retry is not counted twice. Field conditions such as power and coverage still need real-world testing.</p></div>
+  <summary>If the network drops</summary>
+  <div class="inner"><p>The submit page keeps a queue on the phone and retries when the network returns. Each submission carries a unique key, so a retry is not counted twice. Power and coverage in the field still need real-world testing.</p></div>
  </details>
 
- <footer>AuditChain · Use synthetic data only · Not for official election use</footer>
+ <footer>AuditChain. Use synthetic data only. Not for official election use.</footer>
 </main>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-function setState(prefix,state,text){const d=$('dot'+prefix);d.className='dot'+(state===true?' ok':state===false?' bad':'');$('txt'+prefix).textContent=text;}
-function headline(state,title,sub){const b=$('badge');b.className='badge'+(state===true?' ok':state===false?' bad':'');b.textContent=state===true?'✓':state===false?'!':'?';$('headline').textContent=title;$('headlineSub').textContent=sub;}
+function mark(prefix,state,text){const m=$('mark'+prefix);m.className='mark'+(state===true?' ok':state===false?' bad':'');m.textContent=state===true?'✓':state===false?'!':'?';$('txt'+prefix).textContent=text;}
+function headline(state,stamp,small,title,sub){const s=$('stamp');s.className='stamp '+(state===true?'ok':state===false?'bad':'wait');$('stampText').firstChild.nodeValue=stamp;$('stampSmall').textContent=small;$('headline').textContent=title;$('headlineSub').textContent=sub;}
 function parse(p){try{return JSON.parse(p);}catch(e){return null;}}
 function sheetFrom(entry){
  const p=parse(entry.payload);if(!p||p.type!=='evidence')return null;
  const data=p.data||{};const parties=data.partyVotes&&typeof data.partyVotes==='object'?data.partyVotes:null;
  let sum=null;if(parties){sum=0;for(const k of Object.keys(parties)){const v=Number(parties[k]);if(Number.isFinite(v))sum+=v;}}
  const total=[data.totalVotes,data.total_votes,data.votes_cast].map(Number).find(Number.isFinite);
- return{seq:entry.sequence,loc:p.location||entry.location||'Unknown location',parties,sum,total,hash:entry.currentHash,time:entry.timestamp};
+ return{seq:entry.sequence,loc:p.location||entry.location||'Unknown location',parties,sum,total,hash:entry.currentHash};
 }
+function row(dt,dd,mono){const r=document.createElement('div');r.className='row';const a=document.createElement('dt');a.textContent=dt;const b=document.createElement('dd');if(mono)b.className='mono';b.textContent=dd;r.append(a,b);return r;}
 function renderSheets(entries){
  const box=$('sheets');box.replaceChildren();
  const sheets=entries.map(sheetFrom).filter(Boolean).reverse();
- $('sheetsSub').textContent=sheets.length?sheets.length+' sheet'+(sheets.length===1?'':'s')+' recorded. Newest first.':'No result sheets have been recorded yet.';
+ $('sheetsSub').textContent=sheets.length?sheets.length+(sheets.length===1?' sheet':' sheets')+' recorded, newest first.':'No result sheets have been recorded yet. Submit one from the submit page.';
  sheets.forEach(s=>{
-  const el=document.createElement('article');el.className='sheet';
-  const top=document.createElement('div');top.className='sheet-top';
-  const name=document.createElement('span');name.textContent=s.loc;
-  const tag=document.createElement('span');tag.className='tag';
-  if(s.sum===null||s.total===undefined){tag.classList.add('na');tag.textContent='No total to compare';}
-  else if(s.sum===s.total){tag.classList.add('ok');tag.textContent='Totals add up';}
-  else{tag.classList.add('bad');tag.textContent='Totals do not add up';}
-  top.append(name,tag);el.append(top);
-  const line=document.createElement('p');
-  const partyText=s.parties?Object.keys(s.parties).map(k=>k+': '+s.parties[k]).join(' · '):'No party figures';
-  line.textContent=partyText+(s.total!==undefined?' · Declared total: '+s.total:'');el.append(line);
-  if(s.sum!==null&&s.total!==undefined&&s.sum!==s.total){const w=document.createElement('p');w.textContent='Parties add up to '+s.sum+' but the sheet says '+s.total+'. A person should review this sheet.';el.append(w);}
-  const h=document.createElement('p');h.className='mono';h.textContent='Receipt '+(s.hash||'unavailable');el.append(h);
+  const ok=s.sum!==null&&s.total!==undefined&&s.sum===s.total;
+  const bad=s.sum!==null&&s.total!==undefined&&s.sum!==s.total;
+  const el=document.createElement('article');el.className='sheet '+(ok?'ok':bad?'bad':'na');
+  const h=document.createElement('h3');const name=document.createElement('span');name.textContent=s.loc;
+  const pill=document.createElement('span');pill.className='pill '+(ok?'ok':bad?'bad':'na');pill.textContent=ok?'Totals add up':bad?'Totals do not add up':'No total to compare';
+  h.append(name,pill);el.append(h);
+  const dl=document.createElement('dl');
+  if(s.parties)Object.keys(s.parties).forEach(k=>dl.append(row('Party '+k,String(s.parties[k]))));
+  if(s.sum!==null)dl.append(row('Sum of parties',String(s.sum)));
+  if(s.total!==undefined)dl.append(row('Total on sheet',String(s.total)));
+  dl.append(row('Receipt',s.hash||'unavailable',true));
+  el.append(dl);
+  if(bad){const w=document.createElement('p');w.className='warn';w.textContent='Parties add up to '+s.sum+' but the sheet says '+s.total+'. A person should review this sheet.';el.append(w);}
   box.append(el);
  });
 }
 function renderTech(data){
  const entries=Array.isArray(data.entries)?data.entries:[];
- $('techSummary').textContent=entries.length+' entries · latest hash '+(data.latestHash||'unavailable')+' · '+(Number.isFinite(data.pendingSync)?data.pendingSync:0)+' waiting to sync';
+ $('techSummary').textContent=entries.length+' entries. Latest hash '+(data.latestHash||'unavailable')+'. '+(Number.isFinite(data.pendingSync)?data.pendingSync:0)+' waiting to sync.';
  const box=$('entries');box.replaceChildren();
  entries.slice().reverse().forEach(e=>{
-  const row=document.createElement('div');row.className='entry';
-  const t=document.createElement('div');const b=document.createElement('b');b.textContent='#'+e.sequence+' · '+(e.role||'ENTRY');t.append(b,document.createTextNode(' · '+(e.status||'RECORDED')));
-  const m=document.createElement('div');m.textContent=(e.actorId||'unknown actor')+' · '+(e.location||'no location');
+  const r=document.createElement('div');r.className='entry';
+  const t=document.createElement('div');const b=document.createElement('b');b.textContent='#'+e.sequence+' '+(e.role||'ENTRY');t.append(b,document.createTextNode(', '+(e.status||'RECORDED')));
+  const m=document.createElement('div');m.textContent=(e.actorId||'unknown actor')+', '+(e.location||'no location');
   const h=document.createElement('div');h.className='mono';h.textContent=e.currentHash||'';
-  row.append(t,m,h);box.append(row);
+  r.append(t,m,h);box.append(r);
  });
 }
 let last={chain:null,anchor:null};
 function summarise(){
- if(last.chain===false){headline(false,'A record has been altered','The live chain failed its own check. Do not rely on these records.');return;}
- if(last.anchor===false){headline(false,'The records do not match the public checkpoints','History may have been rewritten. Investigate before relying on these records.');return;}
- if(last.chain===true&&last.anchor===true){headline(true,'Records intact','Both checks passed. No sign of alteration.');return;}
- if(last.chain===true){headline(null,'Chain intact, anchors not confirmed','The public checkpoint log could not be checked just now.');return;}
- headline(null,'Status unknown','The service did not answer. Try again in a moment.');
+ if(last.chain===false){headline(false,'Altered','record changed','A record has been altered','The live chain failed its own check. Do not rely on these records.');return;}
+ if(last.anchor===false){headline(false,'Mismatch','public checkpoints','The records do not match the public checkpoints','History may have been rewritten. Investigate before relying on these records.');return;}
+ if(last.chain===true&&last.anchor===true){headline(true,'Intact','both checks passed','Records intact','Both checks passed. There is no sign of alteration.');return;}
+ if(last.chain===true){headline(null,'Partly','checked','Chain intact, checkpoints not confirmed','The public checkpoint log could not be checked just now. Try again shortly.');return;}
+ headline(null,'Unknown','no answer','Status unknown','The service did not answer. Try again in a moment.');
 }
 async function loadChain(){
  try{
   const r=await fetch('/api/chain',{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
   const data=await r.json();const entries=Array.isArray(data.entries)?data.entries:[];
   last.chain=data.valid===true?true:data.valid===false?false:null;
-  setState('Chain',last.chain,data.valid===true?'All '+entries.length+' records link correctly.':data.valid===false?'Broken link at record '+(data.breakSequence!==null&&data.breakSequence!==undefined?data.breakSequence:'unknown')+'.':'No answer.');
+  mark('Chain',last.chain,data.valid===true?'All '+entries.length+' records link correctly.':data.valid===false?'Broken link at record '+(data.breakSequence!==null&&data.breakSequence!==undefined?data.breakSequence:'unknown')+'.':'No answer.');
   renderSheets(entries);renderTech(data);
- }catch(e){last.chain=null;setState('Chain',null,'Could not load the records ('+e.message+').');$('sheetsSub').textContent='Could not load records.';$('techSummary').textContent='Could not load records.';}
+ }catch(e){last.chain=null;mark('Chain',null,'Could not load the records ('+e.message+').');$('sheetsSub').textContent='Could not load records.';$('techSummary').textContent='Could not load records.';}
 }
 async function loadAnchors(){
- setState('Anchor',null,'Checking the public log…');
+ mark('Anchor',null,'Checking the public log…');
  try{
   const r=await fetch('/api/checkpoints/verify',{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
   const d=await r.json();const n=Number.isFinite(d.externalAnchorCount)?d.externalAnchorCount:0;
-  if(d.valid===true&&d.externalAnchorsValid===true){last.anchor=true;setState('Anchor',true,n+' signed checkpoints match the live chain.');}
-  else if(n===0){last.anchor=null;setState('Anchor',null,'The public log is empty or unreachable: '+(d.externalAnchorError||d.error||'no detail')+'.');}
-  else{last.anchor=false;setState('Anchor',false,'Mismatch: '+(d.error||'the live chain differs from the published checkpoints')+'.');}
- }catch(e){last.anchor=null;setState('Anchor',null,'Could not run the check ('+e.message+').');}
+  if(d.valid===true&&d.externalAnchorsValid===true){last.anchor=true;mark('Anchor',true,n+' signed checkpoints match the live chain.');}
+  else if(n===0){last.anchor=null;mark('Anchor',null,'The public log is empty or unreachable: '+(d.externalAnchorError||d.error||'no detail')+'.');}
+  else{last.anchor=false;mark('Anchor',false,'Mismatch: '+(d.error||'the live chain differs from the published checkpoints')+'.');}
+ }catch(e){last.anchor=null;mark('Anchor',null,'Could not run the check ('+e.message+').');}
 }
 async function run(){
- headline(null,'Checking the records…','This takes a few seconds.');
+ headline(null,'Checking','please wait','Checking the records…','This takes a few seconds.');
  await Promise.all([loadChain(),loadAnchors()]);summarise();
 }
 $('recheck').addEventListener('click',run);run();
