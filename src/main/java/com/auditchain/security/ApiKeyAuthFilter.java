@@ -122,6 +122,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                 && "POST".equalsIgnoreCase(method)) {
             return role == Role.AUDITOR;
         }
-        return true;
+        // Default-deny: any other mutation (e.g. /api/reset, /api/tamper, /api/generate) is ADMIN-only.
+        return "GET".equalsIgnoreCase(method) || "HEAD".equalsIgnoreCase(method);
     }
 }

@@ -23,4 +23,25 @@ class MockVisionProviderTest {
         assertTrue(r.isRequiresHumanReview());
         assertFalse(r.getNotes().toLowerCase().contains("fraud"));
     }
+
+    @Test
+    void allTotalKeySpellingsAreChecked() {
+        for (String key : new String[]{"votes_cast", "total_votes", "totalvotes", "totalVotes", "TOTAL_VOTES"}) {
+            String bad = "{\"" + key + "\":100,\"party_results\":{\"APC\":60,\"PDP\":50}}";
+            var r = provider.analyse(null, bad);
+            assertFalse(r.isArithmeticConsistent(), key + " mismatch must be flagged");
+            assertTrue(r.isRequiresHumanReview(), key);
+
+            String good = "{\"" + key + "\":110,\"party_results\":{\"APC\":60,\"PDP\":50}}";
+            var ok = provider.analyse(null, good);
+            assertTrue(ok.isArithmeticConsistent(), key + " match must pass");
+            assertFalse(ok.isRequiresHumanReview(), key);
+        }
+    }
+
+    @Test
+    void blankPayloadRequiresReview() {
+        var r = provider.analyse(null, " ");
+        assertTrue(r.isRequiresHumanReview());
+    }
 }

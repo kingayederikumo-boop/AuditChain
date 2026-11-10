@@ -15,24 +15,48 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class ChainController {
 
+    static final int DEFAULT_LIMIT = 200;
+    static final int MAX_LIMIT = 1000;
+
     private final ChainService chainService;
 
     public ChainController(ChainService chainService) {
         this.chainService = chainService;
     }
 
+    /**
+     * Returns the chain verdict plus a window of entries. Default window is the newest {@value #DEFAULT_LIMIT}
+     * entries (ascending order); use offset/limit to page. The validity verdict always covers the whole chain.
+     */
     @GetMapping("/chain")
+    public Map<String, Object> getChain(@RequestParam(required = false) Integer limit,
+                                        @RequestParam(required = false) Integer offset) {
+        return chainView(limit, offset);
+    }
+
     public Map<String, Object> getChain() {
+        return chainView(null, null);
+    }
+
+    private Map<String, Object> chainView(Integer limitParam, Integer offsetParam) {
         List<AuditEntry> chain = chainService.getChain();
         Optional<Long> broken = chainService.verify();
 
+        int size = chain.size();
+        int limit = limitParam == null ? DEFAULT_LIMIT : Math.max(1, Math.min(MAX_LIMIT, limitParam));
+        int offset = offsetParam == null ? Math.max(0, size - limit) : Math.max(0, Math.min(size, offsetParam));
+        List<AuditEntry> window = chain.subList(offset, Math.min(size, offset + limit));
+
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("size", chain.size());
+        body.put("size", size);
         body.put("valid", broken.isEmpty());
         body.put("breakSequence", broken.orElse(null));
         body.put("latestHash", chainService.getLatestHash());
         body.put("pendingSync", chainService.pendingSyncCount());
-        body.put("entries", chain.stream().map(this::toView).collect(Collectors.toList()));
+        body.put("offset", offset);
+        body.put("limit", limit);
+        body.put("entriesReturned", window.size());
+        body.put("entries", window.stream().map(this::toView).collect(Collectors.toList()));
         return body;
     }
 

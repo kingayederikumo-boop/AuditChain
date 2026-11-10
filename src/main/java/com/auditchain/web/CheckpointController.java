@@ -2,12 +2,18 @@ package com.auditchain.web;
 
 import com.auditchain.crypto.CheckpointService;
 import com.auditchain.crypto.ExternalAnchorVerifier;
+import com.auditchain.security.SimpleRateLimiter;
 import com.auditchain.service.ChainService;
 import com.auditchain.model.AuditEntry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +28,10 @@ public class CheckpointController {
     private final ExternalAnchorVerifier externalAnchorVerifier;
     private final ChainService chainService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    /** /verify performs an outbound fetch, so it is capped per client and globally to prevent abuse. */
+    private final SimpleRateLimiter verifyPerClient = new SimpleRateLimiter(20);
+    private final SimpleRateLimiter verifyGlobal = new SimpleRateLimiter(120);
 
     public CheckpointController(CheckpointService checkpointService,
                                 ChainService chainService,
@@ -74,6 +84,7 @@ public class CheckpointController {
 
     @GetMapping("/verify")
     public Map<String, Object> verifyPublished() {
+        enforceVerifyLimits();
         var chain = chainService.getChain();
         Map<Long, String> hashes = chain.stream().collect(Collectors.toMap(
                 entry -> entry.getSequenceNumber(), entry -> entry.getCurrentHash()));
@@ -94,6 +105,22 @@ public class CheckpointController {
         result.put("error", internalIssue.orElse(external.error()));
         result.put("externalAnchorError", external.error());
         return result;
+    }
+
+    private void enforceVerifyLimits() {
+        var attrs = RequestContextHolder.getRequestAttributes();
+        if (!(attrs instanceof ServletRequestAttributes servlet)) return; // not in an HTTP request (unit tests)
+        HttpServletRequest req = servlet.getRequest();
+        String client = req.getRemoteAddr();
+        String forwarded = req.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            // The proxy appends the real peer last; earlier entries are client-supplied.
+            String[] parts = forwarded.split(",");
+            client = parts[parts.length - 1].trim();
+        }
+        if (!verifyGlobal.tryAcquire("global") || !verifyPerClient.tryAcquire(client)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "verification rate limit exceeded");
+        }
     }
 
     @GetMapping("/public-key")
