@@ -58,6 +58,23 @@ jobs:
           git commit -m "anchor: publish signed checkpoint"
           git push origin HEAD:audit-anchors
 
+      - name: Archive the anchor log with the Internet Archive (independent third party, best effort)
+        continue-on-error: true
+        run: |
+          set -u
+          URL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/audit-anchors/anchors/log.jsonl"
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 -L "https://web.archive.org/save/${URL}" || true)
+            echo "attempt $i -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "Archived. Snapshots: https://web.archive.org/web/*/${URL}"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "Internet Archive snapshot not confirmed in this run"
+          exit 1
+
       - name: Mirror anchor to independent repository (optional)
         env:
           ANCHOR_REPO: ${{ vars.AUDITCHAIN_ANCHOR_REPO }}

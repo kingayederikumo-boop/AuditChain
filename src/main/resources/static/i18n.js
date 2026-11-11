@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  var LANGS = [["en", "English"], ["yo", "Yorùbá"], ["ig", "Igbo"], ["ha", "Hausa"], ["ijc", "Ịjọ (Ijaw) — translator needed"]];
+  var LANGS = [["en", "English"], ["pcm", "Naijá Pidgin"], ["yo", "Yorùbá"], ["ig", "Igbo"], ["ha", "Hausa"], ["ijc", "Ịjọ (Ijaw) — translator needed"]];
   var COL = { yo: 1, ig: 2, ha: 3 };
   var ATTRS = ["placeholder", "aria-label", "title"];
 
@@ -161,20 +161,169 @@
     [/^Retry error: (.*)$/, "Àṣìṣe àtúnṣe: $1", "Njehie nnwaa ọzọ: $1", "Kuskuren sake gwadawa: $1"]
   ];
 
+  // Nigerian Pidgin: [English, Pidgin]
+  var PX = [
+    ["Integrity console", "Console wey dey check say records no change"],
+    ["Workspace", "Work place"],
+    ["Workspace /", "Work place /"],
+    ["Main navigation", "Main menu"],
+    ["Overview", "Quick look"],
+    ["Result sheets", "Result papers"],
+    ["Submit evidence", "Send evidence"],
+    ["Environment", "Where e dey run"],
+    ["Prototype environment", "Test environment"],
+    ["Synthetic records · Read-only console", "Pretend records · Na only to read"],
+    ["Live checks", "Checks wey dey run now"],
+    ["Integrity overview", "Quick look: records still correct?"],
+    ["Monitoring / Integrity", "Watch / Correctness"],
+    ["A clear view of whether recorded result sheets still match their verified history.", "Clear view of whether the result sheets wey dem write down still match their history wey dem don confirm."],
+    ["Waiting for first check", "We dey wait for first check"],
+    ["Current integrity status", "How the records dey right now"],
+    ["Checking records…", "We dey check the records…"],
+    ["The console is checking the record chain and published checkpoints.", "We dey check the record chain and the public checkpoints wey dem don publish."],
+    ["Checks run directly against the audit history", "We dey check am straight against the audit history"],
+    ["Verification checks", "Wetin we check"],
+    ["Live status", "Status now"],
+    ["Waiting for the record check.", "We dey wait for record check."],
+    ["Waiting for the checkpoint check.", "We dey wait for checkpoint check."],
+    ["Recorded entries", "Records wey dem don write"],
+    ["Items in the audit history", "Things wey dey audit history"],
+    ["Signed history snapshots found", "Signed history snapshots wey we see"],
+    ["Waiting to sync", "Dey wait to sync"],
+    ["Submissions waiting for delivery", "Submissions wey still dey wait to go"],
+    ["Needs attention", "Need attention"],
+    ["Figures or AI checks need review", "Figures or AI checks wey need make person look again"],
+    ["Evidence needing attention", "Evidence wey need attention"],
+    ["Arithmetic checks and AI flags are review signals, not findings of fraud.", "Arithmetic checks and AI flags na only signal say make person look again; e no mean say person thief."],
+    ["Checking evidence…", "We dey check evidence…"],
+    ["Recorded result sheets", "Result sheets wey dem don record"],
+    ["Evidence records received by AuditChain, newest first.", "Evidence records wey AuditChain collect, the newest dey first."],
+    ["Submit evidence ↗", "Send evidence ↗"],
+    ["Loading result sheets…", "We dey load result sheets…"],
+    ["Loading records…", "We dey load records…"],
+    ["Loading technical details…", "We dey load technical details…"],
+    ["Prototype scope: records shown here are synthetic test data. A successful integrity check confirms that recorded history matches its checksums and available checkpoints; it does not prove that the original figures submitted were truthful or that an election outcome is correct.", "Test version only: the records wey you see here na pretend test data. If the integrity check pass, e mean say the history wey dem record match im checksums and the checkpoints wey dey; e no prove say the first figures wey dem send na true, or say election result correct."],
+    ["AuditChain · Electoral records integrity prototype", "AuditChain · Test project for election records integrity"],
+    ["For demonstration and authorized testing only", "For demo and authorised testing only"],
+    ["Status unavailable", "Status no dey available"],
+    ["The record-chain check could not be completed. Refresh before relying on this status.", "We no fit finish the record-chain check. Refresh before you trust this status."],
+    ["The service did not return a complete result", "The service no give complete result"],
+    ["Integrity issue detected", "We see wahala for the records"],
+    ["The record chain did not pass verification. The affected history should be investigated.", "The record chain no pass verification. Make dem investigate the history wey e affect."],
+    ["A broken record link was reported", "Dem report say one record link don break"],
+    ["Checkpoint mismatch", "Checkpoint no match"],
+    ["A stored signed checkpoint does not match the current record history. Investigate before relying on it.", "Signed checkpoint wey dem keep no match the record history wey dey now. Investigate am before you trust am."],
+    ["A local checkpoint comparison failed", "Comparison of local checkpoint fail"],
+    ["Public checkpoint mismatch", "Public checkpoint no match"],
+    ["The published checkpoint history did not pass comparison with the current record chain.", "The public checkpoint history no pass comparison with the record chain wey dey now."],
+    ["A public checkpoint comparison failed", "Comparison of public checkpoint fail"],
+    ["Records intact", "Records dey correct"],
+    ["The record chain and available signed public checkpoints match. No alteration was detected by these checks.", "The record chain and the signed public checkpoints wey dey match. These checks no see any change."],
+    ["Both integrity checks passed", "The two integrity checks pass"],
+    ["Chain intact · Partial verification", "Chain dey correct · Verification no complete"],
+    ["The local record chain passes. A usable public checkpoint history was not confirmed, so independent verification is incomplete.", "The local record chain pass. We no confirm any public checkpoint history wey we fit use, so the independent verification no complete."],
+    ["The local check passed; public verification remains incomplete", "Local check pass; public verification never complete"],
+    ["Status unknown", "We no know the status"],
+    ["The available information is not sufficient to determine the integrity of the records.", "The information wey we get no enough to know whether the records dey correct."],
+    ["Verification did not return a conclusive result", "Verification no give clear result"],
+    ["Checking live integrity…", "We dey check the records now…"],
+    ["Live checks in progress", "Checks dey run"],
+    ["Could not load result sheets.", "We no fit load result sheets."],
+    ["Arithmetic check unavailable", "Arithmetic check no dey available"],
+    ["Figures differ", "Figures no match"],
+    ["Needs review", "Need review"],
+    ["Not checked", "We never check am"],
+    ["No result sheets match that search.", "No result sheet match wetin you search."],
+    ["No result sheets have been recorded yet.", "Dem never record any result sheet."],
+    ["No records currently need attention based on the available arithmetic and AI checks.", "No record need attention for now based on the arithmetic and AI checks wey dey."],
+    ["The automated check requested human review.", "The automatic check ask make person look am."],
+    ["Awaiting a human review decision.", "We dey wait for person to decide after review."],
+    ["Awaiting review", "Dey wait for review"],
+    ["Review suggested", "We suggest review"],
+    ["A stored signed checkpoint does not match the current chain.", "Signed checkpoint wey dem keep no match the chain wey dey now."],
+    ["No usable public checkpoints were confirmed. Independent verification is incomplete.", "We no confirm any public checkpoint wey we fit use. Independent verification no complete."],
+    ["The published checkpoint comparison did not pass.", "The comparison of public checkpoint no pass."],
+    ["← Back to overview", "← Go back to overview"],
+    ["Field operations / Evidence intake", "Field work / Collect evidence"],
+    ["Submit a result sheet", "Send result sheet"],
+    ["Send a result record and its supporting image to the audit history. If the connection drops, the submission can remain queued on this device.", "Send result record and the picture wey support am go the audit history. If network cut, the submission fit stay for this device until network come back."],
+    ["Prototype only.", "Test only."],
+    ["Use synthetic test data. Do not submit real election records or personal information. Offline items remain on this device until sent or deleted.", "Use pretend test data. No send real election records or person's private information. Items wey never go go stay for this device until dem send am or you delete am."],
+    ["Fields marked required must be completed before sending.", "Make you fill the fields wey dem mark required before you send."],
+    ["Used to authenticate this submission. Kept in memory only and never saved.", "We dey use am to confirm this submission. E dey only for memory, we no dey save am."],
+    ["Enter officer API key", "Put officer API key"],
+    ["Use the synthetic location identifier for this test record.", "Use the pretend location code for this test record."],
+    ["e.g. PU-001", "like this: PU-001"],
+    ["Enter valid JSON. The declared total can use totalVotes, total_votes, or votes_cast.", "Put correct JSON. You fit use totalVotes, total_votes, or votes_cast for the total wey you declare."],
+    ["Result sheet image", "Picture of result sheet"],
+    ["PNG or JPEG. The image is resized, compressed, and stripped of metadata before it is queued.", "PNG or JPEG. We go reduce the picture size, compress am, and comot im metadata before we put am for queue."],
+    ["Offline submission queue", "Queue for when network no dey"],
+    ["Retry saved items", "Try the saved items again"],
+    ["Delete saved items", "Delete saved items"],
+    ["Each submission uses a unique idempotency key to prevent duplicate records when retrying. The queue is stored locally in this browser. Clearing browser storage may remove unsent items.", "Every submission get im own unique idempotency key so duplicate records no go show when you try again. The queue dey saved for this browser. If you clear browser storage, you fit lose items wey never go."],
+    ["Ready. Your local queue has not been checked yet.", "We ready. We never check your local queue yet."],
+    ["Enter your officer API key to retry.", "Put your officer API key to try again."],
+    ["Network unavailable. Submission remains queued.", "Network no dey. Submission still dey for queue."],
+    ["Submission accepted. Receipt displayed below.", "Dem don accept the submission. Receipt dey below."],
+    ["No queued submissions.", "No submission dey for queue."],
+    ["Select a PNG or JPEG image.", "Choose PNG or JPEG picture."],
+    ["Figures must be valid JSON.", "Figures must be correct JSON."],
+    ["Removing image metadata and compressing…", "We dey comot picture metadata and dey compress am…"],
+    ["Privacy-processed image saved to offline queue.", "Picture wey we don protect im privacy don save for offline queue."],
+    ["Local queue deleted.", "Local queue don delete."],
+    ["Connection restored. Enter API key and select Retry.", "Network don come back. Put API key then press Retry."],
+    ["Local queue unavailable in this browser.", "Local queue no dey work for this browser."]
+  ];
+
+  // Nigerian Pidgin patterns: [regex, Pidgin]
+  var PP = [
+    [/^Last checked (.+)$/, "Last time we check: $1"],
+    [/^All (\d+) records link correctly\.$/, "All $1 records link well."],
+    [/^A broken link was reported at record (.+)\.$/, "Dem report say link break for record $1."],
+    [/^A broken link was reported\.$/, "Dem report say link break."],
+    [/^The chain check returned no conclusive result\.$/, "The chain check no give clear result."],
+    [/^The record-chain check is unavailable \((.*)\)\.$/, "Record-chain check no dey available ($1)."],
+    [/^The public checkpoint check is unavailable \((.*)\)\.$/, "Public checkpoint check no dey available ($1)."],
+    [/^Party total (.+) \/ Sheet total (.+)$/, "Party total $1 / Sheet total $2"],
+    [/^(\d+) result sheets? recorded$/, "$1 result sheet dem don record"],
+    [/^(\d+) result sheets? matching search$/, "$1 result sheet match wetin you search"],
+    [/^Party figures total (.+) while the sheet declares (.+)\.$/, "Party figures add reach $1 but the sheet talk say na $2."],
+    [/^(\d+) audit entries · Latest fingerprint (.*)\.$/, "$1 audit entries · Latest fingerprint $2."],
+    [/^Current fingerprint: (.*)$/, "Fingerprint now: $1"],
+    [/^(\d+) signed public checkpoint\(s\) match the current chain\.$/, "$1 signed public checkpoint match the chain wey dey now."],
+    [/^(\d+) submissions? currently saved on this device\.$/, "$1 submission dey saved for this device now."],
+    [/^Server returned HTTP (\d+)\. Item retained for review\.\s*(.*)$/, "Server reply HTTP $1. We keep the item make dem review am. $2"],
+    [/^Unable to process or save image: (.*)$/, "We no fit process or save the picture: $1"],
+    [/^Retry error: (.*)$/, "Error when we try again: $1"]
+  ];
+
   var exact = {};
   X.forEach(function (r) { exact[r[0]] = r; });
+  var pexact = {};
+  PX.forEach(function (r) { pexact[r[0]] = r[1]; });
 
-  function hasDict(code) { return COL[code] !== undefined; }
+  function hasDict(code) { return COL[code] !== undefined || code === "pcm"; }
+
+  function fill(tpl, m) {
+    return tpl.replace(/\$(\d)/g, function (_, n) { return m[n] === undefined ? "" : m[n]; });
+  }
 
   function one(core, code) {
+    var i, m;
+    if (code === "pcm") {
+      if (pexact[core]) return pexact[core];
+      for (i = 0; i < PP.length; i++) {
+        m = core.match(PP[i][0]);
+        if (m) return fill(PP[i][1], m);
+      }
+      return null;
+    }
     var col = COL[code];
     var e = exact[core];
     if (e && e[col]) return e[col];
-    for (var i = 0; i < P.length; i++) {
-      var m = core.match(P[i][0]);
-      if (m) {
-        return P[i][col].replace(/\$(\d)/g, function (_, n) { return m[n] === undefined ? "" : m[n]; });
-      }
+    for (i = 0; i < P.length; i++) {
+      m = core.match(P[i][0]);
+      if (m) return fill(P[i][col], m);
     }
     return null;
   }
@@ -241,7 +390,7 @@
   function setLang(code) {
     if (code !== "en" && !hasDict(code)) code = "en";
     lang = code;
-    document.documentElement.setAttribute("lang", code);
+    document.documentElement.setAttribute("lang", code === "pcm" ? "pcm" : code);
     try { localStorage.setItem("auditchain-lang", code); } catch (e) { /* storage unavailable */ }
     walk(document.body);
     var sel = document.getElementById("lang");
