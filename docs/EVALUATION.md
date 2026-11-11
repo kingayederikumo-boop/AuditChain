@@ -2,7 +2,7 @@
 
 **Project:** AuditChain  
 **Scope:** Defensive, synthetic-data prototype for the #AI4Elections Track 4 submission  
-**Last reviewed:** 2026-11-03
+**Last reviewed:** 2026-11-11
 
 ## Evaluation questions
 
@@ -22,29 +22,47 @@ Run the repository's CI command from a clean checkout:
 mvn -B clean verify
 ```
 
-Use synthetic fixtures only. Do not test against a live electoral system or real election data.
+The seeded harness `src/test/java/com/auditchain/evaluation/EvaluationHarnessTest.java` prints lines starting with `EVAL|` so every figure below can be reproduced from the CI log. Use synthetic fixtures only. Do not test against a live electoral system or real election data.
 
-| Area | Method | Evidence to retain |
-|---|---|---|
-| Chain integrity | Verify an unchanged chain; alter a stored payload/hash in a controlled test fixture and verify rejection | Test output and first failing sequence |
-| Local tamper demo | Run `docs/TAMPER_DEMO.md` against a new disposable SQLite file; run `python3 scripts/verify-tamper-demo.py` | Initial valid state, detection at sequence 2, and explicit in-memory-only limitation |
-| Historical checkpoints | Create a checkpoint, extend the chain, then mutate the historical hash in a test fixture | Regression test output |
-| Idempotency | Submit the same synthetic evidence with the same idempotency key twice | Receipt comparison |
-| Authorization | Call protected routes without a key, with a wrong key, and with each permitted role | HTTP status and route matrix |
-| AI and review | Exercise mock AI path and reviewer decision flow | AI_CHECK and REVIEW_DECISION event evidence |
-| Offline queue | Disable network in a controlled browser test, queue synthetic submission, restore network, and observe retry | Browser/device notes and request results |
-| Deployment | Check health endpoint, service logs, persistent storage behavior, and restart recovery | Timestamped deployment record |
-| Accessibility | Execute the checklist in ACCESSIBILITY.md | Completed test matrix |
+## Measured results (automated, synthetic)
 
-## Results currently evidenced
+Source: commit `2be512fd3d411ab177b486433d14fd6eb8ad536b`, GitHub Actions run `42924579941`, 2026-11-10, JDK 17, `mvn -B verify`: **44 tests, 0 failures, 0 errors, 0 skipped**. Random seeds are fixed (2026 and 7).
 
-- GitHub Actions CI succeeded on the then-current `main` submission commit `79b5b586bad764b4da796308ce729f567aca5ad0` on 2026-10-30 (workflow run #101 / run ID `40983034008`). This is evidence for that exact commit, not for later commits.
-- The scheduled signed-checkpoint workflow succeeded on 2026-11-01 (run #14 / run ID `41312219959`). Both the checkpoint request and append steps passed.
-- The public `audit-anchors/anchors/log.jsonl` contained ten checkpoint records marked `valid: true` on 2026-11-01. This demonstrates the workflow's successful publication path, not independent third-party immutability; the anchor branch is in the same repository.
-- Prior deployment logs confirmed a PostgreSQL connection and five validated Flyway migrations. A synthetic record surviving an application restart has not yet been independently recorded.
-- At the last implementation checkpoint on 2026-10-29, a Render build reported 30 tests, 0 failures, 0 errors, and 4 skipped. This is a historical build result, not proof that every later commit or the current live deployment is healthy.
-- Regression tests were added for historical checkpoint verification.
-- No independent AI accuracy/fairness evaluation, penetration test, accessibility audit, or load test is documented as complete.
+### A. Arithmetic screening of 200 synthetic result sheets
+
+| Sheet type | Count | Flagged for human review | Rate |
+|---|---|---|---|
+| Clean (declared total equals party sum) | 100 | 0 | 0.0% false-flag |
+| Altered declared total | 60 | 60 | 100.0% detection |
+| of which off by exactly one vote | 20 | 20 | 100.0% detection |
+| Blank payload | 20 | 20 | 100.0% sent to a human |
+| No declared total | 20 | 0 | not detectable |
+
+Scope and limits: this checks arithmetic consistency of a declared payload only. It cannot detect a sheet whose party figures and total were both falsified consistently, and it cannot judge a sheet that declares no total. It never declares fraud; a flag only routes the sheet to a human reviewer. The vision provider used here is the deterministic mock; no claim is made about image-reading accuracy.
+
+### B. Tamper detection, 200 trials on a 30-entry chain
+
+| Attacker capability | Trials | Detected by chain verification alone | Detected against the signed anchored tip |
+|---|---|---|---|
+| Naive edit (payload, actor, location or previous hash) without recomputing | 100 | 100 (100.0%) | n/a |
+| Rewrite newest entry and recompute its hash | 50 | 0 | 50 (100.0%) |
+| Rewrite an entry and recompute every later hash | 50 | 0 | 50 (100.0%) |
+
+This is the design rationale for signed external checkpoints: a hash chain by itself detects careless tampering but not a consistent rewrite. Only a previously published, signed tip exposes the rewrite. The anchored comparison in this harness checks the recorded tip hash; signature validity is covered by `CheckpointServiceTest` and the offline check below.
+
+### C. Authorization matrix (`ApiKeyAuthFilterTest`)
+
+Public reads need no key; the review queue needs REVIEWER or AUDITOR; evidence submission needs OFFICER or AUDITOR; checkpoint creation needs AUDITOR; `/api/reset`, `/api/tamper` and `/api/generate` are ADMIN-only. Verified by automated test (5 tests, all passing).
+
+## Other evidence
+
+- The scheduled signed-checkpoint workflow publishes to the public `audit-anchors` branch. An offline check on 2026-11-10 verified all 31 published Ed25519 signatures under a single public key (31 of 31 valid). This shows the publication path works; it is not independent third-party immutability because the branch is in the same repository.
+- Deployment logs confirmed a PostgreSQL connection and Flyway migrations to version 4. Chain sequence numbers continued across repeated service restarts, which is indirect evidence of persistence; a direct restart test is still to be recorded.
+- Earlier, the tamper demonstration in `docs/TAMPER_DEMO.md` was run against a disposable local database.
+
+## Not yet done
+
+No load test, penetration test, accessibility audit, image-reading accuracy evaluation or user study has been completed. None of those figures are claimed.
 
 ## Reporting rules
 
@@ -53,7 +71,7 @@ Do not invent accuracy percentages, latency figures, detection rates, uptime, or
 ## Acceptance criteria for submission
 
 - CI succeeds on the exact final submission commit.
-- Checkpoint regression tests are included and passing.
+- Checkpoint regression tests and the evaluation harness are included and passing.
 - Demo uses only synthetic records and clearly labels simulation-only operations.
 - Any failed, skipped, or unavailable test is disclosed.
 - Live deployment health and storage persistence are reported as verified only after direct checks.
