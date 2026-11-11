@@ -24,6 +24,7 @@ class ApiKeyAuthFilterTest {
     void publicReadsNeedNoKey() throws Exception {
         assertEquals(200, status("GET", "/api/chain", null));
         assertEquals(200, status("GET", "/api/checkpoints/verify", null));
+        assertEquals(200, status("GET", "/i18n.js", null));
     }
 
     @Test
