@@ -10,12 +10,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class ChainService {
 
+    private static final long PENDING_TTL_MS = 5_000;
+
     private final PersistentHashChainEngine engine;
     private final boolean demoMode;
+
+    /** Incremented on every change to the chain so callers can cache work that depends on it. */
+    private final AtomicLong version = new AtomicLong();
+    private volatile int cachedPending;
+    private volatile long cachedPendingAtMs;
 
     public ChainService(AuditStore auditStore,
                         @Value("${auditchain.demo.enabled:false}") boolean demoMode) {
@@ -24,6 +32,10 @@ public class ChainService {
         if (engine.size() == 0 && demoMode) {
             runGeneratorInto(engine, 3);
         }
+    }
+
+    public long version() {
+        return version.get();
     }
 
     public synchronized List<AuditEntry> getChain() {
@@ -42,18 +54,30 @@ public class ChainService {
         return engine.size();
     }
 
-    public synchronized int pendingSyncCount() {
-        return engine.getPendingSync().size();
+    /**
+     * Number of entries waiting for sync. This reads the store, so the value is cached for a few seconds
+     * and read outside this service's lock: one slow database round trip must not queue every request.
+     */
+    public int pendingSyncCount() {
+        long now = System.currentTimeMillis();
+        if (now - cachedPendingAtMs > PENDING_TTL_MS) {
+            int fresh = engine.getPendingSync().size();
+            cachedPending = fresh;
+            cachedPendingAtMs = now;
+        }
+        return cachedPending;
     }
 
     /** Refresh after a transaction that committed an audit entry outside the in-memory engine. */
     public synchronized void reloadFromStore() {
         engine.reload();
+        version.incrementAndGet();
     }
 
     public synchronized void generateSynthetic(int puCount) {
         requireDemoMode();
         runGeneratorInto(engine, Math.max(1, Math.min(puCount, 20)));
+        version.incrementAndGet();
     }
 
     public synchronized boolean tamper(int sequence) {
@@ -61,6 +85,7 @@ public class ChainService {
         List<AuditEntry> chain = engine.getChain();
         if (sequence < 1 || sequence > chain.size()) return false;
         chain.get(sequence - 1).setPayload("{\"tampered\":true,\"votes_cast\":99999,\"note\":\"simulated attack\"}");
+        version.incrementAndGet();
         return true;
     }
 
@@ -71,12 +96,16 @@ public class ChainService {
 
     /** Append an evidence-linked entry. Used by EvidenceService. Synchronized. */
     public synchronized AuditEntry appendEvidence(String payloadJson, String actorId, String locationCode) {
-        return engine.append(payloadJson, AuditEntry.ActorRole.PU_OFFICER, actorId, locationCode);
+        AuditEntry entry = engine.append(payloadJson, AuditEntry.ActorRole.PU_OFFICER, actorId, locationCode);
+        version.incrementAndGet();
+        return entry;
     }
 
     /** Append system-generated integrity events such as AI checks and review decisions. */
     public synchronized AuditEntry appendSystemEvent(String payloadJson, String actorId, String locationCode) {
-        return engine.append(payloadJson, AuditEntry.ActorRole.AUDITOR, actorId, locationCode);
+        AuditEntry entry = engine.append(payloadJson, AuditEntry.ActorRole.AUDITOR, actorId, locationCode);
+        version.incrementAndGet();
+        return entry;
     }
 
     private void requireDemoMode() {

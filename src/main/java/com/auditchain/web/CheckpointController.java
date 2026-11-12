@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/checkpoints")
 public class CheckpointController {
 
+    private static final long VERIFY_TTL_OK_MS = 30_000;
+    private static final long VERIFY_TTL_FAIL_MS = 5_000;
+
     private final CheckpointService checkpointService;
     private final ExternalAnchorVerifier externalAnchorVerifier;
     private final ChainService chainService;
@@ -32,6 +35,14 @@ public class CheckpointController {
     /** /verify performs an outbound fetch, so it is capped per client and globally to prevent abuse. */
     private final SimpleRateLimiter verifyPerClient = new SimpleRateLimiter(20);
     private final SimpleRateLimiter verifyGlobal = new SimpleRateLimiter(120);
+
+    /**
+     * Result of the last full verification. It is reused only while the chain, its version counter and the
+     * checkpoint list are unchanged, and only for a short time, so any change to the chain is verified afresh.
+     */
+    private volatile CachedVerify cachedVerify;
+
+    private record CachedVerify(String key, long atMs, long ttlMs, Map<String, Object> result) {}
 
     public CheckpointController(CheckpointService checkpointService,
                                 ChainService chainService,
@@ -85,6 +96,22 @@ public class CheckpointController {
     @GetMapping("/verify")
     public Map<String, Object> verifyPublished() {
         enforceVerifyLimits();
+
+        String key = chainService.version() + ":" + chainService.size() + ":" + chainService.getLatestHash()
+                + ":" + checkpointService.listPublished().size();
+        long now = System.currentTimeMillis();
+        CachedVerify cached = cachedVerify;
+        if (cached != null && cached.key().equals(key) && now - cached.atMs() < cached.ttlMs()) {
+            return cached.result();
+        }
+
+        Map<String, Object> result = computeVerification();
+        boolean ok = Boolean.TRUE.equals(result.get("valid"));
+        cachedVerify = new CachedVerify(key, now, ok ? VERIFY_TTL_OK_MS : VERIFY_TTL_FAIL_MS, result);
+        return result;
+    }
+
+    private Map<String, Object> computeVerification() {
         var chain = chainService.getChain();
         Map<Long, String> hashes = chain.stream().collect(Collectors.toMap(
                 entry -> entry.getSequenceNumber(), entry -> entry.getCurrentHash()));
@@ -104,6 +131,7 @@ public class CheckpointController {
         result.put("externalAnchorsValid", external.valid());
         result.put("error", internalIssue.orElse(external.error()));
         result.put("externalAnchorError", external.error());
+        result.put("checkedAt", Instant.now().toString());
         return result;
     }
 
