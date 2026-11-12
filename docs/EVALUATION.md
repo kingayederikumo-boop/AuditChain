@@ -2,7 +2,7 @@
 
 **Project:** AuditChain  
 **Scope:** Defensive, synthetic-data prototype for the #AI4Elections Track 4 submission  
-**Last reviewed:** 2026-11-11
+**Last reviewed:** 2026-11-12
 
 ## Evaluation questions
 
@@ -54,15 +54,33 @@ This is the design rationale for signed external checkpoints: a hash chain by it
 
 Public reads need no key; the review queue needs REVIEWER or AUDITOR; evidence submission needs OFFICER or AUDITOR; checkpoint creation needs AUDITOR; `/api/reset`, `/api/tamper` and `/api/generate` are ADMIN-only. Verified by automated test (5 tests, all passing).
 
+### D. Load test on the live free-tier deployment
+
+Method: `scripts/load-test.py`, run from a GitHub Actions runner via the manual `load-test.yml` workflow against the public Render URL. 300 requests, concurrency 20, after a warm-up request. Endpoints: `/health`, `/api/chain?limit=50`, `/api/checkpoints/verify`. Environment: Render free plan (shared, throttled CPU), Supabase free Postgres. Single run each, so figures are indicative, not a benchmark.
+
+| Endpoint | Before fix (commit `4a57f3e`) | After fix (commit `c969968`, run `43183254407`) |
+|---|---|---|
+| Throughput | 4.7 req/s | 3.9 req/s |
+| `/health` p50 / p95 | 104 ms / 29,196 ms | 350 ms / 53,220 ms |
+| `/api/chain?limit=50` p50 / p95 | 4,168 ms / 34,992 ms | 2,000 ms / 10,289 ms |
+| `/api/chain?limit=50` errors | 0 | 2 of 100 |
+| `/api/checkpoints/verify` ok / rate-limited / errors | 20 / 80 / 0 | 14 / 80 / 6 |
+| `/api/checkpoints/verify` p50 / p95 | 12,145 ms / 41,890 ms | 6,820 ms / 14,799 ms |
+
+The fix removed a database query from every `/api/chain` request and cached the full verification result (30 s, keyed on chain version, size, tip hash and checkpoint count, so a tamper, reset or append is never served from a stale cache). Median latency of the chain read roughly halved and its tail fell by about two thirds; verification median and tail roughly halved.
+
+What this does not show: `/health` tail latency and a small number of errors got worse in this run, which points to the free instance being CPU-starved or restarting under 20 concurrent clients rather than to application logic. The service is not shown to be production-ready for national-scale load. The honest reading is that the free tier handles light demo traffic and degrades under sustained concurrency; `docs/PATHWAY.md` describes the paid-tier and architecture steps (read replicas, snapshot-based chain appends) a real deployment would need.
+
 ## Other evidence
 
 - The scheduled signed-checkpoint workflow publishes to the public `audit-anchors` branch. An offline check on 2026-11-10 verified all 31 published Ed25519 signatures under a single public key (31 of 31 valid). This shows the publication path works; it is not independent third-party immutability because the branch is in the same repository.
 - Deployment logs confirmed a PostgreSQL connection and Flyway migrations to version 4. Chain sequence numbers continued across repeated service restarts, which is indirect evidence of persistence; a direct restart test is still to be recorded.
 - Earlier, the tamper demonstration in `docs/TAMPER_DEMO.md` was run against a disposable local database.
+- Automated accessibility scan (axe-core with Playwright across five languages and phone and desktop widths) is documented in `docs/ACCESSIBILITY.md`; manual screen-reader testing is not done.
 
 ## Not yet done
 
-No load test, penetration test, accessibility audit, image-reading accuracy evaluation or user study has been completed. None of those figures are claimed.
+No penetration test, manual accessibility test (TalkBack, keyboard run on the live site, 200% zoom), image-reading accuracy evaluation or user study has been completed. A single load test on the free tier has been run (section D); no sustained or paid-tier load test has. None of those figures are claimed.
 
 ## Reporting rules
 
