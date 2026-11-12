@@ -1,10 +1,15 @@
 # Languages
 
-The console and the submit page have a language selector (top bar). Choice is remembered in the browser.
+The console and the submit page have a language selector (top bar). The choice is remembered in the browser.
+
+## Why
+
+The people who check results sheets, from polling-unit officers to observers and reviewers, work in the languages they speak daily. A tool that only works in English leaves them out. This is also part of the hackathon's inclusion and accessibility criterion.
 
 | Language | Status |
 |---|---|
 | English | Source text |
+| Naijá Pidgin | Draft translation, native-speaker review pending |
 | Yorùbá | Draft translation, native-speaker review pending |
 | Igbo | Draft translation, native-speaker review pending |
 | Hausa | Draft translation, native-speaker review pending |
@@ -16,8 +21,8 @@ The console and the submit page have a language selector (top bar). Choice is re
 
 ## Adding or fixing a language
 
-Edit the `X` table (exact strings) and the `P` table (strings with numbers in them) in `i18n.js`. Each row is `[English, Yoruba, Igbo, Hausa]`. To enable Ijaw, add a fourth column mapping `ijc` in `COL` and fill it in.
+Edit the exact-string table and the pattern table in `i18n.js`. Yoruba, Igbo and Hausa share rows of `[English, Yoruba, Igbo, Hausa]`; Pidgin has its own tables. To enable Ijaw, add a dictionary and remove it from the disabled list.
 
 ## Limits
 
-The browser confirmation dialog for deleting the offline queue is not translated. Role names and the server's own error messages stay in English. Translations are drafts: a native speaker should review wording, especially the safety statements about fraud and prototype scope, before the final submission.
+The browser confirmation dialog for deleting the offline queue is not translated. Role names and the server's own error messages stay in English. Translations are drafts: a native speaker should review wording, especially the statements about fraud and prototype scope, before the final submission.
