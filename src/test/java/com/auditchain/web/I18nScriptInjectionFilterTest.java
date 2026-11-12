@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class I18nScriptInjectionFilterTest {
 
-    private static final String PAGE = "<html><body>hello</body></html>";
+    private static final String PAGE = "<html><head><title>t</title></head><body>hello</body></html>";
 
     private final FilterChain htmlChain = (req, res) -> {
         res.setContentType("text/html;charset=UTF-8");
@@ -21,12 +21,14 @@ class I18nScriptInjectionFilterTest {
     };
 
     @Test
-    void injectsScriptBeforeClosingBody() throws Exception {
+    void injectsScriptAndStylesheet() throws Exception {
         var response = new MockHttpServletResponse();
         new I18nScriptInjectionFilter().doFilter(new MockHttpServletRequest("GET", "/index.html"), response, htmlChain);
         String out = response.getContentAsString(StandardCharsets.UTF_8);
         assertTrue(out.contains("/i18n.js"));
         assertTrue(out.indexOf("/i18n.js") < out.indexOf("</body>"));
+        assertTrue(out.contains("/a11y.css"));
+        assertTrue(out.indexOf("/a11y.css") < out.indexOf("</head>"));
         assertTrue(out.contains("hello"));
     }
 

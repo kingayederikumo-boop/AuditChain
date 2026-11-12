@@ -14,14 +14,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Adds the language layer (/i18n.js) to the two public pages without touching their markup.
- * Only GET requests for the console and submit page are affected.
+ * Adds the language layer (/i18n.js) and accessibility refinements (/a11y.css) to the two public pages
+ * without touching their markup. Only GET requests for the console and submit page are affected.
  */
 @Component
 @Order(2)
 public class I18nScriptInjectionFilter extends OncePerRequestFilter {
 
     static final String SCRIPT_TAG = "<script src=\"/i18n.js\" defer></script>";
+    static final String CSS_TAG = "<link rel=\"stylesheet\" href=\"/a11y.css\">";
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -41,9 +42,16 @@ public class I18nScriptInjectionFilter extends OncePerRequestFilter {
             if (body.length > 0 && type != null && type.toLowerCase().contains("text/html")) {
                 Charset charset = StandardCharsets.UTF_8;
                 String html = new String(body, charset);
-                int at = html.lastIndexOf("</body>");
-                if (at >= 0 && !html.contains("/i18n.js")) {
-                    String injected = html.substring(0, at) + SCRIPT_TAG + "\n" + html.substring(at);
+                String injected = html;
+                int head = injected.indexOf("</head>");
+                if (head >= 0 && !injected.contains("/a11y.css")) {
+                    injected = injected.substring(0, head) + CSS_TAG + "\n" + injected.substring(head);
+                }
+                int at = injected.lastIndexOf("</body>");
+                if (at >= 0 && !injected.contains("/i18n.js")) {
+                    injected = injected.substring(0, at) + SCRIPT_TAG + "\n" + injected.substring(at);
+                }
+                if (!injected.equals(html)) {
                     wrapper.resetBuffer();
                     wrapper.getOutputStream().write(injected.getBytes(charset));
                 }
