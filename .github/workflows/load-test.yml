@@ -1,0 +1,29 @@
+name: Load test (manual)
+
+# Runs scripts/load-test.py from a GitHub runner against the deployed service.
+# Start it from the Actions tab (Run workflow). Results appear in the job log and summary.
+on:
+  workflow_dispatch:
+    inputs:
+      requests:
+        description: "Total requests"
+        default: "300"
+      concurrency:
+        description: "Parallel connections"
+        default: "20"
+
+permissions:
+  contents: read
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run load test
+        env:
+          BASE_URL: ${{ vars.AUDITCHAIN_BASE_URL || 'https://auditchain.onrender.com' }}
+        run: |
+          python3 scripts/load-test.py "$BASE_URL" --requests "${{ inputs.requests }}" --concurrency "${{ inputs.concurrency }}" | tee result.txt
+          { echo '### Load test'; echo '```'; cat result.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
