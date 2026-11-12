@@ -1,0 +1,43 @@
+name: Apply verified file blob (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      blob:
+        description: Path of the gzip+base64 text file in the repo
+        required: true
+      target:
+        description: Path to write the decoded file to
+        required: true
+      sha256:
+        description: Expected SHA-256 of the decoded file
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode, verify checksum, commit
+        env:
+          BLOB: ${{ inputs.blob }}
+          TARGET: ${{ inputs.target }}
+          SHA: ${{ inputs.sha256 }}
+        run: |
+          set -euo pipefail
+          base64 -d "$BLOB" | gunzip > /tmp/decoded
+          ACTUAL=$(sha256sum /tmp/decoded | cut -d' ' -f1)
+          echo "expected $SHA"
+          echo "actual   $ACTUAL"
+          if [ "$ACTUAL" != "$SHA" ]; then echo "Checksum mismatch, nothing committed"; exit 1; fi
+          mkdir -p "$(dirname "$TARGET")"
+          cp /tmp/decoded "$TARGET"
+          git rm -q "$BLOB"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$TARGET"
+          git commit -q -m "Apply verified file: $TARGET (sha256 $SHA)"
+          git push
