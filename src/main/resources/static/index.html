@@ -5,119 +5,6 @@
 <meta name="theme-color" content="#08472d">
 <meta name="description" content="AuditChain checks whether saved election result sheets have been changed.">
 <title>AuditChain — Result sheet checker</title>
-<style>
-.hero{background:var(--surface);border-bottom:1px solid var(--line)}
-.hero .wrap{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px 56px;padding-top:44px;padding-bottom:44px}
-.verdict{display:flex;gap:26px;align-items:flex-start}
-.seal{flex:none;width:96px;height:96px;--c:#66756d;--ct:#eef2ef}
-.seal svg{display:block;width:100%;height:100%}
-.seal .ring{fill:none;stroke:var(--c);stroke-width:4}
-.seal .fill{fill:var(--ct)}
-.seal path{fill:none;stroke:var(--c);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;display:none}
-.seal .dots{fill:var(--c);display:none}
-.seal[data-state=ok]{--c:var(--green);--ct:var(--green-t)}
-.seal[data-state=bad]{--c:var(--red);--ct:var(--red-t)}
-.seal[data-state=warn]{--c:var(--amber);--ct:var(--amber-t)}
-.seal[data-state=ok] .i-ok,.seal[data-state=bad] .i-bad,.seal[data-state=warn] .i-warn{display:block}
-.seal[data-state=load] .dots{display:block}
-.verdict h1{font:700 clamp(30px,5vw,48px)/1.1 var(--serif);letter-spacing:-.015em}
-.verdict p{margin:14px 0 0;font-size:18px;line-height:1.55;max-width:54ch;color:var(--ink2)}
-.meta{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-top:22px}
-.meta>span{color:var(--ink2);font-size:14.5px}
-.stats{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:0 28px;align-content:start}
-.stats>div{display:flex;flex-direction:column;padding:16px 0 18px;border-top:1px solid var(--line)}
-.stats dd.v{order:-1;margin:0;font:700 40px/1 var(--serif);letter-spacing:-.02em}
-.stats dt{font-weight:650;margin-top:8px;line-height:1.3}
-.stats dd.h{margin:4px 0 0;color:var(--ink2);font-size:14px;line-height:1.45}
-
-.sec{padding:52px 0}
-.sec+.sec{border-top:1px solid var(--line)}
-.sec h2{font:700 clamp(24px,3.4vw,32px)/1.2 var(--serif);letter-spacing:-.01em}
-.sec .lead{margin:10px 0 0;color:var(--ink2);max-width:62ch;font-size:17px}
-
-.checks{margin:22px 0 0;padding:0;list-style:none;display:grid;gap:0}
-.checks li{display:flex;gap:14px;padding:16px 0;border-top:1px solid var(--line)}
-.checks .ic{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:#e8ede9;color:var(--ink2)}
-.checks .ic.ok{background:var(--green-t);color:var(--green)}
-.checks .ic.bad{background:var(--red-t);color:var(--red)}
-.checks .ic.warn{background:var(--amber-t);color:var(--amber)}
-.checks b{display:block;font-size:17px}
-.checks span.a{display:block;color:var(--ink2);margin-top:2px}
-
-.steps{list-style:none;margin:28px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 8px}
-.steps li{position:relative;padding:0 18px 0 0}
-.steps .num{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;font-weight:700;position:relative;z-index:1}
-.steps li:not(:last-child)::after{content:"";position:absolute;top:17px;left:44px;right:10px;border-top:2px dashed #8fb8a4}
-.steps h3{font:700 19px/1.3 var(--serif);margin-top:14px}
-.steps p{margin:6px 0 0;color:var(--ink2);font-size:15.5px;line-height:1.55}
-
-.tools{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:6px}
-.search{max-width:320px;width:100%}
-.search input[type=search]{margin-top:0}
-.count{color:var(--ink2);font-size:14.5px;margin:12px 0 4px}
-.rec{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.3fr) auto;gap:6px 22px;align-items:center;padding:16px 0;border-top:1px solid var(--line)}
-.rec .n{font-weight:650;overflow-wrap:anywhere}
-.rec .s{color:var(--ink2);font-size:14.5px;margin-top:2px}
-.rec .f{color:var(--ink2);font-size:15px}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:14px;font-weight:650;white-space:nowrap}
-.pill::before{content:"✓";font-weight:700}
-.pill.ok{background:var(--green-t);color:#085c38}
-.pill.warn{background:var(--amber-t);color:var(--amber)}
-.pill.warn::before{content:"!"}
-.pill.na{background:#eaeeeb;color:var(--ink2)}
-.pill.na::before{content:"–"}
-.empty{padding:18px 0;color:var(--ink2);border-top:1px solid var(--line)}
-.rv{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
-.rv b{display:block}
-.rv p{margin:3px 0 0;color:var(--ink2);font-size:15px}
-.rv .tag{flex:none;color:var(--amber);font-weight:650;font-size:14px}
-.rv-none{padding:14px 0;border-top:1px solid var(--line);color:#085c38;font-weight:600}
-
-.acc{margin:12px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
-.acc summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 18px;font:700 18px var(--serif)}
-.acc summary::-webkit-details-marker{display:none}
-.acc summary::after{content:"+";font:400 24px var(--sans);color:var(--green)}
-.acc[open] summary::after{content:"−"}
-.acc ol{margin:0;padding:2px 20px 18px 40px;color:var(--ink2)}
-.acc li{padding:3px 0 3px 4px}
-.gl{margin:24px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 28px}
-.gl dt{font-weight:700}
-.gl dd{margin:4px 0 0;color:var(--ink2);font-size:15.5px}
-.tech{margin-top:26px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.tech summary{cursor:pointer;min-height:52px;display:flex;align-items:center;font-weight:650}
-.tech .body{padding:0 0 16px;color:var(--ink2);font-size:14.5px}
-.tech .e{padding:8px 0;border-top:1px solid var(--line)}
-.mono{font:13px/1.5 var(--mono);overflow-wrap:anywhere;color:#2b3a33;margin-top:2px}
-.scope{margin:30px 0 0;padding:12px 0 12px 16px;border-left:3px solid var(--amber-l);color:#5b3300;font-size:15px;max-width:78ch}
-
-@media (max-width:900px){
- .hero .wrap{grid-template-columns:1fr;gap:28px}
- .steps{grid-template-columns:1fr 1fr;gap:28px 8px}
- .steps li:nth-child(2)::after{display:none}
- .gl{grid-template-columns:1fr}
-}
-@media (max-width:640px){
- .hero .wrap{padding-top:28px;padding-bottom:30px}
- .verdict{flex-direction:column;gap:16px}
- .seal{width:72px;height:72px}
- .verdict p{font-size:17px}
- .sec{padding:38px 0}
- .steps{grid-template-columns:1fr;gap:0}
- .steps li{padding:0 0 26px 52px}
- .steps .num{position:absolute;left:0;top:0}
- .steps li:not(:last-child)::after{top:36px;bottom:2px;left:17px;right:auto;border-top:0;border-left:2px dashed #8fb8a4}
- .steps h3{margin-top:4px}
- .rec{grid-template-columns:1fr;gap:4px}
- .rec .p{margin-top:6px}
- .stats dd{font-size:34px}
-}
-@media (prefers-reduced-motion:no-preference){
- .seal[data-state=ok] .ring,.seal[data-state=bad] .ring,.seal[data-state=warn] .ring{stroke-dasharray:264;stroke-dashoffset:264;animation:draw .9s ease-out forwards}
- .seal[data-state=load] .dots{animation:pulse 1.2s ease-in-out infinite}
- @keyframes draw{to{stroke-dashoffset:0}}
- @keyframes pulse{50%{opacity:.35}}
-}
-</style>
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="skip">Skip to main content</a>
@@ -128,11 +15,11 @@
    <span><b>AuditChain</b><small data-i18n="brand_tag">Result sheet checker</small></span>
   </a>
   <nav class="site-nav" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
-   <a href="#check" data-i18n="nav_check">Check</a>
-   <a href="#how" data-i18n="nav_how">How it works</a>
-   <a href="#sheets" data-i18n="nav_sheets">Result sheets</a>
-   <a href="#use" data-i18n="nav_use">How to use</a>
-   <a href="/submit.html" data-i18n="nav_submit">Send a sheet</a>
+ <a href="/" aria-current="page" data-i18n="nav_check">Check</a>
+ <a href="/sheets.html" data-i18n="nav_sheets">Result sheets</a>
+ <a href="/how-it-works.html" data-i18n="nav_how">How it works</a>
+ <a href="/how-to-use.html" data-i18n="nav_use">How to use</a>
+ <a href="/submit.html" data-i18n="nav_submit">Send a sheet</a>
   </nav>
   <div class="lang">
    <label for="lang" class="sr" data-i18n="lang" style="margin:0">Language</label>
@@ -173,58 +60,26 @@
    </ul>
   </section>
 
-  <section class="sec" id="how" aria-labelledby="hwTitle">
-   <h2 id="hwTitle" data-i18n="hw_title">How AuditChain protects result sheets</h2>
-   <p class="lead" data-i18n="hw_intro">Think of a notebook where each page is stamped with a copy of the page before it. Change an old page and every stamp after it stops matching.</p>
-   <ol class="steps">
-    <li><span class="num" aria-hidden="true">1</span><h3 data-i18n="hw1_t">Save</h3><p data-i18n="hw1_d">An officer sends the figures from a sheet and a photo of it. We save them and give them a unique fingerprint.</p></li>
-    <li><span class="num" aria-hidden="true">2</span><h3 data-i18n="hw2_t">Link</h3><p data-i18n="hw2_d">Each fingerprint also contains the one before it. That is why editing one old sheet breaks every link after it.</p></li>
-    <li><span class="num" aria-hidden="true">3</span><h3 data-i18n="hw3_t">Publish</h3><p data-i18n="hw3_d">Every 6 hours we sign a snapshot of the latest fingerprint and copy it to a public page. Nobody can quietly rewrite history.</p></li>
-    <li><span class="num" aria-hidden="true">4</span><h3 data-i18n="hw4_t">Check</h3><p data-i18n="hw4_d">Anyone can compare the records with the public snapshots. This page does it for you each time you open it.</p></li>
-   </ol>
-  </section>
-
   <section class="sec" aria-labelledby="rvTitle">
    <h2 id="rvTitle" data-i18n="pill_look">Needs a second look</h2>
    <p class="lead" data-i18n="rv_desc">A flag means “please check this sheet”. It does not mean fraud has happened.</p>
    <div id="reviewList" style="margin-top:18px"></div>
   </section>
 
-  <section class="sec" id="sheets" aria-labelledby="shTitle">
-   <div class="tools">
-    <div><h2 id="shTitle" data-i18n="nav_sheets">Result sheets</h2><p class="lead" data-i18n="sh_desc">Every sheet sent in, newest first.</p></div>
-    <div class="search"><label for="recordSearch" class="sr" data-i18n="sh_search_l" style="margin:0">Search result sheets</label><input id="recordSearch" type="search" placeholder="Search by polling unit" data-i18n-attr="placeholder:sh_search_ph"></div>
+  <section class="sec" aria-labelledby="goTitle">
+   <h2 id="goTitle" data-i18n="go_title">Where to next</h2>
+   <div class="cards">
+    <a class="card" href="/sheets.html"><b data-i18n="nav_sheets">Result sheets</b><span data-i18n="sh_desc">Every sheet sent in, newest first.</span></a>
+    <a class="card" href="/how-it-works.html"><b data-i18n="nav_how">How it works</b><span data-i18n="hw_intro">Think of a notebook where each page is stamped with a copy of the page before it. Change an old page and every stamp after it stops matching.</span></a>
+    <a class="card" href="/how-to-use.html"><b data-i18n="nav_use">How to use</b><span data-i18n="card_use">Step-by-step help for officers, observers and reviewers.</span></a>
+    <a class="card" href="/submit.html"><b data-i18n="nav_submit">Send a sheet</b><span data-i18n="card_send">Enter the figures from a result sheet and attach a photo.</span></a>
    </div>
-   <p class="count" id="sheetsCount" role="status"></p>
-   <div id="sheetList"></div>
-   <p style="margin-top:18px"><a class="btn ghost" href="/submit.html"><span data-i18n="nav_submit">Send a sheet</span></a></p>
-  </section>
-
-  <section class="sec" id="use" aria-labelledby="useTitle">
-   <h2 id="useTitle" data-i18n="use_title">How to use this site</h2>
-   <details class="acc" open><summary data-i18n="u1_t">I am a polling officer</summary><ol>
-    <li data-i18n="u1_1">Open “Send a sheet”.</li><li data-i18n="u1_2">Enter your access code and the polling unit code.</li><li data-i18n="u1_3">Type each party’s votes and the total written on the sheet.</li><li data-i18n="u1_4">Add a clear photo of the sheet and press “Send sheet”.</li><li data-i18n="u1_5">No network? The sheet waits on your phone. Press “Send saved sheets” when you are back online.</li></ol></details>
-   <details class="acc"><summary data-i18n="u2_t">I am an observer or journalist</summary><ol>
-    <li data-i18n="u2_1">Read the big message at the top. It says whether anything was changed.</li><li data-i18n="u2_2">Open “Result sheets” to see each sheet and whether its figures add up.</li><li data-i18n="u2_3">Open “Technical details” to copy a fingerprint and compare it with the public snapshots on GitHub.</li></ol></details>
-   <details class="acc"><summary data-i18n="u3_t">I am a reviewer</summary><ol>
-    <li data-i18n="u3_1">Look at “Needs a second look” on the checker page.</li><li data-i18n="u3_2">Compare the figures with the photo of the sheet.</li><li data-i18n="u3_3">Your decision is made with the review tools and added to the same protected history.</li></ol></details>
-   <h3 style="font:700 20px var(--serif);margin-top:34px" data-i18n="gl_title">Words used on this site</h3>
-   <dl class="gl">
-    <div><dt data-i18n="gl_fp">Fingerprint</dt><dd data-i18n="gl_fp_d">A short code worked out from a record. Change one letter in the record and the code changes completely.</dd></div>
-    <div><dt data-i18n="gl_snap">Snapshot</dt><dd data-i18n="gl_snap_d">A signed copy of the latest fingerprint, kept on a public page outside this site.</dd></div>
-    <div><dt data-i18n="gl_look">Second look</dt><dd data-i18n="gl_look_d">A sheet whose figures do not add up, or that the automatic check was unsure about. A person decides what it means.</dd></div>
-   </dl>
-   <div class="tech">
-    <details><summary data-i18n="td_title">Technical details</summary>
-     <div class="body"><p id="techSummary"></p><div id="entries"></div></div>
-    </details>
-   </div>
-   <p class="scope" data-i18n="sc">This is a practice version with made-up data. A clean result means the saved records have not been edited since they were saved. It does not prove the original figures were honest, or that an election result is correct.</p>
   </section>
  </div>
 </main>
 <footer class="foot"><div class="wrap"><span data-i18n="ft">AuditChain · Result sheet integrity prototype</span><span data-i18n="ft2">For demonstrations and authorised testing only</span></div></footer>
 
+<script>(function(){var a=document.querySelector('.site-nav a[aria-current]');if(a){var n=a.parentNode;n.scrollLeft=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;}})();</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
 'use strict';
@@ -266,7 +121,7 @@ var KEY={load:'v_load',ok:'v_ok',bad:'v_bad',cp:'v_cp',part:'v_part',na:'v_na'};
 
 function renderVerdict(){
  var k=verdictKey();
- $('seal').setAttribute('data-state',SEAL[k]);
+ $('seal').setAttribute('data-state',SEAL[k]);document.querySelector('.hero').setAttribute('data-state',SEAL[k]);
  $('verdictTitle').textContent=t(KEY[k]+'_t');
  $('verdictText').textContent=t(KEY[k]+'_d');
  $('lastUpdated').textContent=S.busy?t('checking_now'):S.checkedAt?t('last_checked',{time:S.checkedAt.toLocaleTimeString()}):t('not_checked');
@@ -289,30 +144,6 @@ function renderStats(){
  $('sWait').textContent=c&&isFinite(c.pendingSync)?num(c.pendingSync):'—';
  $('sLook').textContent=c?num(all.filter(function(x){return x.flagged;}).length):'—';
 }
-function row(item){
- var r=document.createElement('article');r.className='rec';
- var l=document.createElement('div');
- var n=document.createElement('div');n.className='n';n.textContent=item.loc||t('unknown_pu');
- var s=document.createElement('div');s.className='s';s.textContent=t('rec_n',{n:item.seq})+(item.ts?' · '+new Date(item.ts).toLocaleString():'');
- l.append(n,s);
- var f=document.createElement('div');f.className='f';
- f.textContent=item.sum!==null&&item.total!==undefined?t('rec_sum',{sum:num(item.sum),total:num(item.total)}):t('rec_nototal');
- var p=document.createElement('div');p.className='p';
- var pill=document.createElement('span');
- var warn=item.diff||item.flagged;
- pill.className='pill '+(warn?'warn':item.sum!==null&&item.total!==undefined?'ok':'na');
- pill.textContent=item.diff?t('pill_diff'):item.flagged?t('pill_look'):item.sum!==null&&item.total!==undefined?t('pill_ok'):t('pill_na');
- p.append(pill);r.append(l,f,p);return r;
-}
-function renderSheets(){
- var box=$('sheetList');box.replaceChildren();
- var q=$('recordSearch').value.trim().toLowerCase();
- if(!S.chain){var e=document.createElement('div');e.className='empty';e.textContent=S.busy?t('sh_load'):t('sh_err');box.append(e);$('sheetsCount').textContent='';return;}
- var list=items().reverse().filter(function(x){return(x.loc+' '+x.seq).toLowerCase().indexOf(q)>=0;});
- $('sheetsCount').textContent=list.length?t(q?'sh_count_q':'sh_count',{n:num(list.length)}):'';
- if(!list.length){var em=document.createElement('div');em.className='empty';em.textContent=q?t('sh_empty_q'):t('sh_empty');box.append(em);return;}
- list.slice(0,50).forEach(function(it){box.append(row(it));});
-}
 function renderReview(){
  var box=$('reviewList');box.replaceChildren();
  var flagged=items().filter(function(x){return x.flagged;});
@@ -329,18 +160,7 @@ function renderReview(){
   r.append(c,tag);box.append(r);
  });
 }
-function renderTech(){
- var c=S.chain;if(!c)return;
- $('techSummary').textContent=t('td_sum',{n:num(c.size!=null?c.size:S.entries.length),hash:c.latestHash||t('td_na')});
- var box=$('entries');box.replaceChildren();
- S.entries.slice().reverse().forEach(function(e){
-  var el=document.createElement('div');el.className='e';
-  var a=document.createElement('div');a.textContent=t('rec_n',{n:e.sequence})+' · '+(e.role||'ENTRY')+' · '+(e.status||'RECORDED');
-  var h=document.createElement('div');h.className='mono';h.textContent=t('gl_fp')+': '+(e.currentHash||t('td_na'));
-  el.append(a,h);box.append(el);
- });
-}
-function renderAll(){renderVerdict();renderChecks();renderStats();renderSheets();renderReview();renderTech();}
+function renderAll(){renderVerdict();renderChecks();renderStats();renderReview();}
 
 function getJson(url){return fetch(url,{headers:{Accept:'application/json'},cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});}
 function loadChain(){
@@ -365,7 +185,6 @@ function refreshAll(){
  Promise.all([loadChain(),loadAnchors()]).then(function(){S.busy=false;S.checkedAt=new Date();renderAll();});
 }
 $('refresh').addEventListener('click',refreshAll);
-$('recordSearch').addEventListener('input',renderSheets);
 document.addEventListener('ac-lang',renderAll);
 refreshAll();
 });
