@@ -1,16 +1,16 @@
 /* AuditChain shared styles: design tokens, header, buttons, forms, page components and accessibility rules.
  * Loaded on every page (injected by I18nScriptInjectionFilter). Light and dark themes follow the device setting. */
 :root{color-scheme:light dark;
- --bg:#f7f7f8;--surface:#fff;--soft:#f0f0f3;--ink:#111114;--ink2:#5a5a63;--line:#e4e4e9;--line2:#c9c9d1;
- --accent:#4f46e5;--accent-h:#4338ca;--on-accent:#fff;--accent-t:#eeedfd;--accent-ink:#3730a3;
- --ok:#0b7a43;--ok-t:#e5f6ec;--bad:#c42b20;--bad-t:#fdeceb;--warn:#a04a00;--warn-t:#fff1d6;--idle:#6b6b75;--idle-t:#eeeef2;
- --glow:rgba(79,70,229,.10);--focus:#4f46e5;--shadow:0 1px 2px rgba(17,17,20,.05),0 10px 28px -14px rgba(17,17,20,.18);
+ --bg:#fff;--surface:#fff;--soft:#f2f4f8;--ink:#0b0d12;--ink2:#555b69;--line:#e3e6ed;--line2:#c6cbd6;
+ --accent:#2f54d8;--accent-h:#2441b5;--on-accent:#fff;--accent-t:#e8eeff;--accent-ink:#223fb0;
+ --ok:#0b7a43;--ok-t:#e5f6ec;--bad:#c42b20;--bad-t:#fdeceb;--warn:#a04a00;--warn-t:#fff1d6;--idle:#5f6676;--idle-t:#eef0f5;
+ --glow:rgba(47,84,216,.10);--focus:#2f54d8;--shadow:0 1px 2px rgba(11,13,18,.05),0 10px 28px -14px rgba(11,13,18,.2);
  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 @media (prefers-color-scheme:dark){:root{
- --bg:#0e0e10;--surface:#17171a;--soft:#222226;--ink:#f3f3f5;--ink2:#a6a6b0;--line:#2b2b31;--line2:#3b3b43;
- --accent:#9b94ff;--accent-h:#b1abff;--on-accent:#0e0e10;--accent-t:#25244a;--accent-ink:#c9c5ff;
- --ok:#5fd39a;--ok-t:#10281d;--bad:#ff8a80;--bad-t:#331614;--warn:#f2b45a;--warn-t:#32250d;--idle:#9a9aa5;--idle-t:#232328;
- --glow:rgba(155,148,255,.14);--focus:#b1abff;--shadow:0 0 0 rgba(0,0,0,0)}}
+ --bg:#0a0b0f;--surface:#13151b;--soft:#1c1f27;--ink:#f4f5f8;--ink2:#a4a9b6;--line:#252934;--line2:#383d4b;
+ --accent:#7f9bff;--accent-h:#9bb1ff;--on-accent:#0a0b0f;--accent-t:#17224f;--accent-ink:#bccaff;
+ --ok:#5fd39a;--ok-t:#10281d;--bad:#ff8a80;--bad-t:#331614;--warn:#f2b45a;--warn-t:#32250d;--idle:#9aa0ae;--idle-t:#1e212a;
+ --glow:rgba(127,155,255,.16);--focus:#9bb1ff;--shadow:0 0 0 rgba(0,0,0,0)}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
@@ -26,13 +26,13 @@ h1,h2,h3{margin:0;letter-spacing:-.02em}
 .site-head{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
 .head-row{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;min-height:44px}
-.brand svg{width:36px;height:36px;flex:none;padding:7px;border-radius:11px;background:linear-gradient(140deg,#6d63f5,#3b32c9);box-shadow:0 4px 12px -4px rgba(79,70,229,.6)}
+.brand svg{width:36px;height:36px;flex:none;padding:7px;border-radius:11px;background:linear-gradient(140deg,#4a6cf0,#1e3aa8);box-shadow:0 4px 12px -4px rgba(47,84,216,.6)}
 .brand b{display:block;font:650 18px/1.1 var(--sans);letter-spacing:-.02em}
 .brand small{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px}
 .site-nav{display:flex;gap:2px;flex-wrap:wrap;padding:4px;background:var(--soft);border-radius:999px}
 .site-nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 15px;border-radius:999px;color:var(--ink2);text-decoration:none;font-size:15px;font-weight:550}
 .site-nav a:hover{color:var(--ink)}
-.site-nav a[aria-current=page]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(17,17,20,.14),0 0 0 1px var(--line)}
+.site-nav a[aria-current=page]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(11,13,18,.14),0 0 0 1px var(--line)}
 .lang select{width:158px;min-height:44px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);padding:0 14px;font:550 15px var(--sans);max-width:100%}
 .banner{background:var(--warn-t);color:var(--warn);font-size:14px;line-height:1.5;text-align:center}
 .banner .wrap{padding-top:8px;padding-bottom:8px}
