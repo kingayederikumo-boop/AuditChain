@@ -29,11 +29,20 @@ h1,h2,h3{margin:0;letter-spacing:-.02em}
 .brand svg{width:36px;height:36px;flex:none;padding:7px;border-radius:11px;background:linear-gradient(140deg,#4a6cf0,#1e3aa8);box-shadow:0 4px 12px -4px rgba(47,84,216,.6)}
 .brand b{display:block;font:650 18px/1.1 var(--sans);letter-spacing:-.02em}
 .brand small{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px}
-.site-nav{display:flex;gap:2px;flex-wrap:wrap;padding:4px;background:var(--soft);border-radius:999px}
-.site-nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 15px;border-radius:999px;color:var(--ink2);text-decoration:none;font-size:15px;font-weight:550}
-.site-nav a:hover{color:var(--ink)}
-.site-nav a[aria-current=page]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(11,13,18,.14),0 0 0 1px var(--line)}
 .lang select{width:158px;min-height:44px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);padding:0 14px;font:550 15px var(--sans);max-width:100%}
+.menu-btn{display:inline-grid;place-items:center;width:44px;height:44px;border:0;border-radius:12px;background:transparent;color:var(--ink);cursor:pointer}
+.menu-btn:hover{background:var(--soft)}
+.menu-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(5,7,12,.5);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.scrim.open{opacity:1;visibility:visible}
+.drawer{position:fixed;z-index:50;top:0;bottom:0;left:0;width:min(310px,86vw);display:flex;flex-direction:column;gap:6px;padding:12px;background:var(--surface);border-right:1px solid var(--line);box-shadow:0 20px 60px rgba(5,7,12,.35);transform:translateX(-102%);visibility:hidden;transition:transform .25s ease,visibility .25s;overflow-y:auto}
+.drawer.open{transform:none;visibility:visible}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 10px 14px;font:650 18px var(--sans);letter-spacing:-.02em}
+.drawer ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.drawer a{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;color:var(--ink2);text-decoration:none;font-weight:550;font-size:16px}
+.drawer a svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.drawer a:hover{background:var(--soft);color:var(--ink)}
+.drawer a[aria-current=page]{background:var(--accent-t);color:var(--accent-ink)}
 .banner{background:var(--warn-t);color:var(--warn);font-size:14px;line-height:1.5;text-align:center}
 .banner .wrap{padding-top:8px;padding-bottom:8px}
 
@@ -165,9 +174,8 @@ input::placeholder{color:var(--ink2);opacity:.8}
 @media (max-width:640px){
  .wrap{padding:0 16px}
  .head-row{gap:6px 12px}
- .site-nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
- .site-nav a{white-space:nowrap;padding:0 13px}
- .lang select{width:132px}
+ .lang select{width:112px}
+ .brand small{display:none}
  .hero .wrap{padding-top:34px;gap:28px}
  .verdict p{font-size:17px}
  .stats dd.v{font-size:32px}

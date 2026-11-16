@@ -10,23 +10,28 @@
 <a class="skip" href="#main" data-i18n="skip">Skip to main content</a>
 <header class="site-head">
  <div class="wrap head-row">
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu" data-i18n-attr="aria-label:nav_menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <a class="brand" href="/" aria-label="AuditChain">
    <svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3 28 7.5v8c0 7.2-4.4 12.4-11 15.5C10.4 27.9 6 22.7 6 15.5v-8L17 3Z"/><path d="m11.5 16.5 4 4 7.5-8.5"/></svg>
    <span><b>AuditChain</b><small data-i18n="brand_tag">Result sheet checker</small></span>
   </a>
-  <nav class="site-nav" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
- <a href="/" data-i18n="nav_check">Check</a>
- <a href="/sheets.html" data-i18n="nav_sheets">Result sheets</a>
- <a href="/how-it-works.html" aria-current="page" data-i18n="nav_how">How it works</a>
- <a href="/how-to-use.html" data-i18n="nav_use">How to use</a>
- <a href="/submit.html" data-i18n="nav_submit">Send a sheet</a>
-  </nav>
   <div class="lang">
    <label for="lang" class="sr" data-i18n="lang" style="margin:0">Language</label>
    <select id="lang"><option value="en">English</option><option value="pcm">Naijá Pidgin</option><option value="yo">Yorùbá</option><option value="ig">Igbo</option><option value="ha">Hausa</option><option value="ijc" disabled>Ịjọ (Ijaw) — translator needed</option></select>
   </div>
  </div>
 </header>
+<div class="scrim" id="scrim"></div>
+<nav class="drawer" id="drawer" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
+ <div class="drawer-head"><span>AuditChain</span><button class="menu-btn" id="menuClose" type="button" aria-label="Close menu" data-i18n-attr="aria-label:nav_close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <ul>
+ <li><a href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span data-i18n="nav_check">Check</span></a></li>
+ <li><a href="/sheets.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg><span data-i18n="nav_sheets">Result sheets</span></a></li>
+ <li><a href="/how-it-works.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span data-i18n="nav_how">How it works</span></a></li>
+ <li><a href="/how-to-use.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z"/><path d="M4 21V5"/></svg><span data-i18n="nav_use">How to use</span></a></li>
+ <li><a href="/submit.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg><span data-i18n="nav_submit">Send a sheet</span></a></li>
+ </ul>
+</nav>
 <div class="banner"><div class="wrap" data-i18n="banner">Practice version. Every record here is made-up test data. Do not enter real election results or personal details.</div></div>
 
 <main id="main">
@@ -40,19 +45,77 @@
     <li><span class="num" aria-hidden="true">3</span><h3 data-i18n="hw3_t">Share</h3><p data-i18n="hw3_d">Every 6 hours we copy the latest stamp to a public page. Nobody can quietly change the past.</p></li>
     <li><span class="num" aria-hidden="true">4</span><h3 data-i18n="hw4_t">Check</h3><p data-i18n="hw4_d">Anyone can compare the saved sheets with the public copies. This site does it for you every time you open it.</p></li>
    </ol>
-   <h3 style="font:700 20px var(--serif);margin-top:34px" data-i18n="gl_title">Words used on this site</h3>
+   <h2 id="ckTitle" style="margin-top:44px" data-i18n="ck_title">What we checked</h2>
+   <ul class="checks">
+    <li><span class="ic" id="icChain" aria-hidden="true">…</span><div><b data-i18n="ck_chain_q">Are the sheets joined up correctly?</b><span class="a" id="txtChain">Checking…</span></div></li>
+    <li><span class="ic" id="icSnap" aria-hidden="true">…</span><div><b data-i18n="ck_snap_q">Do the public copies agree?</b><span class="a" id="txtSnap">Checking…</span></div></li>
+   </ul>
+   <h2 style="margin-top:44px" data-i18n="gl_title">Words used on this site</h2>
    <dl class="gl">
     <div><dt data-i18n="gl_fp">Stamp</dt><dd data-i18n="gl_fp_d">A short code made from a sheet. Change one letter on the sheet and the code changes completely.</dd></div>
     <div><dt data-i18n="gl_snap">Public copy</dt><dd data-i18n="gl_snap_d">A copy of the latest stamp, kept on a public page outside this site.</dd></div>
     <div><dt data-i18n="gl_look">Please check</dt><dd data-i18n="gl_look_d">A sheet whose numbers do not add up, or that our automatic check was unsure about. A person decides what it means.</dd></div>
    </dl>
+   <p class="lead" data-i18n="rv_desc">This only means “please look at this sheet”. It does not mean anyone cheated.</p>
    <p class="scope" data-i18n="sc">This is a practice version with made-up data. A clean result means the saved sheets have not been edited since they were saved. It does not prove the numbers on the sheets were honest, or that an election result is right.</p>
   </section>
  </div>
 </main>
 <footer class="foot"><div class="wrap"><span data-i18n="ft">AuditChain · Result sheet integrity prototype</span><span data-i18n="ft2">For demonstrations and authorised testing only</span></div></footer>
 
-<script>(function(){var a=document.querySelector('.site-nav a[aria-current]');if(a){var n=a.parentNode;n.scrollLeft=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;}})();</script>
+<script>(function(){var b=document.getElementById('menuBtn'),d=document.getElementById('drawer'),s=document.getElementById('scrim'),c=document.getElementById('menuClose');if(!b||!d)return;
+function open(){d.classList.add('open');s.classList.add('open');b.setAttribute('aria-expanded','true');document.documentElement.style.overflow='hidden';setTimeout(function(){c.focus();},60);}
+function close(){d.classList.remove('open');s.classList.remove('open');b.setAttribute('aria-expanded','false');document.documentElement.style.overflow='';b.focus();}
+b.addEventListener('click',open);c.addEventListener('click',close);s.addEventListener('click',close);
+document.addEventListener('keydown',function(e){if(!d.classList.contains('open'))return;if(e.key==='Escape'){close();return;}if(e.key==='Tab'){var x=d.querySelectorAll('a,button'),f=x[0],l=x[x.length-1];if(e.shiftKey&&document.activeElement===f){e.preventDefault();l.focus();}else if(!e.shiftKey&&document.activeElement===l){e.preventDefault();f.focus();}}});
+})();</script>
 
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+'use strict';
+var $=function(i){return document.getElementById(i);};
+var t=function(k,v){return window.AC?window.AC.t(k,v):k;};
+var S={chain:null,anchors:null,entries:[],busy:true,cs:'wait',cn:0,cb:null,ss:'wait',sn:0};
+
+function num(n){return Number(n).toLocaleString();}
+function parse(p){try{return typeof p==='string'?JSON.parse(p):p;}catch(e){return null;}}
+
+function setIcon(id,state){
+ var el=$(id);el.className='ic'+(state==='ok'?' ok':state==='bad'?' bad':state==='wait'?'':' warn');
+ el.textContent=state==='ok'?'✓':state==='bad'?'!':state==='wait'?'…':'–';
+}
+function renderChecks(){
+ var cs=S.cs;setIcon('icChain',cs);
+ $('txtChain').textContent=cs==='ok'?t('ck_chain_ok',{n:num(S.cn)}):cs==='bad'?(S.cb!=null?t('ck_chain_bad_at',{n:S.cb}):t('ck_chain_bad')):cs==='na'?t('ck_na'):t('ck_wait');
+ var ss=S.ss;setIcon('icSnap',ss==='ok'?'ok':ss==='bad'||ss==='int'?'bad':ss==='wait'?'wait':'warn');
+ $('txtSnap').textContent=ss==='ok'?t('ck_snap_ok',{n:num(S.sn)}):ss==='bad'?t('ck_snap_bad'):ss==='int'?t('ck_snap_int'):ss==='none'?t('ck_snap_none'):ss==='na'?t('ck_na'):t('ck_wait');
+}
+function renderAll(){renderChecks();}
+
+function getJson(url){return fetch(url,{headers:{Accept:'application/json'},cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});}
+function loadChain(){
+ return getJson('/api/chain').then(function(d){
+  S.chain=d;S.entries=Array.isArray(d.entries)?d.entries:[];
+    S.cn=isFinite(d.size)?d.size:S.entries.length;
+  if(d.valid===true)S.cs='ok';else if(d.valid===false){S.cs='bad';S.cb=d.breakSequence!=null?d.breakSequence:null;}else S.cs='na';
+ }).catch(function(){S.chain=null;S.entries=[];S.cs='na';}).then(renderAll);
+}
+function loadAnchors(){
+ return getJson('/api/checkpoints/verify').then(function(d){
+  S.anchors=d;S.sn=isFinite(d.externalAnchorCount)?d.externalAnchorCount:0;
+  if(d.internalCheckpointValid===false)S.ss='int';
+  else if(S.sn>0&&d.externalAnchorsValid===true)S.ss='ok';
+  else if(S.sn>0)S.ss='bad';
+  else S.ss='none';
+ }).catch(function(){S.anchors=null;S.ss='na';}).then(renderAll);
+}
+function refreshAll(){
+ S.busy=true;S.chain=null;S.anchors=null;S.cs='wait';S.ss='wait';S.cb=null;renderAll();
+ Promise.all([loadChain(),loadAnchors()]).then(function(){S.busy=false;renderAll();});
+}
+document.addEventListener('ac-lang',renderAll);
+refreshAll();
+});
+</script>
 </body>
 </html>
