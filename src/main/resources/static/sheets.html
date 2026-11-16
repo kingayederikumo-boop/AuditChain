@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" data-title-key="title_sheets">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08472d">
+<meta name="description" content="Every election result sheet saved in AuditChain, with a check on whether its figures add up.">
+<title>AuditChain — Result sheets</title>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to main content</a>
+<header class="site-head">
+ <div class="wrap head-row">
+  <a class="brand" href="/" aria-label="AuditChain">
+   <svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3 28 7.5v8c0 7.2-4.4 12.4-11 15.5C10.4 27.9 6 22.7 6 15.5v-8L17 3Z"/><path d="m11.5 16.5 4 4 7.5-8.5"/></svg>
+   <span><b>AuditChain</b><small data-i18n="brand_tag">Result sheet checker</small></span>
+  </a>
+  <nav class="site-nav" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
+ <a href="/" data-i18n="nav_check">Check</a>
+ <a href="/sheets.html" aria-current="page" data-i18n="nav_sheets">Result sheets</a>
+ <a href="/how-it-works.html" data-i18n="nav_how">How it works</a>
+ <a href="/how-to-use.html" data-i18n="nav_use">How to use</a>
+ <a href="/submit.html" data-i18n="nav_submit">Send a sheet</a>
+  </nav>
+  <div class="lang">
+   <label for="lang" class="sr" data-i18n="lang" style="margin:0">Language</label>
+   <select id="lang"><option value="en">English</option><option value="pcm">Naijá Pidgin</option><option value="yo">Yorùbá</option><option value="ig">Igbo</option><option value="ha">Hausa</option><option value="ijc" disabled>Ịjọ (Ijaw) — translator needed</option></select>
+  </div>
+ </div>
+</header>
+<div class="banner"><div class="wrap" data-i18n="banner">Practice version. Every record here is made-up test data. Do not enter real election results or personal details.</div></div>
+
+<main id="main">
+ <div class="wrap">
+  <section class="sec" id="sheets" aria-labelledby="shTitle">
+   <div class="tools">
+    <div><h1 id="shTitle" data-i18n="nav_sheets">Result sheets</h1><p class="lead" data-i18n="sh_desc">Every sheet sent in, newest first.</p></div>
+    <div class="search"><label for="recordSearch" class="sr" data-i18n="sh_search_l" style="margin:0">Search result sheets</label><input id="recordSearch" type="search" placeholder="Search by polling unit" data-i18n-attr="placeholder:sh_search_ph"></div>
+   </div>
+   <p class="count" id="sheetsCount" role="status"></p>
+   <div id="sheetList"></div>
+   <p style="margin-top:18px"><a class="btn ghost" href="/submit.html"><span data-i18n="nav_submit">Send a sheet</span></a></p>
+   <div class="tech">
+    <details><summary data-i18n="td_title">Technical details</summary>
+     <div class="body"><p id="techSummary"></p><div id="entries"></div></div>
+    </details>
+   </div>
+  </section>
+ </div>
+</main>
+<footer class="foot"><div class="wrap"><span data-i18n="ft">AuditChain · Result sheet integrity prototype</span><span data-i18n="ft2">For demonstrations and authorised testing only</span></div></footer>
+
+<script>(function(){var a=document.querySelector('.site-nav a[aria-current]');if(a){var n=a.parentNode;n.scrollLeft=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;}})();</script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+'use strict';
+var $=function(i){return document.getElementById(i);};
+var t=function(k,v){return window.AC?window.AC.t(k,v):k;};
+var S={chain:null,anchors:null,entries:[],reviews:[],ai:{},busy:true,checkedAt:null,cs:'wait',cn:0,cb:null,ss:'wait',sn:0};
+
+function num(n){return Number(n).toLocaleString();}
+function parse(p){try{return typeof p==='string'?JSON.parse(p):p;}catch(e){return null;}}
+
+function evidence(entry){
+ var p=parse(entry.payload);
+ if(!p||p.type!=='evidence')return null;
+ var d=p.data||{},votes=d.partyVotes&&typeof d.partyVotes==='object'?d.partyVotes:null,sum=null;
+ if(votes){sum=0;Object.keys(votes).forEach(function(k){var n=Number(votes[k]);if(isFinite(n))sum+=n;});}
+ var total=[d.totalVotes,d.total_votes,d.votes_cast].map(Number).filter(isFinite)[0];
+ var ai=S.ai[String(entry.id)]||null;
+ var queued=S.reviews.some(function(x){return String(x.evidenceId)===String(entry.id);});
+ var diff=sum!==null&&total!==undefined&&sum!==total;
+ return{id:entry.id,seq:entry.sequence,loc:p.location||entry.location||'',ts:entry.timestamp,sum:sum,total:total,ai:ai,queued:queued,diff:diff,
+  flagged:diff||!!(ai&&ai.requiresHumanReview)||queued};
+}
+function items(){return S.entries.map(evidence).filter(Boolean);}
+
+function row(item){
+ var r=document.createElement('article');r.className='rec';
+ var l=document.createElement('div');
+ var n=document.createElement('div');n.className='n';n.textContent=item.loc||t('unknown_pu');
+ var s=document.createElement('div');s.className='s';s.textContent=t('rec_n',{n:item.seq})+(item.ts?' · '+new Date(item.ts).toLocaleString():'');
+ l.append(n,s);
+ var f=document.createElement('div');f.className='f';
+ f.textContent=item.sum!==null&&item.total!==undefined?t('rec_sum',{sum:num(item.sum),total:num(item.total)}):t('rec_nototal');
+ var p=document.createElement('div');p.className='p';
+ var pill=document.createElement('span');
+ var warn=item.diff||item.flagged;
+ pill.className='pill '+(warn?'warn':item.sum!==null&&item.total!==undefined?'ok':'na');
+ pill.textContent=item.diff?t('pill_diff'):item.flagged?t('pill_look'):item.sum!==null&&item.total!==undefined?t('pill_ok'):t('pill_na');
+ p.append(pill);r.append(l,f,p);return r;
+}
+function renderSheets(){
+ var box=$('sheetList');box.replaceChildren();
+ var q=$('recordSearch').value.trim().toLowerCase();
+ if(!S.chain){var e=document.createElement('div');e.className='empty';e.textContent=S.busy?t('sh_load'):t('sh_err');box.append(e);$('sheetsCount').textContent='';return;}
+ var list=items().reverse().filter(function(x){return(x.loc+' '+x.seq).toLowerCase().indexOf(q)>=0;});
+ $('sheetsCount').textContent=list.length?t(q?'sh_count_q':'sh_count',{n:num(list.length)}):'';
+ if(!list.length){var em=document.createElement('div');em.className='empty';em.textContent=q?t('sh_empty_q'):t('sh_empty');box.append(em);return;}
+ list.slice(0,50).forEach(function(it){box.append(row(it));});
+}
+function renderTech(){
+ var c=S.chain;if(!c)return;
+ $('techSummary').textContent=t('td_sum',{n:num(c.size!=null?c.size:S.entries.length),hash:c.latestHash||t('td_na')});
+ var box=$('entries');box.replaceChildren();
+ S.entries.slice().reverse().forEach(function(e){
+  var el=document.createElement('div');el.className='e';
+  var a=document.createElement('div');a.textContent=t('rec_n',{n:e.sequence})+' · '+(e.role||'ENTRY')+' · '+(e.status||'RECORDED');
+  var h=document.createElement('div');h.className='mono';h.textContent=t('gl_fp')+': '+(e.currentHash||t('td_na'));
+  el.append(a,h);box.append(el);
+ });
+}
+function renderAll(){renderSheets();renderTech();}
+
+function getJson(url){return fetch(url,{headers:{Accept:'application/json'},cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});}
+function loadChain(){
+ return getJson('/api/chain').then(function(d){
+  S.chain=d;S.entries=Array.isArray(d.entries)?d.entries:[];
+  S.ai={};S.entries.forEach(function(e){var p=parse(e.payload);if(p&&p.type==='AI_CHECK')S.ai[String(p.evidenceId)]=p;});
+  S.cn=isFinite(d.size)?d.size:S.entries.length;
+  if(d.valid===true)S.cs='ok';else if(d.valid===false){S.cs='bad';S.cb=d.breakSequence!=null?d.breakSequence:null;}else S.cs='na';
+ }).catch(function(){S.chain=null;S.entries=[];S.cs='na';}).then(renderAll);
+}
+function loadAnchors(){
+ return getJson('/api/checkpoints/verify').then(function(d){
+  S.anchors=d;S.sn=isFinite(d.externalAnchorCount)?d.externalAnchorCount:0;
+  if(d.internalCheckpointValid===false)S.ss='int';
+  else if(S.sn>0&&d.externalAnchorsValid===true)S.ss='ok';
+  else if(S.sn>0)S.ss='bad';
+  else S.ss='none';
+ }).catch(function(){S.anchors=null;S.ss='na';}).then(renderAll);
+}
+function refreshAll(){
+ S.busy=true;S.chain=null;S.anchors=null;S.cs='wait';S.ss='wait';S.cb=null;renderAll();
+ Promise.all([loadChain(),loadAnchors()]).then(function(){S.busy=false;S.checkedAt=new Date();renderAll();});
+}
+$('recordSearch').addEventListener('input',renderSheets);
+document.addEventListener('ac-lang',renderAll);
+refreshAll();
+});
+</script>
+</body>
+</html>
