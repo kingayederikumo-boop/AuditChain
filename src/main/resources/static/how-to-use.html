@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-title-key="title_use">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08472d">
+<meta name="description" content="Step-by-step help for polling officers, observers and reviewers.">
+<title>AuditChain — How to use</title>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to main content</a>
+<header class="site-head">
+ <div class="wrap head-row">
+  <a class="brand" href="/" aria-label="AuditChain">
+   <svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3 28 7.5v8c0 7.2-4.4 12.4-11 15.5C10.4 27.9 6 22.7 6 15.5v-8L17 3Z"/><path d="m11.5 16.5 4 4 7.5-8.5"/></svg>
+   <span><b>AuditChain</b><small data-i18n="brand_tag">Result sheet checker</small></span>
+  </a>
+  <nav class="site-nav" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
+ <a href="/" data-i18n="nav_check">Check</a>
+ <a href="/sheets.html" data-i18n="nav_sheets">Result sheets</a>
+ <a href="/how-it-works.html" data-i18n="nav_how">How it works</a>
+ <a href="/how-to-use.html" aria-current="page" data-i18n="nav_use">How to use</a>
+ <a href="/submit.html" data-i18n="nav_submit">Send a sheet</a>
+  </nav>
+  <div class="lang">
+   <label for="lang" class="sr" data-i18n="lang" style="margin:0">Language</label>
+   <select id="lang"><option value="en">English</option><option value="pcm">Naijá Pidgin</option><option value="yo">Yorùbá</option><option value="ig">Igbo</option><option value="ha">Hausa</option><option value="ijc" disabled>Ịjọ (Ijaw) — translator needed</option></select>
+  </div>
+ </div>
+</header>
+<div class="banner"><div class="wrap" data-i18n="banner">Practice version. Every record here is made-up test data. Do not enter real election results or personal details.</div></div>
+
+<main id="main">
+ <div class="wrap">
+  <section class="sec" id="use" aria-labelledby="useTitle">
+   <h1 id="useTitle" data-i18n="use_title">How to use this site</h1>
+   <details class="acc" open><summary data-i18n="u1_t">I am a polling officer</summary><ol>
+    <li data-i18n="u1_1">Open “Send a sheet”.</li><li data-i18n="u1_2">Enter your access code and the polling unit code.</li><li data-i18n="u1_3">Type each party’s votes and the total written on the sheet.</li><li data-i18n="u1_4">Add a clear photo of the sheet and press “Send sheet”.</li><li data-i18n="u1_5">No network? The sheet waits on your phone. Press “Send saved sheets” when you are back online.</li></ol></details>
+   <details class="acc"><summary data-i18n="u2_t">I am an observer or journalist</summary><ol>
+    <li data-i18n="u2_1">Read the big message at the top. It says whether anything was changed.</li><li data-i18n="u2_2">Open “Result sheets” to see each sheet and whether its figures add up.</li><li data-i18n="u2_3">Open “Technical details” to copy a fingerprint and compare it with the public snapshots on GitHub.</li></ol></details>
+   <details class="acc"><summary data-i18n="u3_t">I am a reviewer</summary><ol>
+    <li data-i18n="u3_1">Look at “Needs a second look” on the checker page.</li><li data-i18n="u3_2">Compare the figures with the photo of the sheet.</li><li data-i18n="u3_3">Your decision is made with the review tools and added to the same protected history.</li></ol></details>
+
+  </section>
+ </div>
+</main>
+<footer class="foot"><div class="wrap"><span data-i18n="ft">AuditChain · Result sheet integrity prototype</span><span data-i18n="ft2">For demonstrations and authorised testing only</span></div></footer>
+
+<script>(function(){var a=document.querySelector('.site-nav a[aria-current]');if(a){var n=a.parentNode;n.scrollLeft=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;}})();</script>
+
+</body>
+</html>

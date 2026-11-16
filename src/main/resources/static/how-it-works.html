@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-title-key="title_how">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08472d">
+<meta name="description" content="How AuditChain stops saved election result sheets from being changed quietly.">
+<title>AuditChain — How it works</title>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to main content</a>
+<header class="site-head">
+ <div class="wrap head-row">
+  <a class="brand" href="/" aria-label="AuditChain">
+   <svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3 28 7.5v8c0 7.2-4.4 12.4-11 15.5C10.4 27.9 6 22.7 6 15.5v-8L17 3Z"/><path d="m11.5 16.5 4 4 7.5-8.5"/></svg>
+   <span><b>AuditChain</b><small data-i18n="brand_tag">Result sheet checker</small></span>
+  </a>
+  <nav class="site-nav" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
+ <a href="/" data-i18n="nav_check">Check</a>
+ <a href="/sheets.html" data-i18n="nav_sheets">Result sheets</a>
+ <a href="/how-it-works.html" aria-current="page" data-i18n="nav_how">How it works</a>
+ <a href="/how-to-use.html" data-i18n="nav_use">How to use</a>
+ <a href="/submit.html" data-i18n="nav_submit">Send a sheet</a>
+  </nav>
+  <div class="lang">
+   <label for="lang" class="sr" data-i18n="lang" style="margin:0">Language</label>
+   <select id="lang"><option value="en">English</option><option value="pcm">Naijá Pidgin</option><option value="yo">Yorùbá</option><option value="ig">Igbo</option><option value="ha">Hausa</option><option value="ijc" disabled>Ịjọ (Ijaw) — translator needed</option></select>
+  </div>
+ </div>
+</header>
+<div class="banner"><div class="wrap" data-i18n="banner">Practice version. Every record here is made-up test data. Do not enter real election results or personal details.</div></div>
+
+<main id="main">
+ <div class="wrap">
+  <section class="sec" id="how" aria-labelledby="hwTitle">
+   <h1 id="hwTitle" data-i18n="hw_title">How AuditChain protects result sheets</h1>
+   <p class="lead" data-i18n="hw_intro">Think of a notebook where each page is stamped with a copy of the page before it. Change an old page and every stamp after it stops matching.</p>
+   <ol class="steps">
+    <li><span class="num" aria-hidden="true">1</span><h3 data-i18n="hw1_t">Save</h3><p data-i18n="hw1_d">An officer sends the figures from a sheet and a photo of it. We save them and give them a unique fingerprint.</p></li>
+    <li><span class="num" aria-hidden="true">2</span><h3 data-i18n="hw2_t">Link</h3><p data-i18n="hw2_d">Each fingerprint also contains the one before it. That is why editing one old sheet breaks every link after it.</p></li>
+    <li><span class="num" aria-hidden="true">3</span><h3 data-i18n="hw3_t">Publish</h3><p data-i18n="hw3_d">Every 6 hours we sign a snapshot of the latest fingerprint and copy it to a public page. Nobody can quietly rewrite history.</p></li>
+    <li><span class="num" aria-hidden="true">4</span><h3 data-i18n="hw4_t">Check</h3><p data-i18n="hw4_d">Anyone can compare the records with the public snapshots. This page does it for you each time you open it.</p></li>
+   </ol>
+   <h3 style="font:700 20px var(--serif);margin-top:34px" data-i18n="gl_title">Words used on this site</h3>
+   <dl class="gl">
+    <div><dt data-i18n="gl_fp">Fingerprint</dt><dd data-i18n="gl_fp_d">A short code worked out from a record. Change one letter in the record and the code changes completely.</dd></div>
+    <div><dt data-i18n="gl_snap">Snapshot</dt><dd data-i18n="gl_snap_d">A signed copy of the latest fingerprint, kept on a public page outside this site.</dd></div>
+    <div><dt data-i18n="gl_look">Second look</dt><dd data-i18n="gl_look_d">A sheet whose figures do not add up, or that the automatic check was unsure about. A person decides what it means.</dd></div>
+   </dl>
+   <p class="scope" data-i18n="sc">This is a practice version with made-up data. A clean result means the saved records have not been edited since they were saved. It does not prove the original figures were honest, or that an election result is correct.</p>
+  </section>
+ </div>
+</main>
+<footer class="foot"><div class="wrap"><span data-i18n="ft">AuditChain · Result sheet integrity prototype</span><span data-i18n="ft2">For demonstrations and authorised testing only</span></div></footer>
+
+<script>(function(){var a=document.querySelector('.site-nav a[aria-current]');if(a){var n=a.parentNode;n.scrollLeft=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;}})();</script>
+
+</body>
+</html>
