@@ -10,6 +10,12 @@
   var D = {
     title_index: ["AuditChain — Result sheet checker", "AuditChain — Result sheet checker", "AuditChain — Olùṣàyẹ̀wò ìwé àbájáde", "AuditChain — Onye nyocha mpempe akwụkwọ nsonaazụ", "AuditChain — Mai duba takardun sakamako"],
     title_submit: ["AuditChain — Send a result sheet", "AuditChain — Send result sheet", "AuditChain — Fi ìwé àbájáde ránṣẹ́", "AuditChain — Zipu mpempe akwụkwọ nsonaazụ", "AuditChain — Aika takardar sakamako"],
+    title_sheets: ["AuditChain — Result sheets", "AuditChain — Result sheets", "AuditChain — Àwọn ìwé àbájáde", "AuditChain — Mpempe akwụkwọ nsonaazụ", "AuditChain — Takardun sakamako"],
+    title_how: ["AuditChain — How it works", "AuditChain — How e dey work", "AuditChain — Bí ó ṣe ń ṣiṣẹ́", "AuditChain — Otu o si arụ ọrụ", "AuditChain — Yadda yake aiki"],
+    title_use: ["AuditChain — How to use", "AuditChain — How to use am", "AuditChain — Bí a ṣe ń lò ó", "AuditChain — Otu esi eji ya", "AuditChain — Yadda ake amfani"],
+    go_title: ["Where to next", "Where to go next", "Ibi tí a ń lọ tókàn", "Ebe ọzọ ị ga-aga", "Inda za a ci gaba"],
+    card_use: ["Step-by-step help for officers, observers and reviewers.", "Step-by-step help for officers, observers and reviewers.", "Ìrànlọ́wọ́ ní ìgbésẹ̀ kọ̀ọ̀kan fún àwọn oníṣẹ́, olùwòye àti olùyẹ̀wò.", "Nkwado nzọụkwụ ka nzọụkwụ maka ndị ọrụ, ndị nyocha na ndị nlekọta.", "Jagora mataki-mataki ga jami’ai, masu sa ido da masu bita."],
+    card_send: ["Enter the figures from a result sheet and attach a photo.", "Put di figures from result sheet and add photo.", "Tẹ àwọn àmì ìwé àbájáde sínú, kí o sì fi fọ́tò kún un.", "Tinye ọnụọgụgụ si na mpempe akwụkwọ nsonaazụ ma tinye foto.", "Shigar da alkaluman takardar sakamako kuma ka haɗa hoto."],
     skip: ["Skip to main content", "Skip go main content", "Fo lọ sí àkóónú pàtàkì", "Wụga gaa na isi ọdịnaya", "Tsallaka zuwa babban abun ciki"],
     brand_tag: ["Result sheet checker", "Result sheet checker", "Olùṣàyẹ̀wò ìwé àbájáde", "Onye nyocha mpempe akwụkwọ nsonaazụ", "Mai duba takardun sakamako"],
     nav_main: ["Main menu", "Main menu", "Àtòkọ pàtàkì", "Nchịkọta bụ isi", "Babban menu"],

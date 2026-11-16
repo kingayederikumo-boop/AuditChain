@@ -28,7 +28,8 @@ public class I18nScriptInjectionFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         if (!"GET".equalsIgnoreCase(request.getMethod())) return true;
         String path = request.getRequestURI();
-        return !(path.equals("/") || path.equals("/index.html") || path.equals("/submit.html"));
+        return !(path.equals("/") || path.equals("/index.html") || path.equals("/submit.html")
+                || path.equals("/sheets.html") || path.equals("/how-it-works.html") || path.equals("/how-to-use.html"));
     }
 
     @Override

@@ -33,6 +33,17 @@ class I18nScriptInjectionFilterTest {
     }
 
     @Test
+    void injectsIntoEveryPage() throws Exception {
+        for (String page : new String[] {"/", "/submit.html", "/sheets.html", "/how-it-works.html", "/how-to-use.html"}) {
+            var response = new MockHttpServletResponse();
+            new I18nScriptInjectionFilter().doFilter(new MockHttpServletRequest("GET", page), response, htmlChain);
+            String out = response.getContentAsString(StandardCharsets.UTF_8);
+            assertTrue(out.contains("/i18n.js"), page);
+            assertTrue(out.contains("/a11y.css"), page);
+        }
+    }
+
+    @Test
     void leavesOtherPathsUntouched() throws Exception {
         var response = new MockHttpServletResponse();
         new I18nScriptInjectionFilter().doFilter(new MockHttpServletRequest("GET", "/api/chain"), response, htmlChain);

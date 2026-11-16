@@ -26,7 +26,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final byte[] actorHmacSecret;
 
     private static final Set<String> PUBLIC_GET = Set.of(
-            "/health", "/api/chain", "/actuator", "/", "/index.html", "/submit.html", "/i18n.js", "/a11y.css", "/favicon.ico",
+            "/health", "/api/chain", "/actuator", "/", "/index.html", "/submit.html",
+            "/sheets.html", "/how-it-works.html", "/how-to-use.html", "/i18n.js", "/a11y.css", "/favicon.ico",
             "/api/checkpoints/public-key", "/api/checkpoints/verify"
     );
 

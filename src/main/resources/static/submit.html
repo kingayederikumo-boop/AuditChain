@@ -53,11 +53,11 @@ fieldset label:first-of-type{margin-top:10px}
    <span><b>AuditChain</b><small data-i18n="brand_tag">Result sheet checker</small></span>
   </a>
   <nav class="site-nav" aria-label="Main menu" data-i18n-attr="aria-label:nav_main">
-   <a href="/" data-i18n="nav_check">Check</a>
-   <a href="/#how" data-i18n="nav_how">How it works</a>
-   <a href="/#sheets" data-i18n="nav_sheets">Result sheets</a>
-   <a href="/#use" data-i18n="nav_use">How to use</a>
-   <a href="/submit.html" aria-current="page" data-i18n="nav_submit">Send a sheet</a>
+ <a href="/" data-i18n="nav_check">Check</a>
+ <a href="/sheets.html" data-i18n="nav_sheets">Result sheets</a>
+ <a href="/how-it-works.html" data-i18n="nav_how">How it works</a>
+ <a href="/how-to-use.html" data-i18n="nav_use">How to use</a>
+ <a href="/submit.html" aria-current="page" data-i18n="nav_submit">Send a sheet</a>
   </nav>
   <div class="lang">
    <label for="lang" class="sr" data-i18n="lang" style="margin:0">Language</label>
@@ -121,7 +121,7 @@ fieldset label:first-of-type{margin-top:10px}
   <p id="qCount"></p>
   <div class="row"><button id="retry" class="btn ghost small" type="button"><span data-i18n="q_retry">Send saved sheets</span></button><button id="clear" class="btn ghost small" type="button"><span data-i18n="q_clear">Delete saved sheets</span></button></div>
  </section>
- <p class="help"><a href="/#use" data-i18n="sb_help">Need help? Read how to use this site.</a></p>
+ <p class="help"><a href="/how-to-use.html" data-i18n="sb_help">Need help? Read how to use this site.</a></p>
 </main>
 <footer class="foot"><div class="wrap"><span data-i18n="ft">AuditChain · Result sheet integrity prototype</span><span data-i18n="ft2">For demonstrations and authorised testing only</span></div></footer>
 
@@ -235,5 +235,6 @@ addRow();addRow();
 countQueue();
 });
 </script>
+<script>(function(){var a=document.querySelector('.site-nav a[aria-current]');if(a){var n=a.parentNode;n.scrollLeft=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;}})();</script>
 </body>
 </html>

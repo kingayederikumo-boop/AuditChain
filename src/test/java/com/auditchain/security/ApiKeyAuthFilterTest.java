@@ -26,6 +26,9 @@ class ApiKeyAuthFilterTest {
         assertEquals(200, status("GET", "/api/checkpoints/verify", null));
         assertEquals(200, status("GET", "/i18n.js", null));
         assertEquals(200, status("GET", "/a11y.css", null));
+        for (String page : new String[] {"/sheets.html", "/how-it-works.html", "/how-to-use.html"}) {
+            assertEquals(200, status("GET", page, null));
+        }
     }
 
     @Test
