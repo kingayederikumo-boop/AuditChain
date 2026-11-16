@@ -44,9 +44,9 @@
    </div>
    <dl class="stats">
     <div><dt data-i18n="st_sheets">Result sheets saved</dt><dd class="v" id="sSheets">—</dd><dd class="h" data-i18n="st_sheets_h">Every sheet sent in so far</dd></div>
-    <div><dt data-i18n="st_snap">Public snapshots that match</dt><dd class="v" id="sSnap">—</dd><dd class="h" data-i18n="st_snap_h">Signed copies kept on a public page</dd></div>
-    <div><dt data-i18n="st_wait">Waiting to be stored</dt><dd class="v" id="sWait">—</dd><dd class="h" data-i18n="st_wait_h">Received, not yet in the permanent database</dd></div>
-    <div><dt data-i18n="st_look">Need a second look</dt><dd class="v" id="sLook">—</dd><dd class="h" data-i18n="st_look_h">Figures that do not add up or look unusual</dd></div>
+    <div><dt data-i18n="st_snap">Public copies that match</dt><dd class="v" id="sSnap">—</dd><dd class="h" data-i18n="st_snap_h">Copies kept on GitHub for anyone to see</dd></div>
+    <div><dt data-i18n="st_wait">Still being saved</dt><dd class="v" id="sWait">—</dd><dd class="h" data-i18n="st_wait_h">Received, but not saved for good yet</dd></div>
+    <div><dt data-i18n="st_look">Sheets to check</dt><dd class="v" id="sLook">—</dd><dd class="h" data-i18n="st_look_h">Numbers that do not add up</dd></div>
    </dl>
   </div>
  </section>
@@ -55,14 +55,14 @@
   <section class="sec" aria-labelledby="ckTitle">
    <h2 id="ckTitle" data-i18n="ck_title">What we checked</h2>
    <ul class="checks">
-    <li><span class="ic" id="icChain" aria-hidden="true">…</span><div><b data-i18n="ck_chain_q">Are the records linked correctly?</b><span class="a" id="txtChain">Checking…</span></div></li>
-    <li><span class="ic" id="icSnap" aria-hidden="true">…</span><div><b data-i18n="ck_snap_q">Do the public snapshots agree?</b><span class="a" id="txtSnap">Checking…</span></div></li>
+    <li><span class="ic" id="icChain" aria-hidden="true">…</span><div><b data-i18n="ck_chain_q">Are the sheets joined up correctly?</b><span class="a" id="txtChain">Checking…</span></div></li>
+    <li><span class="ic" id="icSnap" aria-hidden="true">…</span><div><b data-i18n="ck_snap_q">Do the public copies agree?</b><span class="a" id="txtSnap">Checking…</span></div></li>
    </ul>
   </section>
 
   <section class="sec" aria-labelledby="rvTitle">
-   <h2 id="rvTitle" data-i18n="pill_look">Needs a second look</h2>
-   <p class="lead" data-i18n="rv_desc">A flag means “please check this sheet”. It does not mean fraud has happened.</p>
+   <h2 id="rvTitle" data-i18n="pill_look">Please check</h2>
+   <p class="lead" data-i18n="rv_desc">This only means “please look at this sheet”. It does not mean anyone cheated.</p>
    <div id="reviewList" style="margin-top:18px"></div>
   </section>
 
@@ -70,7 +70,7 @@
    <h2 id="goTitle" data-i18n="go_title">Where to next</h2>
    <div class="cards">
     <a class="card" href="/sheets.html"><b data-i18n="nav_sheets">Result sheets</b><span data-i18n="sh_desc">Every sheet sent in, newest first.</span></a>
-    <a class="card" href="/how-it-works.html"><b data-i18n="nav_how">How it works</b><span data-i18n="hw_intro">Think of a notebook where each page is stamped with a copy of the page before it. Change an old page and every stamp after it stops matching.</span></a>
+    <a class="card" href="/how-it-works.html"><b data-i18n="nav_how">How it works</b><span data-i18n="hw_intro">Think of a notebook where every page carries a stamp copied from the page before. Change an old page and every stamp after it stops fitting.</span></a>
     <a class="card" href="/how-to-use.html"><b data-i18n="nav_use">How to use</b><span data-i18n="card_use">Step-by-step help for officers, observers and reviewers.</span></a>
     <a class="card" href="/submit.html"><b data-i18n="nav_submit">Send a sheet</b><span data-i18n="card_send">Enter the figures from a result sheet and attach a photo.</span></a>
    </div>
@@ -150,7 +150,7 @@ function renderReview(){
  if(!flagged.length){var e=document.createElement('div');e.className='rv-none';e.textContent=S.chain?t('rv_none'):t('ck_wait');box.append(e);return;}
  flagged.reverse().slice(0,6).forEach(function(it){
   var r=document.createElement('article');r.className='rv';
-  var c=document.createElement('div');var b=document.createElement('b');b.textContent=(it.loc||t('unknown_pu'))+' · '+t('rec_n',{n:it.seq});
+  var c=document.createElement('div');var b=document.createElement('b');b.textContent=(it.loc?t('pu_label',{code:it.loc}):t('unknown_pu'))+' · '+t('rec_n',{n:it.seq});
   var p=document.createElement('p');var parts=[];
   if(it.diff)parts.push(t('rv_diff',{sum:num(it.sum),total:num(it.total)}));
   if(it.ai&&it.ai.requiresHumanReview)parts.push(it.ai.notes||t('rv_ai'));

@@ -40,7 +40,7 @@
    <div id="sheetList"></div>
    <p style="margin-top:18px"><a class="btn ghost" href="/submit.html"><span data-i18n="nav_submit">Send a sheet</span></a></p>
    <div class="tech">
-    <details><summary data-i18n="td_title">Technical details</summary>
+    <details><summary data-i18n="td_title">More details (for experts)</summary>
      <div class="body"><p id="techSummary"></p><div id="entries"></div></div>
     </details>
    </div>
@@ -77,7 +77,7 @@ function items(){return S.entries.map(evidence).filter(Boolean);}
 function row(item){
  var r=document.createElement('article');r.className='rec';
  var l=document.createElement('div');
- var n=document.createElement('div');n.className='n';n.textContent=item.loc||t('unknown_pu');
+ var n=document.createElement('div');n.className='n';n.textContent=item.loc?t('pu_label',{code:item.loc}):t('unknown_pu');
  var s=document.createElement('div');s.className='s';s.textContent=t('rec_n',{n:item.seq})+(item.ts?' · '+new Date(item.ts).toLocaleString():'');
  l.append(n,s);
  var f=document.createElement('div');f.className='f';
@@ -98,13 +98,16 @@ function renderSheets(){
  if(!list.length){var em=document.createElement('div');em.className='empty';em.textContent=q?t('sh_empty_q'):t('sh_empty');box.append(em);return;}
  list.slice(0,50).forEach(function(it){box.append(row(it));});
 }
+var ROLE={PU_OFFICER:'role_pu',LGA_OFFICER:'role_lga',STATE_OFFICER:'role_state',AUDITOR:'role_aud'};
+var STAT={PENDING_SYNC:'ent_pending',SYNCED:'ent_synced',VERIFIED:'ent_verified'};
+function lab(map,v){return map[v]?t(map[v]):(map===ROLE?t('role_other'):t('ent_other'));}
 function renderTech(){
  var c=S.chain;if(!c)return;
  $('techSummary').textContent=t('td_sum',{n:num(c.size!=null?c.size:S.entries.length),hash:c.latestHash||t('td_na')});
  var box=$('entries');box.replaceChildren();
  S.entries.slice().reverse().forEach(function(e){
   var el=document.createElement('div');el.className='e';
-  var a=document.createElement('div');a.textContent=t('rec_n',{n:e.sequence})+' · '+(e.role||'ENTRY')+' · '+(e.status||'RECORDED');
+  var a=document.createElement('div');a.textContent=t('rec_n',{n:e.sequence})+' · '+lab(ROLE,e.role)+' · '+lab(STAT,e.status);
   var h=document.createElement('div');h.className='mono';h.textContent=t('gl_fp')+': '+(e.currentHash||t('td_na'));
   el.append(a,h);box.append(el);
  });
