@@ -1,8 +1,8 @@
 # Accessibility Statement and Test Plan
 
 **Project:** AuditChain  
-**Status:** Automated scan clean after fixes; manual testing still pending. Conformance is not certified.  
-**Last reviewed:** 2026-11-12
+**Status:** Automated scan clean after the November redesign; manual testing still pending. Conformance is not certified.  
+**Last reviewed:** 2026-11-17
 
 ## Goal
 
@@ -21,24 +21,29 @@ The prototype should be usable by people with varied vision, hearing, mobility, 
 - Motion and time limits must not be necessary to understand an outcome.
 - Plain language should explain integrity checks, errors, and whether a result is simulated. The pages can be switched between English, Naijá Pidgin, Yorùbá, Igbo and Hausa (see LANGUAGES.md).
 
-## Automated scan (2026-11-12)
+## Design choices that support access
 
-Method: `scripts/a11y-check.js` runs axe-core 4.10.2 (WCAG 2.0, 2.1 and 2.2 A and AA rules) in Chromium over the console and the submit page in all five languages, at a 360 x 740 phone viewport and a 1280 x 800 desktop viewport (20 runs), with the API mocked using synthetic data. It also checks for horizontal overflow, walks the keyboard focus order on the submit page and lists touch targets under 44 px.
+- Five separate pages (Check, Result sheets, How it works, How to use, Send a sheet) reached from a side menu, instead of one long page.
+- The side menu is a button with `aria-expanded` and `aria-controls`. Opening it moves focus to the close button, Tab stays inside it, Escape closes it and returns focus to the menu button, and the page behind does not scroll while it is open.
+- Onyx, royal blue and white palette with a dark mode that follows the device setting. Green, red, amber and grey are used only for results, and every result also has a text label.
+- Plain wording instead of technical terms, and readable labels instead of raw role and status codes.
+- Sheets entered without a network wait on the phone and can be sent later.
 
-| Finding before fixes | Where | Fix |
-|---|---|---|
-| Submit button text had insufficient contrast (white on `#5278ed`) | Submit page, 10 of 20 runs | Darker button colour (`#3d5fd0`) in `a11y.css` |
-| Form fields had no visible focus outline (only a faint border/shadow) | Submit page | 2 px outline on `:focus-visible` for inputs, textarea and select |
-| Top bar overflowed a 360 px screen (language selector plus refresh/back links) | Console 5 of 5 languages; submit page in Igbo and Hausa (7 of 20 runs) | Top bar wraps on small screens; live-status label hidden on phones |
-| Several controls and the back link were under 44 px tall | Phone viewport | 44 px minimum height on small screens |
+## Automated scan (2026-11-17, after the redesign)
 
-Result after fixes: 0 axe violations and 0 horizontal overflow in 20 of 20 runs; keyboard focus is visible on every stop in the walk; no touch target under 44 px on the submit page.
+Method: axe-core (WCAG 2.0, 2.1 and 2.2 A and AA rules) in Chromium through Playwright over all five pages in all five languages, at a phone viewport and a desktop viewport, in light and dark mode (100 runs), with the API mocked using synthetic data. It also checks for horizontal overflow and page errors. A separate test opens the side menu on every page and checks the focus behaviour above, with axe run on the open menu in light and dark.
 
-Limits of this evidence: automated rules find only part of the possible problems. The data was mocked, the page was served from the repository's static files with the same tags the server injects, and only Chromium was used. The scan does not judge whether translations read correctly or whether the plain-language text is understandable.
+Result: 0 axe violations, 0 horizontal overflow and 0 page errors in 100 of 100 runs; no side menu problems found.
+
+Limits of this evidence: the 100-run harness was run locally and is not yet committed to the repository, so these figures cannot be reproduced from CI. The earlier script `scripts/a11y-check.js` covers only the first two pages. Automated rules find only part of the possible problems. The data was mocked, the pages were served from the repository's static files with the same tags the server injects, and only Chromium was used. The scan does not judge whether translations read correctly or whether the plain-language text is understandable.
+
+### Earlier scan (2026-11-12, previous design)
+
+That scan found low button contrast, missing form focus outlines, a top bar that overflowed a 360 px screen and controls under 44 px tall. All were fixed and the scan was clean; the redesign replaced the button colour and top bar, and the 2026-11-17 scan above supersedes it.
 
 ## Still to do (manual)
 
-1. Screen-reader pass (TalkBack on Android) over submission, verification and review, including announcements of status changes.
+1. Screen-reader pass (TalkBack on Android) over submission, verification and review, including the side menu and announcements of status changes.
 2. Keyboard-only run on the live deployment.
 3. 200% zoom and system large-text settings on a real phone.
 4. Read-through of each translation by a native speaker.

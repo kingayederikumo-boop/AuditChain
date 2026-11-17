@@ -1,6 +1,6 @@
 # Languages
 
-The console and the submit page have a language selector (top bar). The choice is remembered in the browser.
+Every page has a language selector (top bar). The choice is remembered in the browser. The five pages are Check, Result sheets, How it works, How to use and Send a sheet.
 
 ## Why
 
@@ -17,12 +17,12 @@ The people who check results sheets, from polling-unit officers to observers and
 
 ## How it works
 
-`src/main/resources/static/i18n.js` translates text and the `placeholder`, `aria-label` and `title` attributes in the browser, including text the pages create after loading. `I18nScriptInjectionFilter` adds the script tag to the two pages. Strings with no translation stay in English.
+`src/main/resources/static/i18n.js` translates text and the `placeholder`, `aria-label` and `title` attributes in the browser, including text the pages create after loading. It is key based: each piece of text has a key with one entry per language. `I18nScriptInjectionFilter` adds the shared stylesheet and the script tag to all five pages. Strings with no translation stay in English.
 
 ## Adding or fixing a language
 
-Edit the exact-string table and the pattern table in `i18n.js`. Yoruba, Igbo and Hausa share rows of `[English, Yoruba, Igbo, Hausa]`; Pidgin has its own tables. To enable Ijaw, add a dictionary and remove it from the disabled list.
+Edit the key table in `i18n.js`. Each row is `[English, Pidgin, Yoruba, Igbo, Hausa]`. To enable Ijaw, add a dictionary and remove it from the disabled list.
 
 ## Limits
 
-The browser confirmation dialog for deleting the offline queue is not translated. Role names and the server's own error messages stay in English. Translations are drafts: a native speaker should review wording, especially the statements about fraud and prototype scope, before the final submission.
+The browser confirmation dialog for deleting the offline queue is not translated. The server's own error messages stay in English. The wording was simplified in the November redesign (for example "fingerprint" and "Needs review"), and the Yoruba, Igbo and Hausa text for some of those terms still uses the older wording. Translations are drafts: a native speaker should review wording, especially the statements about fraud and prototype scope, before the final submission.
