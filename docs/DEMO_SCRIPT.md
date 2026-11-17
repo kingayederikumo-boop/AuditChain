@@ -2,21 +2,22 @@
 
 **Audience:** hackathon judges and electoral-integrity practitioners.  
 **Rule:** synthetic data only; say "simulated" on screen and aloud.  
-**Target length:** 2:00. Rehearse to 1:50.
+**Target length:** 2:00. Rehearse to 1:50.  
+**Navigation:** the pages are in the side menu (top-left button): Check, Result sheets, How it works, How to use, Send a sheet.
 
 ## 0:00 – 0:15 The problem
 
 "When results sheets move from polling unit to collation, anyone can quietly change a figure and nobody can prove it. AuditChain makes every change visible."
 
-*Screen:* console home. Point at the Records intact status.
+*Screen:* the Check page (home). Point at the big result message that says whether records were changed.
 
 ## 0:15 – 0:45 Submit and flag
 
-*Screen:* submit page. Submit a synthetic sheet whose party figures do not add up to its declared total.
+*Screen:* open the menu, go to Send a sheet. Submit a synthetic sheet whose party figures do not add up to its declared total.
 
 "A polling-unit officer submits a simulated result sheet. The system checks the arithmetic. It does not accuse anyone: it sends the sheet to a human reviewer, and records who did what under a pseudonym."
 
-*Show:* the sheet appearing as needs review.
+*Show:* back on the Check page, the sheet appearing under Needs review.
 
 ## 0:45 – 1:15 Tamper, then detect
 
@@ -26,16 +27,17 @@
 
 ## 1:15 – 1:45 Why signed anchors matter
 
-*Screen:* console Verification section, then the public anchor log.
+*Screen:* menu, How it works (the "What we checked" results), then the public anchor log.
 
 "A clever attacker rewrites the whole chain so it looks consistent. The chain alone cannot see that, and our tests show it: zero of 100. But every few hours a signed checkpoint is published publicly. Against that anchor, all 100 rewrites are caught. Thirty-one signed checkpoints are public now, and anyone can check them."
 
 ## 1:45 – 2:00 Close
 
-"Honest limits: this is a prototype on synthetic data; it checks arithmetic, not images; the anchor log should move to an independent host. It is built to run on a phone and low bandwidth. AuditChain: evidence you can check, not trust."
+"Honest limits: this is a prototype on synthetic data; it checks arithmetic, not images, and the image reader is a mock; the anchor log should move to an independent host. It is built to run on a phone and low bandwidth, in five languages. AuditChain: evidence you can check, not trust."
 
 ## Before recording
 
 - Warm the live service first (cold start is about 80 seconds on the free tier).
 - Use only synthetic sheets; never show an API key on screen.
 - Re-read `docs/EVALUATION.md` and quote only figures that appear there.
+- Record on a phone-width screen to show the side menu and the mobile layout.
