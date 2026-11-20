@@ -41,5 +41,5 @@ This repository does not claim ownership of those third-party components. The pr
 ## Update, 2026-11-20
 
 - **Official starter data.** After the hackathon began, two files from the organisers' public starter pack (`results_synthetic.csv` and `anomaly_labels_HELD_OUT.csv`, Rise Networks, CC BY 4.0) were copied unchanged into `src/test/resources/official-synthetic/` to evaluate the screening rules. They are used for testing only. This supersedes the earlier statement that no downloaded datasets were used.
-- **AI-tool assistance.** An AI assistant (Claude, by Anthropic) helped write code, tests, documentation and interface text, including the sheet rules, the evaluation tests, the redesigned pages and these documents. The owner directed the work and reviewed it. The product's own AI path is a mock provider.
+- **AI-tool assistance.** An AI assistant (Claude, by Anthropic) helped edit/write code, tests, documentation and interface text, including the sheet rules, the evaluation tests, the redesigned pages and these documents. The owner wrote,edited, and directed the work and reviewed it. The product's own AI path is a mock provider.
 
