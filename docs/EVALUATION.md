@@ -73,6 +73,7 @@ What this does not show: `/health` tail latency and a small number of errors got
 
 ## Other evidence
 
+- Results on the organisers' official synthetic data (900 records, 42 injected anomalies): 42 of 42 flagged, 0 of 858 clean records flagged. Method, per-type table and limits are in [EVALUATION_OFFICIAL_DATA.md](EVALUATION_OFFICIAL_DATA.md).
 - The scheduled signed-checkpoint workflow publishes to the public `audit-anchors` branch. An offline check on 2026-11-10 verified all 31 published Ed25519 signatures under a single public key (31 of 31 valid). This shows the publication path works; it is not independent third-party immutability because the branch is in the same repository.
 - Deployment logs confirmed a PostgreSQL connection and Flyway migrations to version 4. Chain sequence numbers continued across repeated service restarts, which is indirect evidence of persistence; a direct restart test is still to be recorded.
 - Earlier, the tamper demonstration in `docs/TAMPER_DEMO.md` was run against a disposable local database.

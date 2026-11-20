@@ -20,7 +20,7 @@ java -jar target/auditchain-0.1.0-SNAPSHOT.jar
 | Hash chain | SHA-256 linked entries, verified on load, append to a broken chain is rejected |
 | Storage | SQLite file-backed (default) or PostgreSQL + Flyway |
 | Evidence | `POST /api/evidence`: SHA-256 fingerprint, durable idempotency, receipt |
-| Screening | Arithmetic check of declared totals against party figures; flagged sheets go to a human review queue (the checker never declares fraud) |
+| Screening | Arithmetic and plausibility rules (party figures against the declared total, votes against accredited voters, accredited against registered, round numbers); flagged sheets go to a human review queue (the checker never declares fraud) |
 | Crypto | Ed25519 signed checkpoints of the chain tip, published to a public anchor log and archived with the Internet Archive |
 | Public verification | `GET /api/checkpoints/verify` compares the live chain with the published signed checkpoints, no login needed |
 | Security | Role API keys (OFFICER / REVIEWER / AUDITOR / ADMIN), default-deny for other mutations, rate limits |
@@ -29,7 +29,7 @@ java -jar target/auditchain-0.1.0-SNAPSHOT.jar
 
 ## Measured results
 
-From the seeded evaluation harness (see [EVALUATION.md](docs/EVALUATION.md)): 0 of 100 clean sheets falsely flagged; 60 of 60 altered totals flagged; 100 of 100 naive record edits detected by the chain; consistent rewrites are missed by the chain alone (0 of 100) and caught against the signed anchored tip (100 of 100). These are synthetic-data results, not field performance.
+From the seeded evaluation harness (see [EVALUATION.md](docs/EVALUATION.md)): 0 of 100 clean sheets falsely flagged; 60 of 60 altered totals flagged; 100 of 100 naive record edits detected by the chain; consistent rewrites are missed by the chain alone (0 of 100) and caught against the signed anchored tip (100 of 100). On the organisers' official synthetic pack (900 records, 42 injected anomalies) the sheet rules flagged 42 of 42 and 0 of 858 clean records ([details](docs/EVALUATION_OFFICIAL_DATA.md)). These are synthetic-data results, not field performance.
 
 ## Auth (environment variables; never commit secrets)
 
@@ -90,6 +90,10 @@ java -jar target/auditchain-*.jar --spring.profiles.active=postgres
 
 - [Privacy notice](docs/PRIVACY.md)
 - [Responsible AI statement](docs/RESPONSIBLE_AI.md)
+- [System card](docs/MODEL_CARD.md)
+- [Safety, privacy and limitations statement](docs/SAFETY_AND_LIMITATIONS.md)
+- [Datasheet](docs/DATASHEET.md)
+- [Evaluation on the official synthetic data](docs/EVALUATION_OFFICIAL_DATA.md)
 - [Accessibility statement and results](docs/ACCESSIBILITY.md)
 - [Languages](docs/LANGUAGES.md)
 - [Evaluation and measured results](docs/EVALUATION.md)
@@ -101,6 +105,10 @@ java -jar target/auditchain-*.jar --spring.profiles.active=postgres
 - [Submission checklist](docs/SUBMISSION_CHECKLIST.md)
 - [2-minute demo script](docs/DEMO_SCRIPT.md)
 
+## AI-tool assistance
+
+This project was built by its owner with the help of an AI assistant (Claude, by Anthropic), used for code, tests, documentation and interface text. The owner directed the work and reviewed it. Details in [PRE_EXISTING_WORK.md](docs/PRE_EXISTING_WORK.md).
+
 ## License
 
-AuditChain's project contributions are licensed under the [MIT License](LICENSE). Third-party dependencies remain subject to their own licenses.
+AuditChain's project contributions are licensed under the [MIT License](LICENSE). Third-party dependencies remain subject to their own licenses. The official synthetic test data in `src/test/resources/official-synthetic/` is from Rise Networks under CC BY 4.0 (see `ATTRIBUTION.md` there).

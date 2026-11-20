@@ -33,6 +33,9 @@
 - [x] [STRIDE threat model](STRIDE_Threat_Model.md), [anchoring setup](ANCHORING.md), [tamper demo](TAMPER_DEMO.md)
 - [x] [2-minute demo script](DEMO_SCRIPT.md)
 - [x] Root [MIT License](../LICENSE)
+- [x] Hackathon template documents: [System card](MODEL_CARD.md), [Safety and limitations](SAFETY_AND_LIMITATIONS.md) (still to be signed), [Datasheet](DATASHEET.md)
+- [x] [Evaluation on the official synthetic data](EVALUATION_OFFICIAL_DATA.md)
+- [x] AI-tool assistance disclosure (README and PRE_EXISTING_WORK.md)
 
 ## Remaining before a fully verified submission
 
@@ -43,7 +46,10 @@
 - [ ] Live HTTP smoke test: health, authentication, submission and receipt, review, checkpoint verification.
 - [ ] Blank or rotate the temporary admin API key.
 - [ ] Independent anchor mirror under a separately administered account, if wanted.
-- [ ] Record and upload the 2-minute video.
+- [ ] Record and upload the 2-minute video (the call says 2 minutes, the rules say 3 minutes maximum: keep it to 2:00).
+- [ ] Confirm with the organisers whether the public repository must be a fork of the hackathon template.
+- [ ] Ask the organisers whether the load test on the project's own service is allowed (Track 4 brief). Do not repeat it until answered.
+- [ ] Sign the Safety and Limitations statement and the participant code of conduct.
 - [ ] Check dependency licences and attribution.
 - [ ] Run CI on the exact final submission commit and record the result.
 

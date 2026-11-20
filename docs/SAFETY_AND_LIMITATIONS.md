@@ -21,7 +21,7 @@
 | Privacy breach or re-identification | Officers, observers | Low | Medium | No personal data by design; HMAC pseudonyms for actor IDs | Pseudonym key must stay secret |
 | Misuse by bad actors | Officers, observers | Low in prototype | High | Role-based keys, rate limits, demo routes admin-only | Temporary admin key still in use |
 | Adversarial manipulation of the record | The public | Medium | High | Hash chain plus signed external checkpoints | Anchor log is in the same repository |
-| Over-reliance on a clean result | The public | Medium | High | Home page and How it works state what a clean result does not prove | Users may still over-trust it |
+| Over-reliance on a clean result | The public | Medium | High | The How it works page states what a clean result does not prove | Users may still over-trust it |
 
 ## 3. Privacy and data protection
 
@@ -30,7 +30,7 @@ No personal data is collected. Records hold synthetic figures, a polling-unit co
 ## 4. Known limitations
 
 - Detects later edits, not a wrong first entry.
-- The image reader is a mock. Photos are stored but not read.
+- The image reader is a mock. It reads the typed figures, not the photo.
 - Consistently falsified sheets are not detected by the rules.
 - Free hosting: sleeps when idle, slow under load, process-local rate limits.
 - Translations unreviewed. Ijaw missing. No screen-reader or real-phone test yet.
