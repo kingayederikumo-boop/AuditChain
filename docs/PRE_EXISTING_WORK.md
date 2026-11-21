@@ -1,45 +1,46 @@
-# Pre-existing Work and Attribution Disclosure
+# Pre-existing Work and Attribution
 
 **Project:** AuditChain  
-**Submission:** #AI4Elections 2026 — Track 4, Electoral Cybersecurity and Resilience  
-**Last reviewed:** 2026-10-30
+**Entry:** #AI4Elections 2026, Track 4 (Electoral Cybersecurity and Resilience)  
+**Last reviewed:** 2026-11-21
 
-## Purpose
+## What this page is for
 
-This disclosure distinguishes the AuditChain work represented in this repository from third-party tools and any earlier work relevant to the submission. The project owner has confirmed the first three items in the owner-confirmation checklist below. The owner has also confirmed that the demo uses fictional/test records and project-owned code only, with no imported real election data, downloaded datasets, or outside images; the owner confirms the repository history is accurate.
+This page says what is new work, what comes from other people, and what existed before. The project owner has confirmed each item in the checklist below.
 
-## AuditChain-specific work
+## What is new
 
-The public GitHub repository `kingayederikumo-boop/AuditChain` was created on 2026-10-23 according to GitHub repository metadata. The project owner confirms that no AuditChain code, architecture, design, or documentation existed before work on this project began, and that no components were reused from an earlier project.
+- The repository `kingayederikumo-boop/AuditChain` was created on 2026-10-23 (GitHub's own record).
+- No AuditChain code, design or documentation existed before this project started.
+- Nothing was reused from an earlier project.
+- The repository holds the prototype, its documentation, tests, Docker setup and CI workflow.
+- AuditChain is a simulated, defensive audit trail for synthetic result sheets. Every record is linked to the one before it by a hash, and it can be used offline.
 
-The repository contains the AuditChain prototype, documentation, tests, container/deployment configuration, and CI workflow. Its described scope is a simulated, defensive, offline-tolerant, hash-chained audit trail for synthetic electoral-results transmission.
+## Who owns the work
 
-## Contributors and rights
+This is a solo project. To the owner's knowledge, no teammate, mentor, employer, school or client has any rights in it.
 
-The project owner confirms that this is an individual project and that no teammate, mentor, employer, school, client, or other contributor has rights in the submitted work, to the owner's knowledge.
+## Other people's software
 
-## Third-party software
+AuditChain uses open-source tools: Java, Spring Boot, Maven, SQLite and PostgreSQL drivers, Docker and GitHub Actions. Their own licences still apply. The full list is in `pom.xml`. The licences of the indirect dependencies still need a check before release.
 
-The project depends on third-party open-source libraries and tools, including Java, Spring Boot, Maven, SQLite/PostgreSQL drivers and related libraries, Docker, and GitHub Actions. Their respective copyright and license terms remain applicable. The dependency manifest is `pom.xml`; transitive dependency licenses should be reviewed as part of release preparation.
+This project does not claim to own any of them. The project licence covers only the code and text written for AuditChain.
 
-This repository does not claim ownership of those third-party components. The project license applies to the project's own copyrightable contributions, not to third-party dependencies or trademarks.
+## Data and AI
 
-## Data, models, and assets
+- The demo uses fictional test records only. No real election data is used.
+- The built-in "AI" reader is a mock. It reads typed figures, not images.
+- The only outside data is the official starter data, described in the update below.
 
-- The intended demo dataset is synthetic; no real electoral records should be used.
-- The default AI vision path is a mock provider. Any optional external model/provider is separately governed by its terms.
-- The project owner confirms that the submitted demo uses fictional/test records and project-owned code only; no real election data, downloaded datasets, or outside images were imported. The default AI vision path is a mock provider. Revisit this disclosure if the submission later adds external datasets, model outputs, images, or other assets.
+## Owner checklist
 
-## Owner confirmation status
-
-- [x] Confirmed: no AuditChain code, architecture, design, or documentation existed before this project began.
-- [x] Confirmed: no code or designs were reused from an earlier personal/team project.
-- [x] Confirmed: individual project; no other contributor or third party has rights in the submitted work, to the owner's knowledge.
-- [x] Confirmed: fictional/test records and project-owned code only; no imported real election data, downloaded datasets, or outside images.
-- [x] Confirmed: repository commit history accurately represents the development timeline; no work was imported from another source.
+- [x] No AuditChain code, design or documentation existed before this project began.
+- [x] Nothing was reused from an earlier personal or team project.
+- [x] This is an individual project. To the owner's knowledge, nobody else has rights in it.
+- [x] The demo uses fictional test records and project-owned code only (see the update below for the starter data).
+- [x] The commit history is an accurate record of the work. Nothing was imported from another source.
 
 ## Update, 2026-11-20
 
-- **Official starter data.** After the hackathon began, two files from the organisers' public starter pack (`results_synthetic.csv` and `anomaly_labels_HELD_OUT.csv`, Rise Networks, CC BY 4.0) were copied unchanged into `src/test/resources/official-synthetic/` to evaluate the screening rules. They are used for testing only. This supersedes the earlier statement that no downloaded datasets were used.
-- **AI-tool assistance.** An AI assistant (Claude, by Anthropic) helped edit/write code, tests, documentation and interface text, including the sheet rules, the evaluation tests, the redesigned pages and these documents. The owner wrote,edited, and directed the work and reviewed it. The product's own AI path is a mock provider.
-
+- **Official starter data.** After the hackathon began, two files from the organisers' public starter pack were copied unchanged into `src/test/resources/official-synthetic/`: `results_synthetic.csv` and `anomaly_labels_HELD_OUT.csv` (Rise Networks, CC BY 4.0). They are used only to test the screening rules. This replaces the earlier statement that no downloaded datasets were used.
+- **AI tool help.** An AI assistant (Claude, by Anthropic) helped write and edit code, tests, documents and interface text. This includes the sheet rules, the evaluation tests, the redesigned pages and these documents. The owner wrote, edited, directed and reviewed the work.
